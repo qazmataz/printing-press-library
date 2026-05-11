@@ -133,6 +133,12 @@ from either an active plan (--reuse-last) or a localStorage-shape JSON file
 			if len(items) == 0 {
 				return usageErr(fmt.Errorf("cart is empty"))
 			}
+			if rid <= 0 {
+				return usageErr(fmt.Errorf("--restid is required (numeric restaurant id; the API rejects requests with restid=0)"))
+			}
+			if slug == "" {
+				return usageErr(fmt.Errorf("--restaurant is required (restaurant slug, e.g. mixsushibarlin)"))
+			}
 
 			tip, err := parseTip(tipSpec, subtotal, cfg)
 			if err != nil {
@@ -266,12 +272,6 @@ func ifNil(s []any) []any {
 		return []any{}
 	}
 	return s
-}
-
-func stringToInt(s string) (int, error) {
-	var n int
-	_, err := fmt.Sscanf(s, "%d", &n)
-	return n, err
 }
 
 func buildPostOrderBody(cfg *config.Config, items []cartItem, subtotal, tip float64, slug string, restID int) postOrderBody {
