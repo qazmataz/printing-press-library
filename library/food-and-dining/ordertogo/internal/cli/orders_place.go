@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -159,6 +160,15 @@ from either an active plan (--reuse-last) or a localStorage-shape JSON file
 				redacted.Param.PaymentCard.DefaultCardMap = map[string]any{"key": "<REDACTED>"}
 				redacted.Param.PaymentCard.PhoneNum = "<REDACTED>"
 				redacted.Param.CustomerPhone = "<REDACTED>"
+				// PATCH: CustomerName is PII alongside CustomerPhone and the
+				// payment-card fields. Redact it in verify-mode dumps so
+				// PRINTING_PRESS_VERIFY=1 snapshots can be shared without
+				// leaking the configured account holder's name. paymentCard
+				// firstname/lastname carry the same name split across two
+				// fields, so redact them too.
+				redacted.Param.CustomerName = "<REDACTED>"
+				redacted.Param.PaymentCard.FirstName = "<REDACTED>"
+				redacted.Param.PaymentCard.LastName = "<REDACTED>"
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"status":     "would_post",
 					"endpoint":   "/m/api/postmicmeshorder",
@@ -328,6 +338,16 @@ func parsePostOrderResponse(data []byte, slug string) (postOrderResult, error) {
 			CardType      string  `json:"cardType"`
 			CardID        string  `json:"cardId"`
 		} `json:"transaction"`
+		// PATCH: Capture the order block so we can build the tracking URL.
+		// The web client routes to /trackorder/<restname>/<orderid> after a
+		// successful checkout (mesh.order.js micmeshCheckout success), where
+		// <restname> is the prefix of order.orderToken (split by "_", pop
+		// the trailing order-id segment, rejoin). Mirror that here so agent
+		// callers can deep-link the same way without re-parsing the token.
+		Order struct {
+			OrderID    int    `json:"orderid"`
+			OrderToken string `json:"orderToken"`
+		} `json:"order"`
 	}
 	if err := json.Unmarshal(data, &wrapper); err != nil {
 		return r, fmt.Errorf("response is not valid JSON: %w", err)
@@ -344,6 +364,19 @@ func parsePostOrderResponse(data []byte, slug string) (postOrderResult, error) {
 	r.Status = t.Status
 	r.CardType = t.CardType
 	r.CardID = t.CardID
+	// Build TrackURL using the same logic as the web client: prefer the
+	// restname derived from order.orderToken, falling back to the slug
+	// passed in (matches context.rest.name in the JS path).
+	restname := slug
+	if wrapper.Order.OrderToken != "" {
+		parts := strings.Split(wrapper.Order.OrderToken, "_")
+		if len(parts) > 1 {
+			restname = strings.Join(parts[:len(parts)-1], "_")
+		}
+	}
+	if restname != "" {
+		r.TrackURL = "/trackorder/" + restname + "/" + strconv.Itoa(t.OrderID)
+	}
 	return r, nil
 }
 

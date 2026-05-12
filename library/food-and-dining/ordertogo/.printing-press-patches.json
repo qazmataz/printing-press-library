@@ -71,6 +71,16 @@
         "internal/config/config.go"
       ],
       "validated_outcome": "ordertogo-pp-cli orders list returns 58 real orders (Sep 2025 through May 2026). sync --orders ingests 58 rows. Verified against the same user account whose live /history page renders the same 58 entries from /api/getUserOrderHistoryByUserid."
+    },
+    {
+      "id": "ordertogo-orders-place-trackurl-and-name-redaction",
+      "applied_at": "2026-05-12",
+      "summary": "orders place now populates postOrderResult.TrackURL from order.orderToken, and verifyMode redacts CustomerName plus paymentCard firstname/lastname alongside the other PII fields.",
+      "reason": "Greptile P2 #1: TrackURL was declared on postOrderResult but never assigned, so agent callers could not deep-link to the tracking page after a successful order. The web client builds /trackorder/<restname>/<orderid> by splitting order.orderToken (mesh.order.js micmeshCheckout success); mirror that. Greptile P2 #2: verifyMode redacted StripeCustomer, DefaultCardMap, PaymentCard.PhoneNum, and CustomerPhone but left CustomerName plus paymentCard firstname/lastname in plaintext, so PRINTING_PRESS_VERIFY=1 dumps leaked the account holder's full name.",
+      "files": [
+        "internal/cli/orders_place.go"
+      ],
+      "validated_outcome": "Build, vet pass. PRINTING_PRESS_VERIFY=1 dry-run now redacts all six PII fields (customername, customerphone, paymentCard.firstname/lastname/phonenum, st_cus_id) and DefaultCardMap. Response parser captures order.orderToken so postOrderResult.TrackURL is populated for downstream tooling."
     }
   ]
 }
