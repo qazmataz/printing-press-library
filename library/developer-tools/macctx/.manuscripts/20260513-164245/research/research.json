@@ -1,18 +1,23 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-05-14T05:28:10.935482Z",
-  "printing_press_version": "2.3.9",
   "api_name": "macctx",
-  "display_name": "macctx",
-  "cli_name": "macctx-pp-cli",
-  "owner": "hiten-shah",
-  "printer_name": "Hiten Shah",
-  "spec_format": "plan",
-  "mcp_ready": "none",
-  "api_version": "0.2.0",
-  "auth_type": "none",
-  "category": "developer-tools",
-  "description": "Agent-native macOS context and guarded computer-use CLI backed by Peekaboo.",
+  "novelty_score": 9,
+  "alternatives": [
+    {"name": "Peekaboo", "notes": "Low-level macOS UI automation engine."},
+    {"name": "AppleScript/osascript", "notes": "Scriptable but not agent-native JSON context."},
+    {"name": "Shortcuts", "notes": "User automation system, not a shell-first agent context surface."}
+  ],
+  "gaps": [
+    "No privacy-safe context bundle designed for AI agents.",
+    "No dry-run-first shell layer for computer-use actions.",
+    "No markdown handoff that summarizes current Mac state for agent prompts."
+  ],
+  "patterns": [
+    "Use native macOS permissions and local UI automation.",
+    "Expose machine-readable JSON for agent runtimes.",
+    "Separate observation from action."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-14T05:24:00Z",
   "novel_features": [
     {
       "name": "Agent context dump",
@@ -50,8 +55,5 @@
       "why_it_matters": "Keeps agent context useful without silently exfiltrating secrets.",
       "group": "Safety"
     }
-  ],
-  "printer": "hiten-shah",
-  "run_id": "20260513-164245",
-  "run_type": "plan-driven"
+  ]
 }

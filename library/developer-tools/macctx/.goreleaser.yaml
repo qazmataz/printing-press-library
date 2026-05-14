@@ -1,0 +1,29 @@
+version: 2
+project_name: macctx-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: macctx-pp-cli
+    main: ./cmd/macctx-pp-cli
+    binary: macctx-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/macctx/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: macctx-pp-cli
+    repository:
+      owner: hiten-shah
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Agent-native macOS context and guarded computer-use CLI backed by Peekaboo."
+    install: |
+      bin.install "macctx-pp-cli"

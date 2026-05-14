@@ -1,0 +1,8 @@
+{
+  "staged_dir": "/tmp/macctx-publish-stage/library/developer-tools/macctx",
+  "cli_name": "macctx-pp-cli",
+  "api_name": "macctx",
+  "category": "developer-tools",
+  "module_path": "github.com/mvanhorn/printing-press-library/library/developer-tools/macctx",
+  "manuscripts_included": false
+}
