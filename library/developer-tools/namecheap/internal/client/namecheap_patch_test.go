@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"namecheap-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/config"
 )
 
 func TestNamecheapPrepareRequestInjectsAuthAndCommand(t *testing.T) {

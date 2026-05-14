@@ -1,4 +1,4 @@
-module namecheap-pp-cli
+module github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap
 
 go 1.23.0
 

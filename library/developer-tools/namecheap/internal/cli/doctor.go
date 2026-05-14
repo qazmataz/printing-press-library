@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/store"
 	"github.com/spf13/cobra"
-	"namecheap-pp-cli/internal/client"
-	"namecheap-pp-cli/internal/config"
-	"namecheap-pp-cli/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

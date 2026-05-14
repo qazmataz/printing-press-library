@@ -13,9 +13,9 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/config"
 	"github.com/spf13/cobra"
-	"namecheap-pp-cli/internal/client"
-	"namecheap-pp-cli/internal/config"
 )
 
 var version = "1.0.0"

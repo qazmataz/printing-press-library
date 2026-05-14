@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/store"
 	"github.com/spf13/cobra"
-	"namecheap-pp-cli/internal/store"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {

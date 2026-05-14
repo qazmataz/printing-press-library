@@ -6,8 +6,8 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/store"
 	"github.com/spf13/cobra"
-	"namecheap-pp-cli/internal/store"
 	"net/url"
 	"os"
 	"regexp"

@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"namecheap-pp-cli/internal/cliutil"
-	"namecheap-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/config"
 )
 
 type Client struct {
@@ -241,7 +241,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
 		}
-		req.Header.Set("User-Agent", "namecheap-pp-cli/1.0")
+		req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/1.0")
 
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {

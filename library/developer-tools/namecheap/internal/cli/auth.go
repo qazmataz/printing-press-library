@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/config"
 	"github.com/spf13/cobra"
-	"namecheap-pp-cli/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {

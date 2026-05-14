@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"namecheap-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/cli"
 )
 
 func main() {

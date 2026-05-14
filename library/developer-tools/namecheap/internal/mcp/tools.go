@@ -14,12 +14,12 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"namecheap-pp-cli/internal/cli"
-	"namecheap-pp-cli/internal/client"
-	"namecheap-pp-cli/internal/cliutil"
-	"namecheap-pp-cli/internal/config"
-	"namecheap-pp-cli/internal/mcp/cobratree"
-	"namecheap-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/namecheap/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.
