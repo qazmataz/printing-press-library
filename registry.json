@@ -1346,7 +1346,8 @@
       "mcp": {
         "binary": "linear-pp-mcp",
         "transports": [
-          "stdio"
+          "stdio",
+          "http"
         ],
         "tool_count": 28,
         "public_tool_count": 0,
