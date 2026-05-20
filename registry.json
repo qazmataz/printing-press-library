@@ -311,6 +311,30 @@
       }
     },
     {
+      "name": "bird",
+      "category": "social-and-messaging",
+      "api": "Bird",
+      "description": "A terminal-native CLI for Bird's Conversations and SMS APIs, with offline search, batch reconcile, and a local...",
+      "path": "library/social-and-messaging/bird",
+      "printer": "CleverAI-ZH",
+      "printer_name": "Stephan Stoeber",
+      "mcp": {
+        "binary": "bird-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 42,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "BIRD_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "cal-com",
       "category": "productivity",
       "api": "Cal.com",
@@ -2004,6 +2028,29 @@
         "public_tool_count": 98,
         "auth_type": "none",
         "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "pop",
+      "category": "payments",
+      "api": "POP",
+      "description": "POP API for European electronic invoicing workflows. This Printing Press blueprint intentionally exposes only the...",
+      "path": "library/payments/pop",
+      "printer": "mircobabini",
+      "printer_name": "Mirco Babini",
+      "mcp": {
+        "binary": "pop-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 8,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "POP_API_KEY"
+        ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
