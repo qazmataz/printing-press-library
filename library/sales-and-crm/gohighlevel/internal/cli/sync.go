@@ -1415,12 +1415,9 @@ func deriveContactsTagsFromPage(db *store.Store, items []json.RawMessage) error 
 		}
 		dateUpdated, _ := contact["dateUpdated"].(string)
 		tagsRaw, ok := contact["tags"]
-		if !ok || tagsRaw == nil {
-			continue
-		}
-		tagsArr, ok := tagsRaw.([]any)
-		if !ok {
-			continue
+		var tagsArr []any
+		if ok && tagsRaw != nil {
+			tagsArr, _ = tagsRaw.([]any)
 		}
 		var rowJSONs []json.RawMessage
 		var tagNames []string

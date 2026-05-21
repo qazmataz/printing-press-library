@@ -128,6 +128,45 @@ func TestDeriveContactsTagsFromPage_PrunesRemovedTags(t *testing.T) {
 	}
 }
 
+func TestDeriveContactsTagsFromPage_PrunesWhenTagsMissingOrNull(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+
+	if err := deriveContactsTagsFromPage(db, []json.RawMessage{
+		json.RawMessage(`{"id":"contact-1","dateUpdated":"2026-05-20T00:00:00Z","tags":["alpha"]}`),
+		json.RawMessage(`{"id":"contact-2","dateUpdated":"2026-05-20T00:00:00Z","tags":["beta"]}`),
+	}); err != nil {
+		t.Fatalf("seed deriveContactsTagsFromPage: %v", err)
+	}
+	if err := deriveContactsTagsFromPage(db, []json.RawMessage{
+		json.RawMessage(`{"id":"contact-1","dateUpdated":"2026-05-21T00:00:00Z"}`),
+		json.RawMessage(`{"id":"contact-2","dateUpdated":"2026-05-21T00:00:00Z","tags":null}`),
+	}); err != nil {
+		t.Fatalf("prune deriveContactsTagsFromPage: %v", err)
+	}
+
+	for _, contactID := range []string{"contact-1", "contact-2"} {
+		var typed int
+		if err := db.DB().QueryRow(`SELECT COUNT(*) FROM "contacts_tags" WHERE "contacts_id" = ?`, contactID).Scan(&typed); err != nil {
+			t.Fatalf("count typed contacts_tags for %s: %v", contactID, err)
+		}
+		if typed != 0 {
+			t.Fatalf("typed contacts_tags count for %s = %d, want 0", contactID, typed)
+		}
+
+		var generic int
+		if err := db.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = ? AND json_extract(data, '$.contacts_id') = ?`, "contacts_tags", contactID).Scan(&generic); err != nil {
+			t.Fatalf("count generic contacts_tags for %s: %v", contactID, err)
+		}
+		if generic != 0 {
+			t.Fatalf("generic contacts_tags count for %s = %d, want 0", contactID, generic)
+		}
+	}
+}
+
 func TestAnnotateLocationsTagsItems_AddsLocationIDForTypedUpsert(t *testing.T) {
 	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
 	if err != nil {
