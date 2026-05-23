@@ -276,6 +276,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newMoversCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 	addMarketsDiffCmd(rootCmd, flags)
+	rootCmd.AddCommand(newPolymarketCmd(flags))
+	rootCmd.AddCommand(newKalshiSeriesSearchCmd(flags))
 
 	return rootCmd
 }

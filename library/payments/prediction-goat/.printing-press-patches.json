@@ -3,5 +3,34 @@
   "applied_at": "2026-05-23",
   "base_run_id": "20260522-175728",
   "base_printing_press_version": "4.10.0",
-  "patches": []
+  "patches": [
+    {
+      "id": "dogfood-fixes-2026-05-22",
+      "summary": "Patch topic/compare/mispriced and add Polymarket+Kalshi discovery helpers to close the 16 gaps surfaced by live dogfooding (NBA WCF, Kanye, NBA draft, World Cup).",
+      "reason": "topic FTS query AND-joined hyphenated terms and the BM25-only ranker buried high-volume series markets, dropping participants from multi-outcome events. Kalshi sync wrote list-shape payloads with null prices. compare and mispriced returned opaque empty results on no-pair. The /public-search proxy missed Polymarket celebrity hub topics. Discovery commands (polymarket event-of, polymarket siblings, kalshi-series-search) were missing.",
+      "files": [
+        "internal/cli/topic.go",
+        "internal/cli/topic_test.go",
+        "internal/cli/compare.go",
+        "internal/cli/compare_test.go",
+        "internal/cli/mispriced.go",
+        "internal/cli/mispriced_test.go",
+        "internal/cli/liquid.go",
+        "internal/cli/trending.go",
+        "internal/cli/kalshi.go",
+        "internal/cli/polymarket_walk.go",
+        "internal/cli/kalshi_series_search.go",
+        "internal/cli/root.go",
+        "internal/source/kalshi/client.go",
+        "internal/source/kalshi/backfill.go",
+        "internal/source/kalshi/backfill_test.go",
+        "internal/source/polymarket/walk.go",
+        "internal/source/polymarket/walk_test.go",
+        "SKILL.md",
+        "README.md"
+      ],
+      "validated_outcome": "topic kanye returns the same hit count as topic kanye-west; topic 'NBA Western Conference Finals' surfaces KXNBAWEST; topic 2026-world-cup force-includes USA; polymarket siblings will-ghana-win-the-2026-fifa-world-cup includes the USA market with non-null yesPercent; kalshi sync backfills active high-volume markets; compare returns structured unpaired diagnostic on no-pair; mispriced skips untraded; new commands registered.",
+      "upstream_issue": "Pending: file against mvanhorn/cli-printing-press to backport ranker + discovery shape into the generator templates."
+    }
+  ]
 }

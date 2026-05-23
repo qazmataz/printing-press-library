@@ -14,6 +14,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/source/polymarket"
 	"github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/store"
 )
 
@@ -58,6 +59,7 @@ func newTopicCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var activeOnly bool
 	var withPrices bool
+	var expand bool
 	cmd := &cobra.Command{
 		Use:   "topic <name>",
 		Short: "Cross-venue topic bundle (slim ranked markets/events/tags from Polymarket and Kalshi)",
@@ -117,6 +119,9 @@ func newTopicCmd(flags *rootFlags) *cobra.Command {
 			if withPrices {
 				results = expandWithPrices(cmd.Context(), db.DB(), results)
 			}
+			if expand {
+				results = expandPolymarketSiblings(cmd, results, limit)
+			}
 			for i := range results {
 				results[i].YesPercent = yesPercent(results[i].YesProbability)
 			}
@@ -138,7 +143,67 @@ func newTopicCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
 	cmd.Flags().BoolVar(&activeOnly, "active-only", true, "Suppress series whose events are all closed and Polymarket markets marked closed")
 	cmd.Flags().BoolVar(&withPrices, "with-prices", false, "Resolve series shells to the top active market under them so prices appear inline")
+	cmd.Flags().BoolVar(&expand, "expand", true, "Walk Polymarket multi-outcome event families so siblings (e.g. all World Cup teams) surface from a single seed market")
 	return cmd
+}
+
+// expandPolymarketSiblings walks any Polymarket market hits whose parent
+// event has additional siblings and appends those siblings to the result
+// set. Caps live API calls at 2 events per topic call so the cost stays
+// bounded even when many seed markets hit the same multi-outcome family.
+// Live-fetch errors fall back silently (existing results are unchanged).
+func expandPolymarketSiblings(cmd *cobra.Command, hits []topicHit, limit int) []topicHit {
+	const maxEventExpansions = 2
+	if len(hits) == 0 {
+		return hits
+	}
+	client := polymarket.New()
+	expanded := 0
+	seen := make(map[string]struct{}, len(hits)*2)
+	for _, h := range hits {
+		seen[h.Source+"|"+h.ID] = struct{}{}
+	}
+	seenEvents := make(map[string]struct{}, maxEventExpansions)
+	out := append([]topicHit{}, hits...)
+	for _, h := range hits {
+		if expanded >= maxEventExpansions {
+			break
+		}
+		if h.Source != "polymarket" || h.Kind != "market" {
+			continue
+		}
+		ev, siblings, err := client.SiblingsForMarket(cmd.Context(), h.ID, false)
+		if err != nil || ev.Slug == "" || len(siblings) <= 1 {
+			continue
+		}
+		if _, dup := seenEvents[ev.Slug]; dup {
+			continue
+		}
+		seenEvents[ev.Slug] = struct{}{}
+		expanded++
+		for _, sib := range siblings {
+			key := "polymarket|" + sib.Slug
+			if _, dup := seen[key]; dup {
+				continue
+			}
+			seen[key] = struct{}{}
+			out = append(out, topicHit{
+				Source:         "polymarket",
+				Kind:           "market",
+				ID:             sib.Slug,
+				Title:          sib.Question,
+				YesProbability: sib.YesProbability,
+				Volume24h:      sib.Volume,
+				EndDate:        sib.EndDate,
+				URL:            sib.URL,
+				ExpandedFrom:   "event:" + ev.Slug,
+			})
+			if len(out) >= limit*2 {
+				return out
+			}
+		}
+	}
+	return out
 }
 
 // topicSearchByTypes runs an FTS5 search restricted to a fixed set of
