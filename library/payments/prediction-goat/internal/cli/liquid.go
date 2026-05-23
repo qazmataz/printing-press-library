@@ -54,16 +54,22 @@ func topicQueryTokens(s string) []string {
 func newLiquidCmd(flags *rootFlags) *cobra.Command {
 	var minVolume float64
 	var limit int
-	var venue, dbPath string
+	var dbPath string
+	var vf venueFlags
 	cmd := &cobra.Command{
 		Use:   "liquid",
 		Short: "Markets above a volume floor across Polymarket and Kalshi",
 		Example: `  prediction-goat-pp-cli liquid --min-volume 100000 --json
-  prediction-goat-pp-cli liquid --min-volume 50000 --limit 25`,
+  prediction-goat-pp-cli liquid --min-volume 50000 --limit 25
+  prediction-goat-pp-cli liquid --kalshi --min-volume 50000`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
+			}
+			venue, err := resolveVenue(vf)
+			if err != nil {
+				return err
 			}
 			items, err := runMarketScreen(cmd, "liquid", dbPath, venue, limit, minVolume, "", "")
 			if err != nil {
@@ -82,7 +88,7 @@ func newLiquidCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().Float64Var(&minVolume, "min-volume", 10000, "Minimum volume")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max results")
-	cmd.Flags().StringVar(&venue, "venue", "all", "Venue: all, polymarket, kalshi")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
+	addVenueFlags(cmd, &vf)
 	return cmd
 }

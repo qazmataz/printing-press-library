@@ -60,11 +60,14 @@ func newTopicCmd(flags *rootFlags) *cobra.Command {
 	var activeOnly bool
 	var withPrices bool
 	var expand bool
+	var vf venueFlags
 	cmd := &cobra.Command{
 		Use:   "topic <name>",
 		Short: "Cross-venue topic bundle (slim ranked markets/events/tags from Polymarket and Kalshi)",
 		Example: `  prediction-goat-pp-cli topic kanye --json
-  prediction-goat-pp-cli topic 'arizona basketball' --limit 20 --with-prices`,
+  prediction-goat-pp-cli topic 'arizona basketball' --limit 20 --with-prices
+  prediction-goat-pp-cli topic 'world cup' --kalshi   # skip Polymarket
+  prediction-goat-pp-cli topic 'world cup' --polymarket --agent`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -72,6 +75,10 @@ func newTopicCmd(flags *rootFlags) *cobra.Command {
 			}
 			if dryRunOK(flags) {
 				return nil
+			}
+			venue, err := resolveVenue(vf)
+			if err != nil {
+				return err
 			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("prediction-goat-pp-cli")
@@ -91,13 +98,18 @@ func newTopicCmd(flags *rootFlags) *cobra.Command {
 			}
 			polyTypes := []string{"markets", "events", "tags"}
 			kalshiTypes := []string{"kalshi_markets", "kalshi_events", "kalshi_series"}
-			polyHits, err := topicSearchByTypes(cmd.Context(), db.DB(), topicFTSQuery(topic), polyTypes, searchLimit)
-			if err != nil {
-				return fmt.Errorf("topic search polymarket: %w", err)
+			var polyHits, kalshiHits []topicHit
+			if venue == "all" || venue == "polymarket" {
+				polyHits, err = topicSearchByTypes(cmd.Context(), db.DB(), topicFTSQuery(topic), polyTypes, searchLimit)
+				if err != nil {
+					return fmt.Errorf("topic search polymarket: %w", err)
+				}
 			}
-			kalshiHits, err := topicSearchByTypes(cmd.Context(), db.DB(), topicFTSQuery(topic), kalshiTypes, searchLimit)
-			if err != nil {
-				return fmt.Errorf("topic search kalshi: %w", err)
+			if venue == "all" || venue == "kalshi" {
+				kalshiHits, err = topicSearchByTypes(cmd.Context(), db.DB(), topicFTSQuery(topic), kalshiTypes, searchLimit)
+				if err != nil {
+					return fmt.Errorf("topic search kalshi: %w", err)
+				}
 			}
 			// Vol-weighted re-rank: each side already arrives BM25-sorted
 			// (lower-rank-better in SQLite FTS5). Re-score by combining
@@ -144,6 +156,7 @@ func newTopicCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&activeOnly, "active-only", true, "Suppress series whose events are all closed and Polymarket markets marked closed")
 	cmd.Flags().BoolVar(&withPrices, "with-prices", false, "Resolve series shells to the top active market under them so prices appear inline")
 	cmd.Flags().BoolVar(&expand, "expand", true, "Walk Polymarket multi-outcome event families so siblings (e.g. all World Cup teams) surface from a single seed market")
+	addVenueFlags(cmd, &vf)
 	return cmd
 }
 

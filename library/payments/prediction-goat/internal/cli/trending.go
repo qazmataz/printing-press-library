@@ -31,16 +31,21 @@ type trendingResult struct {
 
 func newTrendingCmd(flags *rootFlags) *cobra.Command {
 	var limit int
-	var venue, dbPath string
+	var dbPath string
+	var vf venueFlags
 	cmd := &cobra.Command{
 		Use:   "trending",
 		Short: "Top 24h volume markets across Polymarket and Kalshi",
 		Example: `  prediction-goat-pp-cli trending --json
-  prediction-goat-pp-cli trending --venue polymarket --limit 10`,
+  prediction-goat-pp-cli trending --polymarket --limit 10`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
+			}
+			venue, err := resolveVenue(vf)
+			if err != nil {
+				return err
 			}
 			items, err := runMarketScreen(cmd, "trending", dbPath, venue, limit, 0, "", "")
 			if err != nil {
@@ -58,8 +63,8 @@ func newTrendingCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max results")
-	cmd.Flags().StringVar(&venue, "venue", "all", "Venue: all, polymarket, kalshi")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
+	addVenueFlags(cmd, &vf)
 	return cmd
 }
 

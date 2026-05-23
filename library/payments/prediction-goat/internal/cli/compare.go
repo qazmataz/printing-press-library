@@ -66,6 +66,7 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	var dbPath string
 	var pairOverride string
+	var vf venueFlags
 	cmd := &cobra.Command{
 		Use:   "compare <topic>",
 		Short: "Side-by-side Polymarket and Kalshi prices for a topic",
@@ -79,6 +80,16 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 			}
 			if dryRunOK(flags) {
 				return nil
+			}
+			// compare is structurally cross-venue — it pairs PM markets with
+			// Kalshi markets. Scoping to one venue defeats the purpose; surface
+			// the conflict early instead of silently returning unpaired hits.
+			venue, err := resolveVenue(vf)
+			if err != nil {
+				return err
+			}
+			if venue != "all" {
+				return fmt.Errorf("compare requires both venues; use `topic <q> --%s` instead for a single-venue cross-section", venue)
 			}
 			if limit < 1 {
 				return fmt.Errorf("compare: --limit must be greater than zero")
@@ -139,6 +150,7 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max pairs returned")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
 	cmd.Flags().StringVar(&pairOverride, "pair", "", "Explicit pm-slug=kalshi-ticker pair, skipping FTS-based pairing")
+	addVenueFlags(cmd, &vf)
 	return cmd
 }
 

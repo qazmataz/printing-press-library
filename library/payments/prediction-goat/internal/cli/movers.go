@@ -25,17 +25,22 @@ type moversResult struct {
 }
 
 func newMoversCmd(flags *rootFlags) *cobra.Command {
-	var window, venue, dbPath string
+	var window, dbPath string
 	var limit int
+	var vf venueFlags
 	cmd := &cobra.Command{
 		Use:   "movers",
 		Short: "Biggest implied-probability deltas across Polymarket and Kalshi",
 		Example: `  prediction-goat-pp-cli movers --window 24h --json
-  prediction-goat-pp-cli movers --window 7d --limit 10`,
+  prediction-goat-pp-cli movers --window 7d --kalshi --limit 10`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
+			}
+			venue, err := resolveVenue(vf)
+			if err != nil {
+				return err
 			}
 			items, err := runMovers(cmd, dbPath, venue, window, limit)
 			if err != nil {
@@ -59,8 +64,8 @@ func newMoversCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&window, "window", "24h", "Window: 24h or 7d (Polymarket only; Kalshi uses its single previous-price snapshot regardless)")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max results")
-	cmd.Flags().StringVar(&venue, "venue", "all", "Venue: all, polymarket, kalshi")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
+	addVenueFlags(cmd, &vf)
 	return cmd
 }
 
