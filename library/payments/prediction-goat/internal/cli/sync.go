@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/store"
 	"regexp"
 	"strconv"
@@ -46,6 +47,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var maxPages int
 	var latestOnly bool
 	var strict bool
+	var noPreseed bool
 	var paramFlags []string
 	var resourceParamFlags []string
 	var globalParamFlags []string
@@ -263,6 +265,33 @@ Resource scoping:
 					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
 			}
 
+			// Multi-outcome family preseed (U5): once Polymarket
+			// events/markets land in the local store, scan for
+			// negRisk=true families and pre-populate search_learnings
+			// with one row per child market query-pattern variant.
+			// Skipped under verify mode (verify runs against a mock
+			// API and the corpus is too narrow to derive useful
+			// learnings) and skippable via --no-preseed or
+			// PRESEED_DISABLED for batch syncs. Best-effort: a
+			// preseed failure logs to the sync stream but doesn't
+			// fail the sync.
+			if !noPreseed && !cliutil.IsVerifyEnv() && successCount > 0 {
+				if preseedCount, err := learn.Run(cmd.Context(), db.DB()); err != nil {
+					if humanFriendly {
+						fmt.Fprintf(os.Stderr, "preseed (best-effort): %v\n", err)
+					} else {
+						fmt.Fprintf(os.Stdout, `{"event":"sync_warning","reason":"preseed_partial","message":"%s"}`+"\n",
+							strings.ReplaceAll(err.Error(), `"`, `\"`))
+					}
+				} else if preseedCount > 0 {
+					if humanFriendly {
+						fmt.Fprintf(os.Stderr, "preseed: %d learnings\n", preseedCount)
+					} else {
+						fmt.Fprintf(os.Stdout, `{"event":"sync_preseed","count":%d}`+"\n", preseedCount)
+					}
+				}
+			}
+
 			// Exit-code policy:
 			//   1. --strict + any error  -> non-zero (legacy contract)
 			//   2. any critical failure  -> non-zero regardless of --strict
@@ -310,6 +339,7 @@ Resource scoping:
 	cmd.Flags().StringArrayVar(&paramFlags, "param", nil, "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.")
 	cmd.Flags().StringArrayVar(&resourceParamFlags, "resource-param", nil, "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.")
 	cmd.Flags().StringArrayVar(&globalParamFlags, "global-param", nil, "Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.")
+	cmd.Flags().BoolVar(&noPreseed, "no-preseed", false, "Skip the multi-outcome family preseed pass that runs after sync")
 
 	return cmd
 }

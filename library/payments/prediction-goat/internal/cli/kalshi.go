@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/source/kalshi"
 	"github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/store"
 )
@@ -19,6 +20,7 @@ type kalshiSyncSummary struct {
 	Series         int                  `json:"series"`
 	Total          int                  `json:"total"`
 	PriceBackfill  *kalshiBackfillStats `json:"priceBackfill,omitempty"`
+	Preseed        int                  `json:"preseed,omitempty"`
 }
 
 type kalshiBackfillStats struct {
@@ -44,6 +46,7 @@ func newKalshiCmd(flags *rootFlags) *cobra.Command {
 func newKalshiSyncCmd(flags *rootFlags) *cobra.Command {
 	var maxPages int
 	var dbPath string
+	var noPreseed bool
 	cmd := &cobra.Command{
 		Use:   "sync",
 		Short: "Sync Kalshi markets, events, and series into local SQLite",
@@ -106,7 +109,26 @@ func newKalshiSyncCmd(flags *rootFlags) *cobra.Command {
 				}
 				backfillStats = &kalshiBackfillStats{Considered: stats.Considered, Updated: stats.Updated, Skipped: stats.Skipped, Errors: stats.Errors, MinVolume: minVolume}
 			}
-			summary := kalshiSyncSummary{Markets: markets, Events: events, Series: series, Total: markets + events + series, PriceBackfill: backfillStats}
+			// Multi-outcome family preseed (U5): walk Kalshi events
+			// with mutually_exclusive=true and pre-populate
+			// search_learnings with one row per (child market,
+			// query-pattern variant). Skipped under dogfood (the
+			// matrix's per-command budget is hostile to extra DB
+			// passes), and skippable per-invocation via --no-preseed
+			// or the PRESEED_DISABLED env var. Best-effort: a preseed
+			// failure logs but doesn't fail the sync.
+			preseedCount := 0
+			if !dogfood && !noPreseed {
+				n, err := learn.Run(cmd.Context(), db.DB())
+				if err != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "kalshi preseed (best-effort): %v\n", err)
+				}
+				preseedCount = n
+				if preseedCount > 0 {
+					fmt.Fprintf(cmd.ErrOrStderr(), "kalshi preseed: %d learnings\n", preseedCount)
+				}
+			}
+			summary := kalshiSyncSummary{Markets: markets, Events: events, Series: series, Total: markets + events + series, PriceBackfill: backfillStats, Preseed: preseedCount}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				return printJSONFiltered(cmd.OutOrStdout(), summary, flags)
 			}
@@ -115,6 +137,7 @@ func newKalshiSyncCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages per resource (0 = unlimited)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
+	cmd.Flags().BoolVar(&noPreseed, "no-preseed", false, "Skip the multi-outcome family preseed pass that runs after sync")
 	return cmd
 }
 
