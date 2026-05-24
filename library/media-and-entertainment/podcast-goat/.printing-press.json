@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-17T19:17:24.963451Z",
-  "printing_press_version": "4.8.0",
+  "printing_press_version": "4.14.0+learn-loop",
   "api_name": "podcast-goat",
   "display_name": "Podcast GOAT",
   "cli_name": "podcast-goat-pp-cli",

@@ -12,9 +12,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
@@ -44,6 +44,9 @@ type rootFlags struct {
 	// non-stdout sink. Flushed to the sink after Execute returns.
 	deliverBuf  *bytes.Buffer
 	deliverSink DeliverSink
+	// noLearn suppresses self-learning loop seed/extract/recall side
+	// effects when true. Set by the persistent --no-learn flag.
+	noLearn bool
 }
 
 // RootCmd returns the Cobra command tree without executing it. The MCP server
@@ -170,6 +173,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'podcast-goat-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
+	rootCmd.PersistentFlags().BoolVar(&flags.noLearn, "no-learn", false, "Disable the teach/recall learning loop for this invocation")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.deliverSpec != "" {
@@ -242,6 +246,12 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newSourceCmd(flags))
 	rootCmd.AddCommand(newSpeakersCmd(flags))
 	rootCmd.AddCommand(newBudgetCmd(flags))
+	learnCfg := newLearnConfig()
+	rootCmd.AddCommand(newTeachCmd(flags, learnCfg))
+	rootCmd.AddCommand(newRecallCmd(flags, learnCfg))
+	rootCmd.AddCommand(newLearningsCmd(flags, learnCfg))
+	rootCmd.AddCommand(newTeachPatternCmd(flags))
+	rootCmd.AddCommand(newTeachLookupCmd(flags))
 
 	return rootCmd
 }
@@ -303,4 +313,34 @@ func newVersionCliCmd() *cobra.Command {
 			fmt.Printf("podcast-goat-pp-cli %s\n", version)
 		},
 	}
+}
+
+// learnHookSkipList enumerates framework command names that any
+// future PersistentPreRunE recall hook must NOT trigger on. Today the
+// teach/recall path is invoked explicitly by the agent, so there is
+// no consumer of this list at runtime; the skip-list ships in v1 as
+// forward-looking framework so a later auto-recall hook can consult
+// it without re-deriving the set in every PR.
+//
+// Names match the cobra Use: field. Aliases are matched as-is.
+var learnHookSkipList = map[string]struct{}{
+	"auth":          {},
+	"doctor":        {},
+	"help":          {},
+	"sync":          {},
+	"profile":       {},
+	"feedback":      {},
+	"which":         {},
+	"agent-context": {},
+	"completion":    {},
+	"version":       {},
+}
+
+// shouldSkipLearnHook reports whether a recall pre-run hook should
+// short-circuit for cmdName. Used today only by unit tests asserting
+// the contents of learnHookSkipList; reserved for a future
+// PersistentPreRunE auto-recall integration.
+func shouldSkipLearnHook(cmdName string) bool {
+	_, skip := learnHookSkipList[cmdName]
+	return skip
 }
