@@ -12,6 +12,21 @@
 // package for the data-shape work; this file is the cobra surface
 // that wires flags, validates inputs, and shapes the JSON output the
 // MCP layer reflects to agents.
+//
+// Sweep-retrofit divergence from the generator template
+// ----------------------------------------------------
+// This file is emitted by the published-library sweep tool
+// (tools/sweep-learn-install/) into existing CLIs. It is NOT
+// byte-for-byte identical to the cli-printing-press generator's
+// teach.go.tmpl: a handful of inlined helpers (learnDryRunOK,
+// learnPrintJSON, learnParentNoSubcommandRunE) replace direct calls
+// into newer-baseline helpers (dryRunOK, printJSONFiltered,
+// parentNoSubcommandRunE) so the emission compiles cleanly against
+// older library CLIs that pre-date those helpers. Likewise the
+// store-open call uses store.Open rather than the
+// context-aware store.OpenWithContext. See
+// tools/sweep-learn-install/README.md "Divergence from the
+// generator's teach.go.tmpl" for the design rationale.
 
 package cli
 
@@ -21,8 +36,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -34,6 +51,59 @@ import (
 	"{{modulePath}}/internal/learn/patterns"
 	"{{modulePath}}/internal/store"
 )
+
+// learnDryRunOK reports whether --dry-run was set on the persistent
+// rootFlags. Sweep-retrofit inline: published CLIs predating the
+// helpers.go `dryRunOK` baseline call this private equivalent so the
+// emitted teach.go does not depend on a sibling helper that may not
+// exist. Mirrors the canonical generator helper one-liner.
+func learnDryRunOK(flags *rootFlags) bool {
+	return flags != nil && flags.dryRun
+}
+
+// learnParentNoSubcommandRunE returns a RunE that handles parent
+// commands invoked without a subcommand. In machine output
+// (--json/--agent) it emits a structured error to stdout listing
+// valid subcommands and exits 2; otherwise cobra's default help text
+// is printed. Sweep-retrofit inline of the canonical
+// parentNoSubcommandRunE helper.
+func learnParentNoSubcommandRunE(flags *rootFlags) func(*cobra.Command, []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		if flags != nil && flags.asJSON {
+			subs := make([]string, 0, len(cmd.Commands()))
+			for _, c := range cmd.Commands() {
+				if c.IsAvailableCommand() && c.Name() != "help" {
+					subs = append(subs, c.Name())
+				}
+			}
+			sort.Strings(subs)
+			_ = json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
+				"error":             "subcommand required",
+				"valid_subcommands": subs,
+			})
+			return usageErr(fmt.Errorf("subcommand required for %q", cmd.CommandPath()))
+		}
+		return cmd.Help()
+	}
+}
+
+// learnPrintJSON marshals a Go value as indented JSON and writes it
+// to w. Sweep-retrofit fallback for printJSONFiltered: this minimal
+// implementation does NOT honor --select / --csv / --compact field
+// filtering (the helper that owns that surface — printOutputWithFlags
+// — is not always present in older published CLIs). The trade-off
+// is that the sweep-emitted teach/recall/learnings output is always
+// pretty-printed JSON when --json/--agent is active, even on CLIs
+// where endpoint-mirror commands honor finer-grained flags. The
+// canonical generator template carries the full surface; this is the
+// retrofit shim. See tools/sweep-learn-install/README.md "Divergence
+// from the generator's teach.go.tmpl".
+func learnPrintJSON(w io.Writer, v any, flags *rootFlags) error {
+	_ = flags
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	return enc.Encode(v)
+}
 
 // noLearnEnvVar is the environment variable that disables the learning
 // loop for a session. Used by deterministic agent flows that don't
@@ -178,7 +248,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			if noLearnActive(flags) {
 				return nil
 			}
-			if dryRunOK(flags) {
+			if learnDryRunOK(flags) {
 				return nil
 			}
 			if strings.TrimSpace(query) == "" {
@@ -194,7 +264,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 				return silentCodeErr(2)
 			}
 			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.Open(dbPath)
 			if err != nil {
 				writeTeachErrLog(fmt.Sprintf("teach: open db: %v", err))
 				return silentCodeErr(1)
@@ -240,7 +310,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			}
 
 			if !quiet && flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				return learnPrintJSON(cmd.OutOrStdout(), map[string]any{
 					"recorded":   true,
 					"query":      query,
 					"normalized": normalized.NonEntityNormalized,
@@ -319,7 +389,7 @@ when learnings exist.`,
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
+			if learnDryRunOK(flags) {
 				return nil
 			}
 			query := strings.Join(args, " ")
@@ -338,7 +408,7 @@ when learnings exist.`,
 				return emitRecall(cmd, flags, envelope)
 			}
 			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.Open(dbPath)
 			if err != nil {
 				return fmt.Errorf("recall: %w", err)
 			}
@@ -396,7 +466,7 @@ func toEnvelopeResults(in []learn.Hit) []recallEnvelopeResult {
 
 func emitRecall(cmd *cobra.Command, flags *rootFlags, env recallEnvelope) error {
 	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-		return printJSONFiltered(cmd.OutOrStdout(), env, flags)
+		return learnPrintJSON(cmd.OutOrStdout(), env, flags)
 	}
 	if !env.Found {
 		fmt.Fprintf(cmd.OutOrStdout(), "no prior learnings for %q\n", env.Query)
@@ -418,7 +488,7 @@ func newLearningsCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command
 		Long: `Surface for browsing, filtering, and deleting rows in the
 search_learnings table that the LLM populates via the 'teach' command.`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		RunE:        parentNoSubcommandRunE(flags),
+		RunE:        learnParentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newLearningsListCmd(flags))
 	cmd.AddCommand(newLearningsForgetCmd(flags, learnCfg))
@@ -559,7 +629,7 @@ func newLearningsListCmd(flags *rootFlags) *cobra.Command {
   {{.Name}}-pp-cli learnings list --warnings --agent`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
+			if learnDryRunOK(flags) {
 				return nil
 			}
 			if warningsOnly {
@@ -575,7 +645,7 @@ func newLearningsListCmd(flags *rootFlags) *cobra.Command {
 					entries = []learn.TeachLogEntry{}
 				}
 				if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					return learnPrintJSON(cmd.OutOrStdout(), map[string]any{
 						"warnings": entries,
 					}, flags)
 				}
@@ -591,7 +661,7 @@ func newLearningsListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.Open(dbPath)
 			if err != nil {
 				return fmt.Errorf("learnings list: %w", err)
 			}
@@ -610,7 +680,7 @@ func newLearningsListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
+				return learnPrintJSON(cmd.OutOrStdout(), rows, flags)
 			}
 			if len(rows) == 0 {
 				fmt.Fprintln(cmd.OutOrStdout(), "(no learnings recorded)")
@@ -767,12 +837,12 @@ Requires at least one of --resource, --action, or --all.`,
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
+			if learnDryRunOK(flags) {
 				return nil
 			}
 			query := strings.Join(args, " ")
 			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.Open(dbPath)
 			if err != nil {
 				return fmt.Errorf("learnings forget: %w", err)
 			}
@@ -795,7 +865,7 @@ Requires at least one of --resource, --action, or --all.`,
 			})
 
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				return learnPrintJSON(cmd.OutOrStdout(), map[string]any{
 					"deleted": n,
 					"query":   query,
 				}, flags)
@@ -838,7 +908,7 @@ into a whole family.`,
     --entity-kind "country" \
     --strategy substitute`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
+			if learnDryRunOK(flags) {
 				return nil
 			}
 			if noLearnActive(flags) {
@@ -860,7 +930,7 @@ into a whole family.`,
 				strategy = patterns.StrategySubstitute
 			}
 			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.Open(dbPath)
 			if err != nil {
 				return fmt.Errorf("teach-pattern: %w", err)
 			}
@@ -878,7 +948,7 @@ into a whole family.`,
 			if err != nil {
 				return fmt.Errorf("teach-pattern: %w", err)
 			}
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+			return learnPrintJSON(cmd.OutOrStdout(), map[string]any{
 				"recorded":          true,
 				"newly_inserted":    inserted,
 				"query_template":    queryTemplate,
@@ -916,7 +986,7 @@ Computed kinds (lowercase, uppercase, kebab-case, capitalize-first, slug)
 cannot be taught — they are derived from the canonical input.`,
 		Example: `  {{.Name}}-pp-cli teach-lookup --kind country --canonical "United States" --alias USA`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
+			if learnDryRunOK(flags) {
 				return nil
 			}
 			if noLearnActive(flags) {
@@ -935,7 +1005,7 @@ cannot be taught — they are derived from the canonical input.`,
 				return usageErr(fmt.Errorf("--kind %q is a computed kind and cannot be taught", kind))
 			}
 			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.Open(dbPath)
 			if err != nil {
 				return fmt.Errorf("teach-lookup: %w", err)
 			}
@@ -944,7 +1014,7 @@ cannot be taught — they are derived from the canonical input.`,
 			if err := lookups.Upsert(s.DB(), kind, canonical, alias, "taught"); err != nil {
 				return fmt.Errorf("teach-lookup: %w", err)
 			}
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+			return learnPrintJSON(cmd.OutOrStdout(), map[string]any{
 				"recorded":  true,
 				"kind":      kind,
 				"canonical": canonical,

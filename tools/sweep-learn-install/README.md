@@ -74,13 +74,60 @@ CLI errored.
 
 - No `.printing-press-patches.json` entry. The learn loop is a
   generator-owned package, not a per-CLI patch.
-- No per-CLI `internal/cli/learn_init.go` or `internal/cli/teach.go`
-  emission. Those files are spec-driven (ticker patterns, stopwords,
-  entity-lookup seeds) and the per-CLI Learn config that drives them
-  isn't part of this sweep. A separate retrofit step (U14+) owns
-  feeding Learn config into each library entry.
+- No per-CLI Learn config (ticker patterns, stopwords, entity-lookup
+  seeds). The sweep emits the stub `newLearnConfig` / `initLearn`
+  shape; operators add per-CLI Learn data by hand-editing
+  `internal/cli/learn_init.go` after the sweep.
 - No edits under `tools/sweep-canonical/`. The two tools are
   siblings, not chained.
+
+## Recognized but unsupported root shapes
+
+`internal/cli/root.go` ships in three shapes across the library; only
+two are auto-supported by this sweep.
+
+1. **Canonical struct-based shape.** A package-level
+   `type rootFlags struct{}` plus either
+   `Execute()` declaring `var flags rootFlags` locally, or
+   `func newRootCmd(flags *rootFlags) *cobra.Command`. The sweep
+   auto-detects which form is in scope and emits the correct
+   `&flags` (value) or `flags` (pointer) argument for each
+   `new<X>Cmd` constructor call.
+2. **Legacy `var rootCmd`.** Agent-capture-style package-global
+   command with no `rootFlags` struct. The sweep refuses with a
+   "manual review required" diagnostic and continues.
+3. **`func Root() *cobra.Command` factory.** instacart's shape:
+   external factory with no `rootFlags` struct in scope. The sweep
+   refuses with a distinct "recognized but unsupported" diagnostic
+   so operators can route the CLI through a manual retrofit. No
+   detection-side support is planned; per the U14 plan, manual
+   retrofit is the expected path for this shape.
+
+## Divergence from the generator's `teach.go.tmpl`
+
+The sweep's `templates/cli/teach.go.tmpl` is **not** a byte-for-byte
+copy of the upstream generator's `internal/generator/templates/teach.go.tmpl`.
+Three deliberate divergences exist so the emission compiles against
+older library CLIs whose `internal/cli/` packages predate the modern
+`helpers.go` baseline:
+
+| Generator emits | Sweep emits | Why |
+|---|---|---|
+| `dryRunOK(flags)` | `learnDryRunOK(flags)` | Older library CLIs don't carry `dryRunOK`. Inlined private equivalent. |
+| `parentNoSubcommandRunE(flags)` | `learnParentNoSubcommandRunE(flags)` | Same. Inlined as a closure with the canonical machine-readable error shape. |
+| `printJSONFiltered(w, v, flags)` | `learnPrintJSON(w, v, flags)` | Older CLIs lack the `printOutputWithFlags` plumbing the canonical helper rides on. Falls back to a minimal `json.MarshalIndent` shape that does not honor `--select` / `--csv` / `--compact`. |
+| `store.OpenWithContext(ctx, dbPath)` | `store.Open(dbPath)` | The context-aware variant is a newer addition; older CLIs ship only `store.Open`. |
+
+The byte-for-byte parity test for `internal/cli/teach.go` is
+deliberately gone (replaced by
+`TestEmittedTeachGo_NoExternalHelperDeps`); the parity check still
+runs against every file under `internal/learn/`, which has no host-
+CLI dependencies and stays in sync with the generator.
+
+The sweep also back-fills a `func (s *Store) DB() *sql.DB` accessor on
+`internal/store/store.go` when missing (see `ensureStoreDBAccessor`)
+since the sweep-emitted `teach.go` calls `s.DB()` to thread the
+underlying `*sql.DB` into the `internal/learn` package.
 
 ## Embedded templates
 

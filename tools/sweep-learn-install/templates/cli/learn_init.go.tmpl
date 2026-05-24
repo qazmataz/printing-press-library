@@ -98,7 +98,12 @@ var learnInitOnce sync.Once
 func runLearnInitOnce(ctx context.Context) {
 	learnInitOnce.Do(func() {
 		dbPath := defaultDBPath("{{.Name}}-pp-cli")
-		s, err := store.OpenWithContext(ctx, dbPath)
+		// store.Open used instead of store.OpenWithContext: older
+		// published-library CLIs predate the context-aware variant.
+		// The sweep-emitted teach.go uses the same plain-Open shim
+		// across every call site for retrofit consistency. The ctx
+		// arg is still consumed below by initLearn.
+		s, err := store.Open(dbPath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "warning: {{.Name}}-pp-cli: learn init: open store: %v\n", err)
 			return

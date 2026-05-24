@@ -106,48 +106,91 @@ func TestRenderLearnPackage_ByteForByteParity(t *testing.T) {
 	}
 }
 
-// TestEmitsTeachGo_ByteForByteParity asserts the sweep's emission of
-// internal/cli/teach.go matches the cli-printing-press generator's
-// own emission byte-for-byte. teach.go is the cobra surface that
-// wires newTeachCmd / newRecallCmd / newLearningsCmd / newTeachPatternCmd
-// / newTeachLookupCmd into root.go; the file does not depend on any
-// spec.Learn shape (no TickerPatterns / Stopwords / EntityLookupSeeds
-// gates), so the golden's learn-loop-example output and the sweep's
-// stub emission are textually equivalent. Year is normalized as
-// elsewhere.
-func TestEmitsTeachGo_ByteForByteParity(t *testing.T) {
-	goldenRoot := findGoldenLearnFixture(t)
-	if goldenRoot == "" {
-		t.Skip("cli-printing-press golden fixture not found; parity test is developer-only")
-	}
-
+// TestEmittedTeachGo_NoExternalHelperDeps regression-pins Bug C from
+// the U14 pilot sweep findings. The sweep emits teach.go into older
+// library CLIs that do not declare the modern cli-printing-press
+// baseline helpers (dryRunOK / printJSONFiltered /
+// parentNoSubcommandRunE) and do not declare the context-aware store
+// constructor (store.OpenWithContext). The sweep-emitted teach.go
+// must therefore inline its equivalents under learn-prefixed names
+// and use the plain store.Open constructor. Any direct reference to
+// the modern helper names — and any reference to OpenWithContext —
+// is a regression of the bug.
+func TestEmittedTeachGo_NoExternalHelperDeps(t *testing.T) {
 	ctx := sweepCtx{
-		CLIDir:     "/tmp/parity-target",
-		CLIName:    "learn-loop-example-pp-cli",
-		APIName:    "learn-loop-example",
+		CLIName:    "demo-pp-cli",
+		APIName:    "demo",
 		Category:   "other",
-		OwnerName:  "printing-press-golden",
-		ModulePath: "learn-loop-example-pp-cli",
+		OwnerName:  "Tester",
+		ModulePath: "github.com/example/demo-pp-cli",
 	}
 	emitted, err := renderLearnPackage(ctx)
 	if err != nil {
 		t.Fatalf("renderLearnPackage: %v", err)
 	}
-
-	goldenPath := filepath.Join(goldenRoot, "internal", "cli", "teach.go")
-	want, err := os.ReadFile(goldenPath)
-	if err != nil {
-		t.Skipf("teach.go golden not present: %v", err)
-	}
-	got, ok := emitted["internal/cli/teach.go"]
+	src, ok := emitted["internal/cli/teach.go"]
 	if !ok {
 		t.Fatal("sweep did not emit internal/cli/teach.go")
 	}
-	wantNormalized := stripCopyrightYear(string(want))
-	gotNormalized := stripCopyrightYear(string(got))
-	if wantNormalized != gotNormalized {
-		t.Errorf("byte-for-byte parity mismatch for internal/cli/teach.go\n--- want ---\n%s\n--- got ---\n%s",
-			wantNormalized, gotNormalized)
+	gotStr := string(src)
+
+	// Banned identifiers — any direct call into the modern-helpers
+	// baseline that older library CLIs lack. The check intentionally
+	// scans full lines (not just call sites) so a stray reference in
+	// a comment also gets caught; the divergence note at the top of
+	// teach.go.tmpl mentions these names but does not invoke them.
+	bannedCallSitePatterns := []string{
+		"dryRunOK(",
+		"printJSONFiltered(",
+		"parentNoSubcommandRunE(",
+		"store.OpenWithContext(",
+	}
+	for _, banned := range bannedCallSitePatterns {
+		if strings.Contains(gotStr, banned) {
+			t.Errorf("Bug C regression: sweep-emitted teach.go references %s (older library CLIs lack this helper)\n--- emitted ---\n%s",
+				banned, gotStr)
+		}
+	}
+
+	// Positive assertions: the inlined replacements must be present.
+	mustContain := []string{
+		"func learnDryRunOK(flags *rootFlags) bool",
+		"func learnParentNoSubcommandRunE(flags *rootFlags)",
+		"func learnPrintJSON(",
+		"store.Open(dbPath)",
+	}
+	for _, want := range mustContain {
+		if !strings.Contains(gotStr, want) {
+			t.Errorf("sweep-emitted teach.go missing %q (inlined helper expected)", want)
+		}
+	}
+}
+
+// TestEmittedLearnInitGo_NoExternalHelperDeps mirrors the teach.go
+// guard for learn_init.go: the sweep-emitted runLearnInitOnce must
+// not call into store.OpenWithContext.
+func TestEmittedLearnInitGo_NoExternalHelperDeps(t *testing.T) {
+	ctx := sweepCtx{
+		CLIName:    "demo-pp-cli",
+		APIName:    "demo",
+		Category:   "other",
+		OwnerName:  "Tester",
+		ModulePath: "github.com/example/demo-pp-cli",
+	}
+	emitted, err := renderLearnPackage(ctx)
+	if err != nil {
+		t.Fatalf("renderLearnPackage: %v", err)
+	}
+	src, ok := emitted["internal/cli/learn_init.go"]
+	if !ok {
+		t.Fatal("sweep did not emit internal/cli/learn_init.go")
+	}
+	gotStr := string(src)
+	if strings.Contains(gotStr, "store.OpenWithContext(") {
+		t.Errorf("Bug C regression: sweep-emitted learn_init.go references store.OpenWithContext\n--- emitted ---\n%s", gotStr)
+	}
+	if !strings.Contains(gotStr, "store.Open(dbPath)") {
+		t.Errorf("sweep-emitted learn_init.go missing store.Open(dbPath) call\n--- emitted ---\n%s", gotStr)
 	}
 }
 
