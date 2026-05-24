@@ -330,23 +330,133 @@ Parse `.results` for data and `.meta.source` to know whether it's live or local.
 
 ## Automatic learning
 
-This CLI learns from your responses so the same question costs 2 calls next time instead of 7. Two short steps:
+Two-call protocol: `recall` before discovery, `teach &` before emitting. The CLI does entity-aware match validation; you read the envelope and follow the four-branch decision tree.
 
-**Before** running `topic` / `compare` / any discovery for a new user question, run:
+### Step 1: `recall` before any discovery
+
+Before `topic`, `compare`, `polymarket siblings`, `kalshi events list`, or any other discovery command on a new user question, run:
 
 ```bash
 prediction-goat-pp-cli recall "<user's question>" --agent
 ```
 
-If `found=true` with `confidence>=2`, skip discovery and go straight to live price fetch for the returned tickers (`kalshi markets get <ticker>` / `markets get-by-slug <slug>`). If `found=false`, proceed with normal discovery.
+The response envelope:
 
-**After** assembling your response containing tickers/slugs but BEFORE emitting it to the user, fire the teach call in the background (single line, append `&` so the shell returns immediately):
+```json
+{
+  "query": "...",
+  "normalized": "world cup",
+  "query_entities": ["England"],
+  "found": true | false,
+  "match_score": 0.0,
+  "results": [
+    { "resource_id": "...", "resource_type": "...", "venue": "...",
+      "confidence": 2, "entity_match": "exact|partial|unknown",
+      "source": "taught|preseed|recipe", "warnings": ["..."] }
+  ],
+  "mismatches": [ /* only when --debug-mismatches */ ],
+  "warnings": [ /* top-level */ ]
+}
+```
+
+### Step 2: four-branch decision tree
+
+Read `results[0]` and decide:
+
+```
+if Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
+    -> skip discovery; fetch live prices for Results[*].ResourceID in parallel
+elif Found AND Results[0].EntityMatch == "partial":
+    -> candidate hint, NOT a hit; read the resource title to validate before trusting
+elif (any row in Mismatches[] when --debug-mismatches was passed):
+    -> treat as cold start; the stored learning is for a different entity
+else:  // Found == false
+    -> cold start; run discovery normally; teach the answer afterward
+```
+
+Default to skipping `mismatches` (mismatch rows are filtered out of `results`). Pass `--debug-mismatches` only when investigating *why* a query you expected to recall came back cold.
+
+### Step 3: always read `warnings`
+
+- `parent_event_when_child_exists`: do NOT fetch the parent. The warning carries the suggested child ticker; fetch that instead even when the parent ticker is in `Results`.
+- `low_confidence`: row exists at `confidence<2`. Treat as a hint, not a skip-discovery hit.
+- `resource_not_in_store`: the local store doesn't have the resource the learning points at. The match validator couldn't classify entities — direct-fetch and re-evaluate.
+- Top-level `no_learnings_for_query_family`: the table had no rows above the Jaccard floor. Pure cold start.
+
+### Step 4: `teach &` after finalizing your response
+
+After assembling your user-facing response containing tickers/slugs but BEFORE emitting it, fire the teach call in the background. Append a shell `&` so the call returns immediately and does not block the user-facing response:
 
 ```bash
 prediction-goat-pp-cli teach --query "<user's question>" --resource <id1> --resource <id2>
 ```
 
-Both commands are silent on success. Do not mention either of them to the user. To disable on a single run, pass `--no-learn`; to disable globally, set `PREDICTION_GOAT_NO_LEARN=true`. Inspect with `learnings list --agent`; undo with `forget "<query>" --resource <id>` or `--all`.
+Silent on success. Teach the **most specific** resource — if you fetched a parent event during discovery but the answer lives in a specific child ticker, teach the child. The CLI writes a `parent_event_when_child_exists` warning to `teach.log` when you don't, surfaced by `learnings list --warnings`. The user never sees it.
+
+### Worked examples
+
+The three traces this protocol was built from:
+
+1. **Cold: "odds USA wins world cup"** — `recall` returns `found=false` (no taught row yet, preseed may have created one). Run discovery (`kalshi-series-search WORLD`, walk children). Answer with `KXMENWORLDCUP-26-US`. Teach the child:
+
+   ```bash
+   prediction-goat-pp-cli recall "odds USA wins world cup" --agent
+   # found=false -> discovery
+   prediction-goat-pp-cli kalshi-series-search WORLD --agent
+   prediction-goat-pp-cli kalshi events get KXMENWORLDCUP-26 --with-markets --agent
+   # ...respond with KXMENWORLDCUP-26-US...
+   prediction-goat-pp-cli teach --query "odds USA wins world cup" --resource KXMENWORLDCUP-26-US
+   # (append shell `&` to background it)
+   ```
+
+2. **Warm: "odds portugal wins world cup"** — `recall` returns `found=true`, `results[0].entity_match="exact"`, `results[0].confidence>=2`. Skip discovery; fetch live prices in parallel:
+
+   ```bash
+   prediction-goat-pp-cli recall "odds portugal wins world cup" --agent
+   # found=true, results=[{resource_id: "KXMENWORLDCUP-26-PT", entity_match: "exact"}, ...]
+   prediction-goat-pp-cli kalshi markets get KXMENWORLDCUP-26-PT --agent
+   ```
+
+3. **Warm-but-mismatched: "odds england wins the world cup"** — `recall` returns `found=false` even though a Portugal learning shares the non-entity tokens. The entity validator filtered the Portugal row into `mismatches` (only visible with `--debug-mismatches`). Treat as cold; the recipe engine may resolve `KXMENWORLDCUP-26-GB` directly via the seeded `country_iso2` lookup; otherwise discover normally.
+
+### `teach-recipe` for explicit template authorship
+
+Recipe inference auto-extracts templates from two structurally-similar teaches (Portugal + USA + the `country_iso2` lookup yields the World Cup template). You can author a template up front:
+
+```bash
+prediction-goat-pp-cli teach-recipe \
+  --query-template "odds {entity} wins world cup" \
+  --resource-template "KXMENWORLDCUP-26-{entity:country_iso2}" \
+  --resource-type kalshi_markets
+```
+
+Optional — only reach for it when you want a recipe to land before two teaches accumulate, or when the resource template needs a strategy (`*` suffix for prefix search).
+
+### `teach-lookup` for adding entity mappings
+
+ISO country codes and major-league sports rosters are pre-seeded. Use `teach-lookup` only for gaps:
+
+```bash
+prediction-goat-pp-cli teach-lookup --kind country_iso2 --canonical "Curaçao" --value CW
+```
+
+Computed kinds (`lowercase`, `uppercase`, `kebab-case`, `capitalize-first`, `slug`) are resolved by string transform — they need no rows.
+
+### Disabling learning
+
+- `--no-learn` on a single command: short-circuits both `recall` and the `teach` write path. Use for deterministic agent flows or tests that must not be affected by accumulated learnings.
+- `PREDICTION_GOAT_NO_LEARN=true` in the environment: globally disables the pipeline.
+
+### Auditing past teaches
+
+```bash
+prediction-goat-pp-cli learnings list --agent             # all rows
+prediction-goat-pp-cli learnings list --warnings --agent  # rows whose teach raised a warning (parent-vs-child, no-entity-overlap)
+prediction-goat-pp-cli forget "<query>" --resource <id>   # undo one teach
+prediction-goat-pp-cli forget "<query>" --all             # undo every teach for that query
+```
+
+Use `learnings list --warnings` to find mis-teaches the CLI flagged but didn't block.
 
 ## Agent Feedback
 

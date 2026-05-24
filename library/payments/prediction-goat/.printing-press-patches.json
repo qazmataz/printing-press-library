@@ -36,22 +36,39 @@
       "id": "wal-pragmas-via-connection-hook",
       "summary": "Apply journal_mode=WAL and busy_timeout=5000 via sqlite.RegisterConnectionHook because DSN-level _journal_mode/_busy_timeout params are silently ignored by modernc.org/sqlite v1.37.0.",
       "reason": "Live store opened with the DSN-style pragma params still reported PRAGMA journal_mode=delete and busy_timeout=0, which is the root cause of the SQLITE_BUSY failures observed during concurrent topic queries and during kalshi sync. Connection hook is the only reliable path.",
-      "files": ["internal/store/store.go", "internal/store/store_concurrency_test.go"],
+      "files": [
+        "internal/store/store.go",
+        "internal/store/store_concurrency_test.go"
+      ],
       "validated_outcome": "go test ./internal/store/... passes (76 tests including 4 new concurrency tests). Live db now reports journal_mode=wal, busy_timeout=5000.",
       "upstream_issue": "Generator template should switch from DSN-pragma to connection-hook approach for all printed CLIs that use modernc.org/sqlite."
     },
     {
       "id": "kalshi-events-with-markets-and-series-filter",
       "summary": "Add --with-markets to `kalshi events get` (passes with_nested_markets=true upstream) and implement --series on `kalshi events list` (advertised in --help pre-fix but never declared as a flag).",
-      "reason": "Before this patch the only way to enumerate every child market under a Kalshi event was raw curl against the upstream API. The CLI now returns all 56 KXMENWORLDCUP-26 child markets in one call. The --series filter on list completes the series → event → markets walk that the existing CLI surface implied but couldn't actually execute.",
-      "files": ["internal/cli/kalshi_events.go", "internal/cli/kalshi_events_test.go", "SKILL.md"],
+      "reason": "Before this patch the only way to enumerate every child market under a Kalshi event was raw curl against the upstream API. The CLI now returns all 56 KXMENWORLDCUP-26 child markets in one call. The --series filter on list completes the series \u2192 event \u2192 markets walk that the existing CLI surface implied but couldn't actually execute.",
+      "files": [
+        "internal/cli/kalshi_events.go",
+        "internal/cli/kalshi_events_test.go",
+        "SKILL.md"
+      ],
       "validated_outcome": "End-to-end smoke against live Kalshi API: `kalshi events get KXMENWORLDCUP-26 --with-markets --agent` returns 56 markets including KXMENWORLDCUP-26-PT; `kalshi events list --series KXMENWORLDCUP --data-source live --agent` returns the 2026 event. go test passes; verify_skill.py still passes after SKILL.md additions."
     },
     {
       "id": "venue-scoping-flags",
       "summary": "Add --venue, --polymarket, --kalshi flags to topic, compare, liquid, movers, resolving, trending, new via a shared addVenueFlags + resolveVenue helper. Default behavior (no flag) stays cross-venue.",
       "reason": "Agents that already know which venue they want should be able to skip the second one to halve query latency. compare additionally errors when scoped to a single venue (it requires both).",
-      "files": ["internal/cli/venue.go", "internal/cli/venue_test.go", "internal/cli/topic.go", "internal/cli/compare.go", "internal/cli/liquid.go", "internal/cli/movers.go", "internal/cli/resolving.go", "internal/cli/trending.go", "internal/cli/new_markets.go"],
+      "files": [
+        "internal/cli/venue.go",
+        "internal/cli/venue_test.go",
+        "internal/cli/topic.go",
+        "internal/cli/compare.go",
+        "internal/cli/liquid.go",
+        "internal/cli/movers.go",
+        "internal/cli/resolving.go",
+        "internal/cli/trending.go",
+        "internal/cli/new_markets.go"
+      ],
       "validated_outcome": "go test ./... passes. verify_skill.py still passes."
     },
     {
@@ -77,7 +94,7 @@
     {
       "id": "select-paths-cheatsheet",
       "summary": "Generate a per-command --select cheatsheet from JSON-tagged response structs and expose it via agent-context.commands.<name>.select_paths. Adds tools/select-paths-gen/, the generated internal/cli/select_paths.go, a drift-guard test, and a `which <cmd> --select-paths` flag. agent-context schema bumped 5->6.",
-      "reason": "Agents passing --select today guess dotted paths against response shapes they have not introspected; a wrong path returns {} silently (not an error), forcing re-fetches that burned ~25% of wall-clock on two of three smart-learning failure traces. The CLI already knows its response shapes (typed Go structs with JSON tags) — this patch surfaces them at agent-context time so an agent's first --select call lands. Per docs/plans/2026-05-23-002 section U7.",
+      "reason": "Agents passing --select today guess dotted paths against response shapes they have not introspected; a wrong path returns {} silently (not an error), forcing re-fetches that burned ~25% of wall-clock on two of three smart-learning failure traces. The CLI already knows its response shapes (typed Go structs with JSON tags) \u2014 this patch surfaces them at agent-context time so an agent's first --select call lands. Per docs/plans/2026-05-23-002 section U7.",
       "files": [
         "internal/cli/select_paths.go",
         "internal/cli/select_paths_test.go",
@@ -141,7 +158,7 @@
     {
       "id": "entity-lookups-seeded",
       "summary": "Add the entity_lookups table seeded with canonical ISO 3166-1 country codes and current-season major-league sports team aliases (~900 rows), plus a Lookup/LookupAll/Upsert API in internal/learn/lookups and a teach-lookup CLI command for per-user additions. Schema v4->v5.",
-      "reason": "The recipe inference engine planned for U10 needs canonical entity-substitution data so it can take a learned pattern from one entity (Portugal -> KXMENWORLDCUP-26-PT) and apply it to any other entity in the same kind (England -> KXMENWORLDCUP-26-GB) without re-learning. Shipping the data inside SQLite (instead of a JSON file or an embed.FS scan) lets per-user teach-lookup rows coexist with seeded rows in one table queried through one surface. Computed kinds (lowercase, kebab-case, capitalize-first, uppercase, slug) short-circuit the DB via in-package string transforms — the table holds only canonical reference data, never domain logic. Per docs/plans/2026-05-23-002 section U9; correction from plan: actual on-disk baseline was v4 (not v5), so this bumps v4->v5 not v5->v6.",
+      "reason": "The recipe inference engine planned for U10 needs canonical entity-substitution data so it can take a learned pattern from one entity (Portugal -> KXMENWORLDCUP-26-PT) and apply it to any other entity in the same kind (England -> KXMENWORLDCUP-26-GB) without re-learning. Shipping the data inside SQLite (instead of a JSON file or an embed.FS scan) lets per-user teach-lookup rows coexist with seeded rows in one table queried through one surface. Computed kinds (lowercase, kebab-case, capitalize-first, uppercase, slug) short-circuit the DB via in-package string transforms \u2014 the table holds only canonical reference data, never domain logic. Per docs/plans/2026-05-23-002 section U9; correction from plan: actual on-disk baseline was v4 (not v5), so this bumps v4->v5 not v5->v6.",
       "files": [
         "internal/learn/lookups/doc.go",
         "internal/learn/lookups/store.go",
@@ -199,7 +216,7 @@
         "internal/store/store.go",
         "internal/store/learnings_v5_test.go"
       ],
-      "validated_outcome": "go test ./... passes (562 tests, +26 across recipes CRUD/extract/apply/generalization regression and recall+recipe integration). go vet clean. verify_skill.py passes. Fresh DB at v6 includes search_recipes table; v5->v6 upgrade adds the table via CREATE TABLE IF NOT EXISTS (no backfill needed). Flagship regression: teach Portugal+USA (Kalshi+Polymarket each), call recall on 'odds England wins world cup' — returns Found=true with both KXMENWORLDCUP-26-GB (substitute) and the England Polymarket slug (substitute-then-search-prefix) tagged source='recipe'. Direct teaches outrank recipe hits within the same entity_match tier.",
+      "validated_outcome": "go test ./... passes (562 tests, +26 across recipes CRUD/extract/apply/generalization regression and recall+recipe integration). go vet clean. verify_skill.py passes. Fresh DB at v6 includes search_recipes table; v5->v6 upgrade adds the table via CREATE TABLE IF NOT EXISTS (no backfill needed). Flagship regression: teach Portugal+USA (Kalshi+Polymarket each), call recall on 'odds England wins world cup' \u2014 returns Found=true with both KXMENWORLDCUP-26-GB (substitute) and the England Polymarket slug (substitute-then-search-prefix) tagged source='recipe'. Direct teaches outrank recipe hits within the same entity_match tier.",
       "upstream_issue": "Pending: lift internal/learn/recipes into the generator template alongside lookups + entities + match + normalize. The recipe engine is the most-domain-agnostic of the four: it operates on the abstract LearningRow shape, resolves entities via the lookups package's Lookup/IsComputedKind contract, and verifies candidates via the generic resources table. Future CLIs that ship a discovery index inherit the generalization layer by plugging in their own seed lookups + entity extractor config."
     },
     {
@@ -218,6 +235,17 @@
       ],
       "validated_outcome": "go test ./... passes (556 tests, +20 across the preseed driver, Kalshi scanner, Polymarket scanner, and an end-to-end smoke that confirms recall returns KXMENWORLDCUP-26-US for 'odds USA wins world cup' after a preseed run with no teach). go vet clean. verify_skill.py passes. Preseed is gated on three orthogonal switches: --no-preseed flag, PRESEED_DISABLED env var, dogfood/verify env detection. Idempotency: re-running on an unchanged corpus inserts zero rows and never bumps confidence on existing rows (preseed is pure-insert; the bump path is reserved for taught observations). User-taught rows at any confidence are preserved verbatim.",
       "upstream_issue": "Pending: lift internal/learn/preseed.go into the generator template once the per-source scanner contract proves out across a second multi-outcome API beyond Kalshi/Polymarket. The driver is domain-agnostic; the scanners are CLI-specific."
+    },
+    {
+      "id": "skill-protocol-rewrite",
+      "summary": "Rewrite SKILL.md \"Automatic learning\" section as a four-branch decision-tree protocol document, add internal/learn/doc.go package design doc.",
+      "reason": "Prior \"Automatic learning\" section described the lifecycle in two short paragraphs; U1-U10 landed entity_match/warnings/teach-recipe/teach-lookup/--debug-mismatches/learnings list --warnings surfaces the agent needs to consume. The rewrite documents the recall envelope shape, the four-branch decision tree (exact/partial/mismatch/cold), the three worked failure-trace examples (USA cold / Portugal warm / England mismatch), the teach-most-specific rule, and the new explicit teach-recipe/teach-lookup surfaces. internal/learn/doc.go is the package-level design doc for a future generator-template lift.",
+      "files": [
+        "SKILL.md",
+        "internal/learn/doc.go",
+        "internal/learn/normalize.go"
+      ],
+      "validated_outcome": "verify_skill.py passes; go build/vet/test all green at 606 tests (no behavior change)."
     }
   ]
 }

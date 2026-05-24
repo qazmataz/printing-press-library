@@ -1,8 +1,8 @@
 // Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
 
-// Package learn hosts the prediction-goat-side glue for the entity
+// normalize.go hosts the prediction-goat-side glue for the entity
 // extractor in internal/learn/entities. The extractor itself is
-// domain-agnostic; this package wraps it with the prediction-goat
+// domain-agnostic; this file wraps it with the prediction-goat
 // stopword vocabulary, ticker patterns, and the storage-side
 // NormalizedQuery shape that the learning subsystem (teach/recall and
 // the v4->v5 schema migration) writes into search_learnings.
@@ -12,6 +12,8 @@
 // prediction-goat-specific (Kalshi/Polymarket ticker shapes, the
 // odds/wins/beats stopword set) belongs one layer up, in this consumer
 // package, not in the reusable component.
+//
+// Package-level design notes live in doc.go.
 package learn
 
 import (
