@@ -18,6 +18,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/learn/entities"
 	sqlite "modernc.org/sqlite"
 )
 
@@ -82,7 +84,7 @@ func IsUUID(s string) bool {
 // shape — adding columns, dropping indexes, changing FTS5 tokenizers —
 // so an older binary refuses to open a newer database rather than silently
 // producing wrong results against a schema it cannot read.
-const StoreSchemaVersion = 3
+const StoreSchemaVersion = 4
 
 const resourcesFTSCreateSQL = `CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 	id, resource_type, content, tokenize='porter unicode61'
@@ -1129,14 +1131,24 @@ func (s *Store) migrate(ctx context.Context) error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS "idx_teams_created_at" ON "teams"("created_at")`,
 		`CREATE INDEX IF NOT EXISTS "idx_teams_updated_at" ON "teams"("updated_at")`,
-		// search_learnings (v4): LLM-driven per-query reranking. Populated by
+		// search_learnings: LLM-driven per-query reranking. Populated by
 		// the `teach` command (silent, backgrounded by the LLM after a
 		// successful response) and read by the rerank layer in topic/compare
 		// to boost/hide/alias hits on subsequent queries. See learnings.go
 		// for the full semantics. Per-user table; stays small.
+		//
+		// query_entities (v4): JSON array of case-preserving entity tokens
+		// extracted from query_pattern at teach time. Used by the recall
+		// match validator (U3) to reject cross-entity matches that would
+		// otherwise score high on non-entity Jaccard (e.g. "England wins
+		// world cup" matching a stored "Portugal wins world cup" learning).
+		// On v3 DBs the column is added by the v3->v4 migration in
+		// migrateLearningsQueryEntities and backfilled by running the
+		// extractor over each row's stored query_pattern.
 		`CREATE TABLE IF NOT EXISTS search_learnings (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			query_pattern TEXT NOT NULL,
+			query_entities TEXT,
 			venue TEXT,
 			resource_type TEXT,
 			resource_id TEXT NOT NULL,
@@ -1191,6 +1203,22 @@ func (s *Store) migrate(ctx context.Context) error {
 				return fmt.Errorf("migration failed: %w", err)
 			}
 		}
+
+		// v3->v4: search_learnings.query_entities. Adds the column on
+		// pre-v4 DBs and backfills existing rows by running the entity
+		// extractor against their stored query_pattern. Runs AFTER the
+		// migrations[] CREATE TABLE IF NOT EXISTS loop so the table is
+		// guaranteed to exist; on fresh DBs the column is already
+		// present from the CREATE TABLE declaration above and this is
+		// a no-op (ensureColumn short-circuits on column-exists, and
+		// the backfill walks zero rows). Gated on `current < 4` so a
+		// re-Open of an already-upgraded DB skips even the read pass.
+		if current < 4 {
+			if err := s.migrateLearningsQueryEntities(ctx, conn); err != nil {
+				return fmt.Errorf("migrating learnings query_entities (v3->v4): %w", err)
+			}
+		}
+
 		// Stamp the schema version. On a fresh DB this writes the current
 		// StoreSchemaVersion; on an already-stamped DB this is a no-op
 		// write of the same value.
@@ -1202,6 +1230,112 @@ func (s *Store) migrate(ctx context.Context) error {
 		}
 		return nil
 	})
+}
+
+// migrateLearningsQueryEntities is the v3->v4 schema migration for
+// search_learnings.query_entities. Adds the column on pre-v4
+// databases via ensureColumn (idempotent: skipped if the column
+// already exists from the CREATE TABLE on a fresh DB, and silent on
+// the duplicate-column-name race against a concurrent Open). After
+// the column exists, walks every row whose query_entities IS NULL,
+// runs the prediction-goat entity extractor over its stored
+// query_pattern, marshals the resulting entity slice as a JSON
+// array, and writes it back via UPDATE.
+//
+// Idempotency: re-running this migration after a previous successful
+// run is a no-op. The column-add path short-circuits on existing
+// column; the backfill loop selects WHERE query_entities IS NULL,
+// which excludes any row already populated by a previous run.
+//
+// The extractor used here is the consumer-side
+// learn.DefaultPredictionGoatConfig(), which registers Kalshi /
+// Polymarket ticker patterns and the domain stopword set. Using the
+// nil-config fallback would correctly handle stopwords but would
+// classify Kalshi tickers (KX...) as ALL-CAPS entities and
+// Polymarket slugs (will-...) as plain content tokens, both of which
+// would corrupt the recall validator downstream.
+//
+// Why run inside the migration transaction: the column-add and the
+// backfill must be atomic with the user_version stamp. If the
+// backfill failed mid-flight with the version already stamped, a
+// re-Open would see version=4 and skip the migration, leaving
+// half-populated rows. Wrapping in the migration's BEGIN IMMEDIATE
+// transaction makes the upgrade all-or-nothing.
+func (s *Store) migrateLearningsQueryEntities(ctx context.Context, conn *sql.Conn) error {
+	// ensureColumn handles the three idempotent cases:
+	//   1. Table doesn't exist (fresh DB before CREATE TABLE on first
+	//      run; shouldn't happen here because migrations[] runs above
+	//      us, but the guard keeps the migration safe to reorder).
+	//   2. Column already exists (fresh DB whose CREATE TABLE
+	//      declared the column, OR re-Open of an upgraded v4 DB).
+	//   3. Concurrent Open() racing the ALTER (duplicate-column-name
+	//      error is swallowed).
+	if err := s.ensureColumn(ctx, conn, "search_learnings", "query_entities", "TEXT"); err != nil {
+		return fmt.Errorf("add query_entities column: %w", err)
+	}
+
+	// Backfill rows whose query_entities is still NULL. Collect into
+	// a slice first so we don't hold a read cursor open while
+	// iterating UPDATEs on the same connection. The table is per-user
+	// and stays small (target O(100) rows in steady state), so loading
+	// the full set into memory is cheap.
+	rows, err := conn.QueryContext(ctx, `SELECT id, query_pattern FROM search_learnings WHERE query_entities IS NULL`)
+	if err != nil {
+		return fmt.Errorf("select rows for backfill: %w", err)
+	}
+	type rowToBackfill struct {
+		id           int64
+		queryPattern string
+	}
+	var pending []rowToBackfill
+	for rows.Next() {
+		var r rowToBackfill
+		if err := rows.Scan(&r.id, &r.queryPattern); err != nil {
+			rows.Close()
+			return fmt.Errorf("scan row: %w", err)
+		}
+		pending = append(pending, r)
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return fmt.Errorf("iterate rows: %w", err)
+	}
+	if err := rows.Close(); err != nil {
+		return fmt.Errorf("close rows: %w", err)
+	}
+
+	cfg := learn.DefaultPredictionGoatConfig()
+	for _, r := range pending {
+		entitiesJSON, err := extractEntitiesJSON(r.queryPattern, cfg)
+		if err != nil {
+			return fmt.Errorf("extract entities for learning %d: %w", r.id, err)
+		}
+		if _, err := conn.ExecContext(ctx,
+			`UPDATE search_learnings SET query_entities = ? WHERE id = ?`,
+			entitiesJSON, r.id,
+		); err != nil {
+			return fmt.Errorf("update query_entities for learning %d: %w", r.id, err)
+		}
+	}
+	return nil
+}
+
+// extractEntitiesJSON runs the prediction-goat entity extractor over
+// query and returns its Entities slice marshaled as a JSON array.
+// Returns the literal string "[]" (not "null") for queries with no
+// entities so downstream JSON consumers can rely on a stable shape;
+// an empty Entities slice in Go marshals to "null" without the
+// explicit fallback.
+func extractEntitiesJSON(query string, cfg *entities.Config) (string, error) {
+	parsed := entities.Extract(query, cfg)
+	if len(parsed.Entities) == 0 {
+		return "[]", nil
+	}
+	b, err := json.Marshal(parsed.Entities)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
 func (s *Store) migrateResourcesCompositeKey(ctx context.Context, conn *sql.Conn) error {

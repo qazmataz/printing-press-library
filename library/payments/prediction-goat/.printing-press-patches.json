@@ -93,6 +93,19 @@
       ],
       "validated_outcome": "go test ./... passes (416 tests, 33 new across teach/recall/learnings/forget/apply). verify_skill.py passes. End-to-end: a `teach` for 'portugal world cup odds' lands a row that subsequent `recall` calls find by token overlap; the rerank layer surfaces it at position 0 in `topic` output regardless of FTS ranking; `--no-learn` and PREDICTION_GOAT_NO_LEARN both disable the surface. teach.log captures background failures; learnings.jsonl mirrors every teach/forget for grep-without-SQL inspection.",
       "upstream_issue": "Generator template for printed CLIs that ship a discovery index should consider adopting the LLM-driven teach/recall pattern: per-user, fire-and-forget write surface plus pre-discovery read surface, fed by the LLM's act of responding rather than CLI-side heuristics. Generalizes to any read-mostly catalog CLI."
+    },
+    {
+      "id": "entity-preserving-normalizer",
+      "summary": "Replace lowercase+stopword normalization in the learning subsystem with an entity-preserving normalizer (internal/learn/normalize.go) that splits queries into Entities, Tickers, and a stable NonEntityNormalized form. Schema v3->v4 adds search_learnings.query_entities (JSON array) and backfills existing rows by running the extractor against their stored query_pattern.",
+      "reason": "The v3 normalizer destroyed entity tokens: 'odds England wins the world cup' collapsed to 'england cup world' and Jaccard-matched a stored Portugal learning at >=0.6, surfacing the wrong ticker on recall. Preserving entities case-intact in a separate slice lets U3's match validator reject cross-entity matches even at high non-entity Jaccard. The Kalshi/Polymarket ticker patterns and prediction-market stopword vocabulary live in internal/learn/ (one layer above the domain-agnostic entities extractor) so the extractor stays liftable into a future generator template.",
+      "files": [
+        "internal/learn/normalize.go",
+        "internal/learn/normalize_test.go",
+        "internal/store/store.go",
+        "internal/store/learnings_v4_test.go"
+      ],
+      "validated_outcome": "go test ./... passes (454 tests, 15 new: 10 normalize, 5 v3->v4 migration). go vet clean. verify_skill.py passes. The 'odds England wins the world cup' and 'odds Portugal wins the world cup' queries normalize to the same NonEntityNormalized ('cup world') but different Entities (['England'] vs ['Portugal']). A v3 DB with pre-existing search_learnings rows opens cleanly, the query_entities column is added, and every row is backfilled (entity-bearing rows get JSON arrays like '[\"Portugal\"]', stopword-only rows get '[]'). Re-Open is a no-op.",
+      "upstream_issue": "Pending: the learn package's prediction-goat-specific config (Kalshi/Polymarket ticker patterns + odds/wins/beats stopwords) is the consumer-side wrapper; the domain-agnostic entities extractor (internal/learn/entities) should lift into the generator template so future CLIs that ship a discovery index inherit the entity-preserving Jaccard contract."
     }
   ]
 }
