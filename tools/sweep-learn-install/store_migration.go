@@ -226,6 +226,17 @@ func ensureStoreOpenAcceptsPath(src string) string {
 	if !strings.HasPrefix(src[preludeStart:], "dir, err := config.Dir()") {
 		return src
 	}
+	// Refuse rather than rewrite when the injected prelude would
+	// reference an undeclared symbol. The prelude calls `OpenAt(...)`;
+	// the canonical generator template emits `OpenAt` alongside `Open`,
+	// but a hand-authored store.go that mirrors only the `Open` shape
+	// would compile after the rewrite only if it also defined `OpenAt`.
+	// Surfacing this as a no-op leaves the host in a known-good state
+	// (the variadic widening is still a valid signature change, but
+	// without `OpenAt` the body would not compile, so we skip both).
+	if !strings.Contains(src, "func OpenAt(") {
+		return src
+	}
 
 	// Build the new file: replace the signature + insert the
 	// path-override prelude at the body's first statement.
