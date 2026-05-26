@@ -246,6 +246,15 @@
         "internal/learn/normalize.go"
       ],
       "validated_outcome": "verify_skill.py passes; go build/vet/test all green at 606 tests (no behavior change)."
+    },
+    {
+      "id": "liquid-24h-volume-symmetric",
+      "summary": "marketScreenSQL liquid branch filters PM rows on 'volume24hr' instead of lifetime 'volumeNum' so --min-volume has consistent 24h-rolling semantics across both venues.",
+      "reason": "PM was filtered on 'volumeNum' (cumulative lifetime) while Kalshi was filtered on 'volume_24h_fp' (rolling 24h). A single --min-volume value imposed two different liquidity bars on the result set, surfacing stale PM markets alongside actively-trading Kalshi ones. The liquid screen's purpose is recent liquidity; PM rows without 'volume24hr' now correctly fall below the floor. Also tightened the --min-volume flag help to spell out the unit. Greptile P1 on PR #780.",
+      "files": [
+        "internal/cli/trending.go",
+        "internal/cli/liquid.go"
+      ]
     }
   ]
 }

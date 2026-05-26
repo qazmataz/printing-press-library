@@ -88,7 +88,7 @@ func newLiquidCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().Float64Var(&minVolume, "min-volume", 10000, "Minimum volume")
+	cmd.Flags().Float64Var(&minVolume, "min-volume", 10000, "Minimum 24h rolling volume (USD)")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max results")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
 	addVenueFlags(cmd, &vf)

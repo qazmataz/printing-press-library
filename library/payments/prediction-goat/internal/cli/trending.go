@@ -319,7 +319,12 @@ CAST(COALESCE(json_extract(data,'$.volume_24h_fp'),0) AS REAL) sort_value FROM r
 	switch screen {
 	case "trending":
 	case "liquid":
-		pm += " AND CAST(COALESCE(json_extract(data,'$.volumeNum'),0) AS REAL) > ?"
+		// PATCH(liquid-24h-volume-symmetric): both venues filter on 24h rolling
+		// volume so --min-volume has consistent meaning across the result set.
+		// PM rows that lack 'volume24hr' (stale markets with no recent trading)
+		// coalesce to 0 and fail the floor, which is intended behavior for a
+		// "liquid markets" screen. Greptile P1 on PR #780.
+		pm += " AND CAST(COALESCE(json_extract(data,'$.volume24hr'),0) AS REAL) > ?"
 		ks += " AND CAST(COALESCE(json_extract(data,'$.volume_24h_fp'),0) AS REAL) > ?"
 	case "new":
 		pm = strings.Replace(pm, pmVolume+" sort_value", "COALESCE(json_extract(data,'$.createdAt'),'') sort_value", 1)
