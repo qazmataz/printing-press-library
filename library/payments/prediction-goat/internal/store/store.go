@@ -96,7 +96,7 @@ func IsUUID(s string) bool {
 // shape — adding columns, dropping indexes, changing FTS5 tokenizers —
 // so an older binary refuses to open a newer database rather than silently
 // producing wrong results against a schema it cannot read.
-const StoreSchemaVersion = 6
+const StoreSchemaVersion = 7
 
 const resourcesFTSCreateSQL = `CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 	id, resource_type, content, tokenize='porter unicode61'
@@ -1230,6 +1230,35 @@ func (s *Store) migrate(ctx context.Context) error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_recipes_query_template ON search_recipes(query_template)`,
 		`CREATE UNIQUE INDEX IF NOT EXISTS idx_recipes_unique ON search_recipes(query_template, resource_template, strategy)`,
+		// PATCH(learn-loop-backport U1): learning_playbooks (v7) is the
+		// hand-authored playbook primitive backported from ESPN's PR #851
+		// cascade. Keyed on the structural query family (all entities
+		// stripped; see learn.QueryFamily). One row per family holds the
+		// optional structured playbook (ordered CLI command sequence with
+		// entity slots) and the optional free-text notes (gotchas,
+		// workarounds the CLI surface doesn't expose). Either field may
+		// be empty; non-empty in both is the strongest signal.
+		//
+		// Read at recall time by query_family; surfaces to the agent
+		// alongside the existing per-resource hits so a future inquiry
+		// of the same shape can skip rediscovery of the choreography.
+		//
+		// Distinct concept from search_recipes (which auto-extracts
+		// generalization templates from search_learnings); playbooks
+		// are hand-authored choreography + notes attached by family.
+		`CREATE TABLE IF NOT EXISTS learning_playbooks (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_family TEXT NOT NULL,
+			playbook_json TEXT,
+			notes_text TEXT,
+			source TEXT NOT NULL DEFAULT 'taught',
+			confidence INTEGER NOT NULL DEFAULT 2,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at TIMESTAMP
+		)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_playbooks_family ON learning_playbooks(query_family)`,
+		`CREATE INDEX IF NOT EXISTS idx_playbooks_source ON learning_playbooks(source)`,
+		`CREATE INDEX IF NOT EXISTS idx_playbooks_last_observed_at ON learning_playbooks(last_observed_at)`,
 	}
 
 	// Run every migration — including the column backfill and the

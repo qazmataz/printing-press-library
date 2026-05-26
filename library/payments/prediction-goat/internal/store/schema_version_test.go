@@ -1918,3 +1918,293 @@ func TestMigrate_AddsColumnsOnUpgrade_SyncState(t *testing.T) {
 		}
 	}
 }
+
+// stampV6WithoutPlaybooks constructs a synthetic v6 database that
+// stamps user_version=6 and pre-creates the prediction-goat tables
+// the v6→v7 migration cares about (search_learnings, entity_lookups,
+// search_recipes) but DOES NOT create learning_playbooks. This
+// exercises the v6→v7 path: opening through the current binary must
+// create the new table without losing data in the existing ones.
+func stampV6WithoutPlaybooks(t *testing.T, dbPath string) {
+	t.Helper()
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw v6 db: %v", err)
+	}
+	defer raw.Close()
+
+	// v6 shape: search_learnings (with query_entities column),
+	// entity_lookups (seeded externally — we just create the empty
+	// table here), search_recipes. No learning_playbooks.
+	if _, err := raw.Exec(`CREATE TABLE search_learnings (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		query_pattern TEXT NOT NULL,
+		query_entities TEXT,
+		venue TEXT,
+		resource_type TEXT,
+		resource_id TEXT NOT NULL,
+		action TEXT NOT NULL,
+		alias_target TEXT,
+		source TEXT NOT NULL,
+		confidence INTEGER DEFAULT 1,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		last_observed_at DATETIME,
+		notes TEXT
+	)`); err != nil {
+		t.Fatalf("create v6 search_learnings: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE entity_lookups (
+		kind TEXT NOT NULL,
+		canonical TEXT NOT NULL,
+		value TEXT NOT NULL,
+		source TEXT NOT NULL DEFAULT 'seeded',
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (kind, canonical, value)
+	)`); err != nil {
+		t.Fatalf("create v6 entity_lookups: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE search_recipes (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		query_template TEXT NOT NULL,
+		resource_template TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
+		venue TEXT,
+		strategy TEXT NOT NULL,
+		entity_kind TEXT NOT NULL,
+		confidence INTEGER NOT NULL DEFAULT 2,
+		source TEXT NOT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		last_observed_at DATETIME,
+		example_query TEXT,
+		example_resource TEXT
+	)`); err != nil {
+		t.Fatalf("create v6 search_recipes: %v", err)
+	}
+	// Seed one row in each existing table so the v6→v7 upgrade can
+	// confirm we don't drop any data.
+	if _, err := raw.Exec(`INSERT INTO search_learnings (query_pattern, resource_id, action, source) VALUES (?, ?, ?, ?)`,
+		"odds portugal wins world cup", "KXMENWORLDCUP-26-PT", "boost", "taught"); err != nil {
+		t.Fatalf("seed search_learnings: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO entity_lookups (kind, canonical, value, source) VALUES (?, ?, ?, ?)`,
+		"country_iso2", "Portugal", "PT", "seeded"); err != nil {
+		t.Fatalf("seed entity_lookups: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO search_recipes (query_template, resource_template, resource_type, strategy, entity_kind, source) VALUES (?, ?, ?, ?, ?, ?)`,
+		"odds {entity:country_iso2} wins world cup", "KXMENWORLDCUP-26-{entity:country_iso2}", "kalshi_market", "substitute", "country_iso2", "inferred"); err != nil {
+		t.Fatalf("seed search_recipes: %v", err)
+	}
+
+	if _, err := raw.Exec(`PRAGMA user_version = 6`); err != nil {
+		t.Fatalf("stamp user_version = 6: %v", err)
+	}
+}
+
+// TestMigrate_LearningPlaybooks_FreshDB pins the fresh-DB guarantee:
+// opening a brand-new database stamps the current schema version and
+// creates the learning_playbooks table with the expected column shape.
+func TestMigrate_LearningPlaybooks_FreshDB(t *testing.T) {
+	t.Parallel()
+
+	dbPath := filepath.Join(t.TempDir(), "fresh.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open fresh db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("fresh db version = %d, want %d", v, StoreSchemaVersion)
+	}
+	if StoreSchemaVersion < 7 {
+		t.Fatalf("StoreSchemaVersion = %d, want >= 7 after learning_playbooks migration", StoreSchemaVersion)
+	}
+
+	// learning_playbooks must exist with the canonical column shape.
+	rows, err := s.DB().Query(`PRAGMA table_info(learning_playbooks)`)
+	if err != nil {
+		t.Fatalf("pragma table_info: %v", err)
+	}
+	defer rows.Close()
+
+	hasColumn := make(map[string]bool)
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			t.Fatalf("scan table_info: %v", err)
+		}
+		hasColumn[name] = true
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("table_info rows.Err: %v", err)
+	}
+
+	for _, want := range []string{
+		"id",
+		"query_family",
+		"playbook_json",
+		"notes_text",
+		"source",
+		"confidence",
+		"created_at",
+		"last_observed_at",
+	} {
+		if !hasColumn[want] {
+			t.Fatalf("%s column missing from learning_playbooks after migrate", want)
+		}
+	}
+
+	// Fresh table starts empty (no seed batch at v7).
+	var count int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM learning_playbooks`).Scan(&count); err != nil {
+		t.Fatalf("count learning_playbooks: %v", err)
+	}
+	if count != 0 {
+		t.Errorf("fresh learning_playbooks row count = %d, want 0", count)
+	}
+}
+
+// TestMigrate_LearningPlaybooks_UpgradeFromV6 exercises the v6→v7
+// transition: a synthetic v6 DB with no learning_playbooks table
+// opens through the current binary, ends up at StoreSchemaVersion,
+// gains the new table, and does NOT lose data from the existing
+// search_learnings / entity_lookups / search_recipes tables.
+func TestMigrate_LearningPlaybooks_UpgradeFromV6(t *testing.T) {
+	t.Parallel()
+
+	dbPath := filepath.Join(t.TempDir(), "v6.db")
+	stampV6WithoutPlaybooks(t, dbPath)
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded db version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	// The new table exists.
+	var count int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM learning_playbooks`).Scan(&count); err != nil {
+		t.Fatalf("count learning_playbooks after upgrade: %v", err)
+	}
+	if count != 0 {
+		t.Errorf("learning_playbooks row count after upgrade = %d, want 0", count)
+	}
+
+	// Pre-existing rows survived the migration unchanged.
+	var learningResource string
+	if err := s.DB().QueryRow(`SELECT resource_id FROM search_learnings WHERE query_pattern = ?`,
+		"odds portugal wins world cup").Scan(&learningResource); err != nil {
+		t.Fatalf("read pre-existing search_learnings: %v", err)
+	}
+	if learningResource != "KXMENWORLDCUP-26-PT" {
+		t.Errorf("pre-existing search_learnings.resource_id = %q, want %q", learningResource, "KXMENWORLDCUP-26-PT")
+	}
+
+	var lookupValue string
+	if err := s.DB().QueryRow(`SELECT value FROM entity_lookups WHERE kind = ? AND canonical = ?`,
+		"country_iso2", "Portugal").Scan(&lookupValue); err != nil {
+		t.Fatalf("read pre-existing entity_lookups: %v", err)
+	}
+	if lookupValue != "PT" {
+		t.Errorf("pre-existing entity_lookups.value = %q, want %q", lookupValue, "PT")
+	}
+
+	var recipeResource string
+	if err := s.DB().QueryRow(`SELECT resource_template FROM search_recipes WHERE query_template = ?`,
+		"odds {entity:country_iso2} wins world cup").Scan(&recipeResource); err != nil {
+		t.Fatalf("read pre-existing search_recipes: %v", err)
+	}
+	if recipeResource != "KXMENWORLDCUP-26-{entity:country_iso2}" {
+		t.Errorf("pre-existing search_recipes.resource_template = %q, want %q", recipeResource, "KXMENWORLDCUP-26-{entity:country_iso2}")
+	}
+}
+
+// TestMigrate_LearningPlaybooks_Idempotent verifies the migration is
+// safe to re-run: opening a v7 DB twice in sequence must not error
+// and must not change the schema state. CREATE TABLE IF NOT EXISTS
+// is the load-bearing guard here; the migrations[] loop runs on
+// every Open and would error on a duplicate-table create otherwise.
+func TestMigrate_LearningPlaybooks_Idempotent(t *testing.T) {
+	t.Parallel()
+
+	dbPath := filepath.Join(t.TempDir(), "idem.db")
+
+	s1, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("first open: %v", err)
+	}
+	// Insert a row so the second Open's idempotency check has something
+	// to verify (the table itself must survive untouched, and the row
+	// inside it must survive too).
+	if _, err := s1.DB().Exec(`INSERT INTO learning_playbooks (query_family, playbook_json, notes_text) VALUES (?, ?, ?)`,
+		"odds wins world cup", `{"steps":[]}`, "watch for parent ticker"); err != nil {
+		s1.Close()
+		t.Fatalf("seed learning_playbooks: %v", err)
+	}
+	s1.Close()
+
+	s2, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("second open: %v", err)
+	}
+	defer s2.Close()
+
+	v, err := s2.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("re-opened version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	var notesText string
+	if err := s2.DB().QueryRow(`SELECT notes_text FROM learning_playbooks WHERE query_family = ?`,
+		"odds wins world cup").Scan(&notesText); err != nil {
+		t.Fatalf("read pre-existing playbook: %v", err)
+	}
+	if notesText != "watch for parent ticker" {
+		t.Errorf("pre-existing playbook notes_text = %q, want %q", notesText, "watch for parent ticker")
+	}
+}
+
+// TestMigrate_LearningPlaybooks_RejectsOlderBinaryAtV7 verifies the
+// schema-version refusal gate fires for an older binary opening a
+// v7-stamped DB. We can't actually run an older binary inside this
+// test, so we stamp user_version=StoreSchemaVersion+1 and confirm
+// Open refuses — this is the same code path an older binary would
+// take when it sees a future version on disk.
+func TestMigrate_LearningPlaybooks_RejectsOlderBinaryAtV7(t *testing.T) {
+	t.Parallel()
+
+	dbPath := filepath.Join(t.TempDir(), "future.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 8`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp future user_version: %v", err)
+	}
+	raw.Close()
+
+	_, err = Open(dbPath)
+	if err == nil {
+		t.Fatalf("expected Open to refuse a v8 db on a v7 binary, got nil")
+	}
+}
