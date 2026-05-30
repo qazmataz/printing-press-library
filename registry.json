@@ -3728,6 +3728,42 @@
       }
     },
     {
+      "name": "godaddy",
+      "category": "developer-tools",
+      "api": "GoDaddy",
+      "description": "Combined CLI for multiple API services",
+      "search_terms": [
+        "godaddy",
+        "godaddy-pp-cli",
+        "Agent-native CLI + MCP covering all 12 GoDaddy developer APIs (138 endpoints): Domains (incl. DNS records), Certificates, Orders, Subscriptions, Shoppers, ANS/Agents, Parking, Aftermarket, Abuse, Agreements, Countries, and Auctions. Auth via GODADDY_API_KEY/GODADDY_API_SECRET; writes are validated and gated.",
+        "Unified GoDaddy official API command surface",
+        "api",
+        "Combine the GoDaddy Swagger groups into one searchable CLI and MCP catalog covering domains, DNS records, certificates, subscriptions, abuse, shoppers, auctions, and related account APIs.",
+        "Authenticated GoDaddy account route evidence",
+        "agent-context",
+        "Document the official API surface alongside sanitized authenticated account-portal route evidence and live-read proof so agents can reason across docs, portal, and API behavior.",
+        "Approval-gated GoDaddy account mutation controls",
+        "domains records",
+        "Classify GoDaddy writes by risk, keep dry-run previews available, and require the package write barrier before live DNS, purchase, transfer, cancellation, or account-changing requests."
+      ],
+      "path": "library/developer-tools/godaddy",
+      "printer": "zaydiscold",
+      "printer_name": "zaydiscold",
+      "mcp": {
+        "binary": "godaddy-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 138,
+        "public_tool_count": 5,
+        "auth_type": "sso-key",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "gohighlevel",
       "category": "sales-and-crm",
       "api": "GoHighLevel",
