@@ -4420,6 +4420,60 @@
       }
     },
     {
+      "name": "here-now",
+      "category": "cloud",
+      "api": "here.now",
+      "description": "Publish a folder to a live URL in one command, mirror your Drives offline",
+      "search_terms": [
+        "here-now",
+        "here.now",
+        "here-now-pp-cli",
+        "Publish a folder to a live URL in one command, mirror your Drives offline, and never lose an anonymous site to the 24-hour clock.",
+        "Claim-token vault + auto-claim",
+        "claims",
+        "Every anonymous publish records its slug, claim token, and 24h expiry into a local vault, so you can make an expiring site permanent later without hunting for the token in terminal scrollback.",
+        "Expiry radar",
+        "claims expiring",
+        "Lists anonymous sites expiring within a time window so you can claim them before they vanish.",
+        "Publish resume",
+        "Detects a locally-recorded publish that uploaded its files but never finalized, and completes it instead of re-publishing from scratch.",
+        "Drive sync (sha256 diff)",
+        "drives sync",
+        "Rsync-style sync of a local directory to a Drive: compares local sha256 against the synced file checksums and uploads only what changed, new, or deleted.",
+        "Drive diff",
+        "drives diff",
+        "Shows which local files differ from a Drive (added, changed, deleted) without uploading anything.",
+        "Free-plan usage meter",
+        "usage",
+        "Local rollup of site count, drive bytes, and recent publish cadence against the free-plan ceilings (500 sites, 10GB, 60 publishes/hour).",
+        "Stale-site finder",
+        "sites stale",
+        "Lists sites not updated in N days from the local mirror, so you can reclaim free-plan slots by deleting dead ones."
+      ],
+      "path": "library/cloud/here-now",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "creator": {
+        "handle": "tmchow",
+        "name": "Trevin Chow"
+      },
+      "mcp": {
+        "binary": "here-now-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 58,
+        "public_tool_count": 3,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "HERENOW_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "hotel-goat",
       "category": "travel",
       "api": "Google Hotels",
