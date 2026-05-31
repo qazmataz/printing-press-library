@@ -9233,42 +9233,29 @@
       "name": "suno",
       "category": "media-and-entertainment",
       "api": "Suno",
-      "description": "Every Suno feature, plus a local SQLite library, offline FTS5 search, MCP-native agent surface, and a single-binary...",
+      "description": "The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library",
       "search_terms": [
         "suno",
         "suno-pp-cli",
-        "Every Suno feature, plus a local SQLite library, offline FTS5 search, MCP-native agent surface, and a single-binary Go install.",
-        "Vibe recipes",
-        "vibes",
-        "Save prompt + tag + persona + model bundles as named recipes and replay them with one-line topic substitution.",
-        "A/B variant auto-picker",
-        "generate create",
-        "Suno returns two clip variants per generation; this auto-ranks them on duration match, lyrics-word-count, and bitrate, downloads only the winner.",
-        "Credit burn analytics",
-        "burn",
-        "Cross-table aggregation showing credits spent by tag, persona, model, or hour-of-day over a window.",
-        "Persona leaderboard",
-        "Ranks the user's voice personas by which produced the most-liked, most-played, or most-extended clips.",
-        "Lineage tree",
-        "tree",
-        "Walks parent_id and direct_children recursively to render the ASCII tree of an extend/concat/cover/remaster ancestry.",
-        "Reachability self-test",
-        "doctor",
-        "Beyond standard health checks: fires a zero-credit lyrics-only generation to confirm the live generate path is reachable and not intercepted by CAPTCHA.",
-        "Credit-budget guard",
-        "budget",
-        "Sets a daily or monthly credit cap; generate refuses to submit when the projected spend would exceed the cap.",
-        "Prompt evolution",
-        "generate evolve",
-        "Takes an existing clip's full parameter bundle and mutates one axis (tag, persona, model) for a focused re-roll.",
-        "Ship pack",
-        "ship",
-        "One-shot publishing bundle: MP3 with ID3+USLT+SYLT, MP4, cover PNG, LRC subtitle, JSON sidecar of metadata.",
-        "Reroll until match",
-        "Resubmits a prompt until a returned variant lands in the requested duration window or attempts run out.",
-        "Sessionized history",
-        "sessions",
-        "Groups recent generations into ~30-minute-gap sessions and reports per-session credit spend, persona usage, and tag drift."
+        "The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library, full-text search, and agent-native output none of them ship.",
+        "Lyric-line grep",
+        "grep",
+        "Find clips by remembered lyric, prompt, or tag phrases via local full-text search.",
+        "Library analytics",
+        "analytics",
+        "Grouped roll-ups across your whole library: counts, average duration/bpm, total plays and upvotes by any clip field.",
+        "Variation lineage",
+        "lineage",
+        "Render the iteration tree of a track: its extends, covers, and remixes, reconstructed from local links.",
+        "Top tracks",
+        "top",
+        "Ranked flat list of your best clips by plays, upvotes, or duration, with machine-readable output.",
+        "Raw SQL",
+        "sql",
+        "Run read-only SQL directly against your local synced clip store.",
+        "Credit throttle report",
+        "credits --forecast",
+        "Remaining credits plus your recent generation volume measured against Suno's captcha-throttle threshold."
       ],
       "path": "library/media-and-entertainment/suno",
       "printer": "mvanhorn",
@@ -9277,19 +9264,26 @@
         "handle": "mvanhorn",
         "name": "Matt Van Horn"
       },
+      "contributors": [
+        {
+          "handle": "horknfbr",
+          "name": "Scott Macdonald"
+        }
+      ],
       "mcp": {
         "binary": "suno-pp-mcp",
         "transports": [
           "stdio",
           "http"
         ],
-        "tool_count": 31,
+        "tool_count": 37,
         "public_tool_count": 0,
-        "auth_type": "composed",
+        "auth_type": "bearer_token",
         "env_vars": [
-          "SUNO_TOKEN"
+          "SUNO_TOKEN",
+          "SUNO_JWT"
         ],
-        "mcp_ready": "partial",
+        "mcp_ready": "full",
         "spec_format": "internal"
       }
     },
