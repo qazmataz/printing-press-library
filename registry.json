@@ -1247,6 +1247,63 @@
       }
     },
     {
+      "name": "blacklane",
+      "category": "commerce",
+      "api": "Blacklane",
+      "description": "Upfront chauffeur quotes from the terminal — transfer and hourly, with a local price history no other tool has.",
+      "search_terms": [
+        "blacklane",
+        "blacklane-pp-cli",
+        "Upfront chauffeur quotes from the terminal — transfer and hourly, with a local price history no other tool has.",
+        "Fare watch",
+        "watch",
+        "Track a saved route's price over time and flag drops.",
+        "Cheapest-window compare",
+        "compare",
+        "Quote one route across many departure times to find the cheapest.",
+        "Multi-leg trip total",
+        "trip",
+        "Quote a sequence of legs and total the fares.",
+        "Class fit advisor",
+        "fit",
+        "Recommend the cheapest vehicle class that fits the party.",
+        "Quote ledger + search",
+        "log",
+        "Every quote saved to SQLite, full-text searchable and SQL-queryable.",
+        "Account bookings",
+        "bookings",
+        "List your upcoming and past Blacklane rides (requires auth login).",
+        "Account profile",
+        "me",
+        "Show your Blacklane profile (requires auth login).",
+        "Wallet",
+        "Show wallet credits and vouchers (requires auth login).",
+        "Booking handoff",
+        "book",
+        "Quote and assemble a booking, then open browser checkout for payment under --confirm. Never charges."
+      ],
+      "path": "library/commerce/blacklane",
+      "printer": "omarshahine",
+      "printer_name": "Omar Shahine",
+      "creator": {
+        "handle": "omarshahine",
+        "name": "Omar Shahine"
+      },
+      "mcp": {
+        "binary": "blacklane-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "blu-ray",
       "category": "media-and-entertainment",
       "api": "Blu-ray.com",
