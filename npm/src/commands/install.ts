@@ -221,7 +221,9 @@ async function installOne(
       deps.stdout(`  shadowed by: ${summary.shadowedBy} (earlier in PATH)`);
     }
     if (summary.pathWarning === "not_on_path") {
-      deps.stdout("  warning: binary is not on PATH; add the Go install directory above or run the binary by full path");
+      deps.stdout(
+        "  warning: binary is not on PATH; run it by full path or add the Go install directory to PATH (see stderr for platform-specific instructions)",
+      );
     }
     if (summary.skill) {
       deps.stdout(`  skill: ${summary.skill}`);
