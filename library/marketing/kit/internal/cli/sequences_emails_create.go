@@ -71,13 +71,13 @@ func newSequencesEmailsCreateCmd(flags *rootFlags) *cobra.Command {
 				if bodyDelayUnit != "" {
 					body["delay_unit"] = bodyDelayUnit
 				}
-				if bodyDelayValue != 0 {
+				if cmd.Flags().Changed("delay-value") {
 					body["delay_value"] = bodyDelayValue
 				}
-				if bodyEmailTemplateId != 0 {
+				if cmd.Flags().Changed("email-template-id") {
 					body["email_template_id"] = bodyEmailTemplateId
 				}
-				if bodyPosition != 0 {
+				if cmd.Flags().Changed("position") {
 					body["position"] = bodyPosition
 				}
 				if bodyPreviewText != "" {

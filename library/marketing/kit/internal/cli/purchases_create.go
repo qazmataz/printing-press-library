@@ -105,7 +105,7 @@ func newPurchasesCreateCmd(flags *rootFlags) *cobra.Command {
 						}
 						nestedPurchase["products"] = parsedPurchaseProducts
 					}
-					if bodyPurchaseShipping != 0 {
+					if cmd.Flags().Changed("purchase-shipping") {
 						nestedPurchase["shipping"] = bodyPurchaseShipping
 					}
 					if bodyPurchaseStatus != "" {

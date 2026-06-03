@@ -63,7 +63,7 @@ func newSequencesUpdateCmd(flags *rootFlags) *cobra.Command {
 				if bodyEmailAddress != "" {
 					body["email_address"] = bodyEmailAddress
 				}
-				if bodyEmailTemplateId != 0 {
+				if cmd.Flags().Changed("email-template-id") {
 					body["email_template_id"] = bodyEmailTemplateId
 				}
 				if bodyExcludeSubscriberSources != "" {
@@ -89,7 +89,7 @@ func newSequencesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					body["send_days"] = parsedSendDays
 				}
-				if bodySendHour != 0 {
+				if cmd.Flags().Changed("send-hour") {
 					body["send_hour"] = bodySendHour
 				}
 				if bodyTimeZone != "" {

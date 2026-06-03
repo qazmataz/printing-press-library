@@ -85,7 +85,7 @@ func newBroadcastsCreateCmd(flags *rootFlags) *cobra.Command {
 				if bodyEmailAddress != "" {
 					body["email_address"] = bodyEmailAddress
 				}
-				if bodyEmailTemplateId != 0 {
+				if cmd.Flags().Changed("email-template-id") {
 					body["email_template_id"] = bodyEmailTemplateId
 				}
 				if bodyPreviewText != "" {
