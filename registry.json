@@ -4459,6 +4459,12 @@
         "handle": "dstevens",
         "name": "Damien Stevens"
       },
+      "contributors": [
+        {
+          "handle": "jeffreydebolt",
+          "name": "Jeff DeBolt"
+        }
+      ],
       "mcp": {
         "binary": "granola-pp-mcp",
         "transports": [
