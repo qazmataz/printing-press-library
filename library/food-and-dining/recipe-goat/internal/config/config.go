@@ -118,6 +118,7 @@ func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.UsdaFdcApiKey = ""
 	return c.save()
 }
 

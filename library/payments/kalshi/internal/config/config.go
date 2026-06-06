@@ -180,6 +180,7 @@ func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.APIKey = ""
 	return c.save()
 }
 

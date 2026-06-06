@@ -122,6 +122,7 @@ func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.AhrefsApiKey = ""
 	return c.save()
 }
 

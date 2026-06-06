@@ -100,6 +100,7 @@ func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.OpensnowApiKey = ""
 	return c.save()
 }
 
