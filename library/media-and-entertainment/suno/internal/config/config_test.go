@@ -78,6 +78,37 @@ func TestLoadKeepsEnvFallbackWhenOnlyStoredSessionExists(t *testing.T) {
 	}
 }
 
+// TestLoadEnvOnlyAuthDetectedBeforeAuthHeader is the regression guard for the
+// env-only auth-routing bug: Load() must label AuthSource from the env token so
+// IsEnvAuth() is correct before the first AuthHeader() call. newClient() consults
+// IsEnvAuth() to route env-only users to the per-run browser cookie pull; when
+// AuthSource was only set lazily in AuthHeader(), env users read false here and
+// silently fell into the managed Clerk-session path with no studio cookies.
+func TestLoadEnvOnlyAuthDetectedBeforeAuthHeader(t *testing.T) {
+	cases := []struct{ name, tokenEnv, jwtEnv, wantSource string }{
+		{"SUNO_TOKEN", "env-token", "", "env:SUNO_TOKEN"},
+		{"SUNO_JWT", "", "env-jwt", "env:SUNO_JWT"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Setenv("SUNO_TOKEN", tc.tokenEnv)
+			t.Setenv("SUNO_JWT", tc.jwtEnv)
+
+			cfg, err := Load(filepath.Join(t.TempDir(), "missing.toml"))
+			if err != nil {
+				t.Fatalf("Load() error = %v", err)
+			}
+			// The assertion that matters: IsEnvAuth() before any AuthHeader() call.
+			if !cfg.IsEnvAuth() {
+				t.Fatalf("IsEnvAuth() = false right after Load(); env-only users must be detected before the first AuthHeader() call (AuthSource = %q)", cfg.AuthSource)
+			}
+			if cfg.AuthSource != tc.wantSource {
+				t.Fatalf("AuthSource = %q, want %q", cfg.AuthSource, tc.wantSource)
+			}
+		})
+	}
+}
+
 // TestClearTokensRevokesStudioSession guards that logout fully revokes the
 // cached studio session — the durable suno.com cookie header and its paired
 // expiry — not just the JWT/OAuth credentials.

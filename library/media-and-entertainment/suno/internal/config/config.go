@@ -93,6 +93,17 @@ func Load(configPath string) (*Config, error) {
 		cfg.AuthSource = "config"
 	}
 
+	// Env-only auth: when no file-backed credential set AuthSource above, the env
+	// token IS the auth source. Label it here, not lazily in AuthHeader(), so
+	// IsEnvAuth() is correct before the first HTTP call. newClient() consults
+	// IsEnvAuth() to route env-only users to the per-run browser cookie pull;
+	// without this they read AuthSource == "" (false), silently fall into the
+	// managed Clerk-session path (JWT re-mint + stored-cookie reuse, neither of
+	// which applies to an unmanaged env token), and get no studio cookies.
+	if cfg.AuthSource == "" && cfg.EnvSunoJwt != "" {
+		cfg.AuthSource = cfg.EnvAuthSource
+	}
+
 	// Base URL override (used by printing-press verify to point at mock/test servers)
 	if v := os.Getenv("SUNO_BASE_URL"); v != "" {
 		cfg.BaseURL = v
