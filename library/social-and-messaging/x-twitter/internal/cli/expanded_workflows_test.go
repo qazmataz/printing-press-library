@@ -207,6 +207,38 @@ func TestLocalTimelineQueryEscapesLikeWildcards(t *testing.T) {
 	}
 }
 
+func TestBuildTimelineExportFiltersLocalQuerySince(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "x-twitter.db")
+	db, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+	cmd := testCommand()
+	rows := []struct {
+		id        string
+		createdAt string
+	}{
+		{"1", "2026-01-01T00:00:00Z"},
+		{"2", "2026-02-01T00:00:00Z"},
+	}
+	for _, row := range rows {
+		raw := `{"id":"` + row.id + `","text":"node update","created_at":"` + row.createdAt + `"}`
+		if _, err := db.DB().ExecContext(cmd.Context(),
+			`INSERT INTO tweets(id, data, text, created_at) VALUES(?, ?, ?, ?)`,
+			row.id, raw, "node update", row.createdAt); err != nil {
+			t.Fatalf("insert tweet %s: %v", row.id, err)
+		}
+	}
+	result, err := buildTimelineExport(cmd, &rootFlags{}, dbPath, "local", nil, "node", "2026-01-15", 10)
+	if err != nil {
+		t.Fatalf("buildTimelineExport: %v", err)
+	}
+	if len(result.Items) != 1 || result.Items[0].TweetID != "2" {
+		t.Fatalf("items = %+v", result.Items)
+	}
+}
+
 func TestFilterRecordsSince(t *testing.T) {
 	records := []*resolvedPostRecord{
 		{TweetID: "old", CreatedAt: "2026-01-01T00:00:00Z"},

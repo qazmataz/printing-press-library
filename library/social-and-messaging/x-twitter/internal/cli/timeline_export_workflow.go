@@ -96,6 +96,10 @@ func buildTimelineExport(cmd *cobra.Command, flags *rootFlags, dbPath, mode stri
 			if err != nil {
 				return result, err
 			}
+			records, err = filterRecordsSince(records, since)
+			if err != nil {
+				return result, err
+			}
 			result.Source = "local"
 			for _, rec := range records {
 				result.Items = append(result.Items, collectionItemFromPost(rec, ""))
