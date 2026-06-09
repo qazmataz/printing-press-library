@@ -27,8 +27,9 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 		Use:         "watch <query>",
 		Short:       "Record current prices for every item matching a search into the local store so price history builds over time.",
 		Long:        "Record current prices for every item matching a search into the local store so price history builds over time.\n\nRun periodically on a query you care about; then 'price-history <itemId>' shows the trend for any captured item, and 'since <query>' shows what changed.",
-		Example:     "  daraz-pp-cli watch \"gaming laptop\"",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Example: "  daraz-pp-cli watch \"gaming laptop\"",
+		// watch is write-primary: its purpose is to record prices into the
+		// local store, so it is intentionally NOT marked mcp:read-only.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()

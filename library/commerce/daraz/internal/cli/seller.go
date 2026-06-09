@@ -87,6 +87,9 @@ func newSellerProductsCmd(flags *rootFlags) *cobra.Command {
 					Reviews: int(reviews.Int64), Sold: int(sold.Int64), URL: url.String,
 				})
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("reading seller listings: %w", err)
+			}
 			if len(out) == 0 {
 				return emptyMirrorHint(cmd, flags, fmt.Sprintf("no local listings for seller %s yet. Run deals/value/compare/watch on relevant queries first, then retry.", sellerID))
 			}

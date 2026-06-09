@@ -101,6 +101,9 @@ func newNovelSellerStatsCmd(flags *rootFlags) *cobra.Command {
 					brandCount[brand.String]++
 				}
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("reading seller stats: %w", err)
+			}
 			if out.Listings == 0 {
 				return emptyMirrorHint(cmd, flags, fmt.Sprintf("no local listings for seller %s yet. Run deals/value/compare/watch on relevant queries first, then retry.", sellerID))
 			}

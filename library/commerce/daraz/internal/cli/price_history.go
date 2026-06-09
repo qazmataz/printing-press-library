@@ -81,6 +81,9 @@ func newNovelPriceHistoryCmd(flags *rootFlags) *cobra.Command {
 					Price: price.Float64,
 				})
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("reading price history: %w", err)
+			}
 			if len(out.Points) == 0 {
 				return emptyMirrorHint(cmd, flags, fmt.Sprintf("no price history for item %s yet. Capture it with: daraz-pp-cli watch \"<a search that returns this item>\" (or run deals/value/compare on a matching query), then retry.", itemID))
 			}
