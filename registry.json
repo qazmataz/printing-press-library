@@ -2097,7 +2097,7 @@
       "name": "cloudflare",
       "category": "cloud",
       "api": "Cloudflare",
-      "description": "Agent-ready CLI for Cloudflare accounts, zones, DNS, Workers, Pages, R2, tunnels, Zero Trust, and infrastructure operations.",
+      "description": "Welcome to Cloudflare's API documentation site.",
       "search_terms": [
         "cloudflare",
         "cloudflare-pp-cli",
