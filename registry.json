@@ -9749,6 +9749,72 @@
       }
     },
     {
+      "name": "shipsgo",
+      "category": "commerce",
+      "api": "ShipsGo",
+      "description": "Every ShipsGo endpoint, plus an RFQ workspace, lane analytics, and an offline shipment book no other tool offers.",
+      "search_terms": [
+        "shipsgo",
+        "shipsgo-pp-cli",
+        "Every ShipsGo endpoint, plus an RFQ workspace, lane analytics, and an offline shipment book no other tool offers.",
+        "RFQ workspace",
+        "rfq new",
+        "Create, populate, and inspect an RFQ workspace that groups multiple tracked shipments under one quote slug.",
+        "RFQ carrier comparison",
+        "rfq compare",
+        "For one RFQ slug, group its shipments by carrier and emit mean actual transit days, ETA-vs-actual delta, and shipment count.",
+        "Lane statistics",
+        "lane stats",
+        "Across all locally tracked shipments on an origin→destination lane, report p50/p90 transit days with per-carrier breakdown.",
+        "ETA drift detector",
+        "eta-drift",
+        "List shipments whose ETA shifted by more than N days since the last sync — sorted by drift magnitude.",
+        "Credit budget guardrail",
+        "credit-budget",
+        "Read ShipsGo X-RateLimit-* headers from the last response, combine with local dedupe state, and refuse new POSTs when the reserve would be breached.",
+        "Unified shipment book",
+        "book",
+        "Single view across ocean + air shipments, filterable by ETA window, status, tag, port, or carrier — backed by FTS5 and local indices.",
+        "Carrier reliability score",
+        "reliability",
+        "Median(actual_delivery − original_eta) and on-time percentage for a carrier, optionally scoped to a specific lane.",
+        "Webhook event tail",
+        "webhook tail",
+        "Tail the locally stored webhook_events table chronologically; supports --since, --shipment, and --watch.",
+        "Pre-write dupe check",
+        "dupe-check",
+        "Look up a container number or AWB in the local store and exit non-zero with the existing shipment id if already tracked.",
+        "RFQ stakeholder digest",
+        "digest",
+        "Emit a structured table of shipment id, last milestone, current ETA, and ETA-delta since last digest, scoped to an RFQ or a time window.",
+        "RFQ follower fan-out",
+        "followers-broadcast",
+        "Add or remove one follower email across every shipment in an RFQ in one command, gated by credit-budget and --dry-run."
+      ],
+      "path": "library/commerce/shipsgo",
+      "printer": "WerkstoffClub",
+      "printer_name": "WerkstoffClub",
+      "creator": {
+        "handle": "WerkstoffClub",
+        "name": "WerkstoffClub"
+      },
+      "mcp": {
+        "binary": "shipsgo-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 22,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SHIPSGO_USER_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "shopify",
       "category": "commerce",
       "api": "Shopify",
