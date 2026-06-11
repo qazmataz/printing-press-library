@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS app_snapshots (
 	id          INTEGER PRIMARY KEY AUTOINCREMENT,
 	app_id      TEXT NOT NULL,
 	captured_at INTEGER NOT NULL,
-	data        TEXT NOT NULL
+	data        TEXT NOT NULL,
+	UNIQUE(app_id, captured_at) ON CONFLICT REPLACE
 );
 CREATE INDEX IF NOT EXISTS idx_app_snap ON app_snapshots(app_id, captured_at);
 
@@ -44,7 +45,8 @@ CREATE TABLE IF NOT EXISTS keyword_ranks (
 	app_id      TEXT NOT NULL,
 	captured_at INTEGER NOT NULL,
 	rank        INTEGER NOT NULL,
-	scanned     INTEGER NOT NULL
+	scanned     INTEGER NOT NULL,
+	UNIQUE(term, country, app_id, captured_at) ON CONFLICT REPLACE
 );
 CREATE INDEX IF NOT EXISTS idx_kw ON keyword_ranks(term, country, app_id, captured_at);
 
@@ -200,7 +202,7 @@ func (s *Store) InsertAppSnapshot(ctx context.Context, appID string, capturedAt 
 		return err
 	}
 	_, err := s.DB().ExecContext(ctx,
-		`INSERT INTO app_snapshots(app_id,captured_at,data) VALUES(?,?,?)`,
+		`INSERT OR REPLACE INTO app_snapshots(app_id,captured_at,data) VALUES(?,?,?)`,
 		appID, capturedAt, string(data))
 	return err
 }
@@ -242,7 +244,7 @@ func (s *Store) InsertKeywordRank(ctx context.Context, term, country, appID stri
 		return err
 	}
 	_, err := s.DB().ExecContext(ctx,
-		`INSERT INTO keyword_ranks(term,country,app_id,captured_at,rank,scanned) VALUES(?,?,?,?,?,?)`,
+		`INSERT OR REPLACE INTO keyword_ranks(term,country,app_id,captured_at,rank,scanned) VALUES(?,?,?,?,?,?)`,
 		term, country, appID, capturedAt, rank, scanned)
 	return err
 }

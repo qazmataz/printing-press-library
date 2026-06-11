@@ -48,11 +48,16 @@ func TestKeywordRankRoundTrip(t *testing.T) {
 	if err := s.InsertKeywordRank(ctx, "puzzle", "us", "com.x", 1781179000, 5, 50); err != nil {
 		t.Fatalf("insert keyword rank: %v", err)
 	}
+	// Re-insert at the same captured_at with a corrected rank: must replace,
+	// not duplicate (UNIQUE ... ON CONFLICT REPLACE).
+	if err := s.InsertKeywordRank(ctx, "puzzle", "us", "com.x", 1781179000, 3, 80); err != nil {
+		t.Fatalf("re-insert keyword rank: %v", err)
+	}
 	pts, err := s.KeywordRankSeries(ctx, "puzzle", "us", "com.x")
 	if err != nil {
 		t.Fatalf("series: %v", err)
 	}
-	if len(pts) != 1 || pts[0].Rank != 5 {
-		t.Fatalf("expected one point rank 5, got %+v", pts)
+	if len(pts) != 1 || pts[0].Rank != 3 {
+		t.Fatalf("expected one point rank 3 after same-second replace, got %+v", pts)
 	}
 }
