@@ -5440,6 +5440,58 @@
       }
     },
     {
+      "name": "intervals-icu",
+      "category": "other",
+      "api": "Intervals.icu",
+      "description": "The first intervals.",
+      "search_terms": [
+        "intervals-icu",
+        "Intervals.icu",
+        "intervals-icu-pp-cli",
+        "The first intervals.icu CLI with a local training database — offline search, SQL, and fitness/form analytics no other tool has.",
+        "Local training database",
+        "sync",
+        "Sync your full activity, wellness, event, workout and gear history into a local SQLite database for offline search and SQL.",
+        "Fitness & form trend",
+        "form",
+        "Compute CTL (fitness), ATL (fatigue) and TSB/form from your synced activity load and show the trend.",
+        "Season curve comparison",
+        "curve compare",
+        "Compare best power/pace/HR curves between two date ranges from the local store.",
+        "Wellness vs load correlation",
+        "wellness trends",
+        "Correlate HRV / resting HR / sleep against training load over a window from the local store.",
+        "Calendar catch-up window",
+        "since",
+        "Show planned workouts, completed activities, and what was missed within a recent time window.",
+        "Gear mileage rollup",
+        "gear status",
+        "Roll up distance/time per gear component against reminders to flag what needs service or replacement."
+      ],
+      "path": "library/other/intervals-icu",
+      "printer": "milosm",
+      "printer_name": "Milos Mladenovic",
+      "creator": {
+        "handle": "milosm",
+        "name": "Milos Mladenovic"
+      },
+      "mcp": {
+        "binary": "intervals-icu-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 146,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "INTERVALS_ICU_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "jimmy-johns",
       "category": "food-and-dining",
       "api": "Jimmy John's",
