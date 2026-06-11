@@ -1,0 +1,921 @@
+{
+  "summary": "Clean-room Phase 1 research for AppMagic CLI: official API, wrappers, MCPs, competitors, product surface",
+  "agentCount": 6,
+  "logs": [
+    "5/5 researchers returned"
+  ],
+  "result": {
+    "researchers": [
+      {
+        "key": "official-api",
+        "out": {
+          "summary": "AppMagic (appmagic.rocks, acquired by Sensor Tower, announced 2026-05-12) sells an official, documented public REST API. The marketing page at appmagic.rocks/tool-descriptions/api advertises \"50+ endpoints\" with tailorable endpoints (contact info(at)appmagic.rocks), and the real surface is much larger: a publicly downloadable Swagger 2.0 spec at https://api.appmagic.rocks/swagger.json (title \"Appmagic API\", version 1.0.0, ~339 KB) defines 116 paths / 117 operations (72 GET, 45 POST) under base https://api.appmagic.rocks/v1, with ReDoc docs at /v1/docs and Swagger UI at /v1/docs/interactive. Auth is NOT Bearer-token: it is HTTP Basic (Authorization: Basic base64(login:password)) or URL-embedded credentials (https://login:password(at)api.appmagic.rocks/v1/...); the rappmagic R wrapper confirms credentials are the AppMagic account name + password, so paid users use their account login rather than a separate token. The API also natively exposes every operation as an MCP tool at https://api.appmagic.rocks/mcp (JSON-RPC 2.0, Streamable HTTP; GET returns 405/allow: POST), with an official \"claude mcp add --transport http appmagic ... --header 'Authorization: Basic $AUTH'\" example in the spec description. Rate limiting is documented structurally (X-RateLimit-Limit = \"Request limit per day\", X-RateLimit-Remaining, X-RateLimit-Reset, X-Concurrent-Requests-Allowed, and 429 with Retry-After) but no numeric quotas are published, implying plan-dependent limits. Pricing is fully sales-led: the /pricing page is a demo-request form promising \"a pricing plan tailored to your needs\", so no public mapping of plans to API access exists. The spec is not mirrored on apis.guru, no public Postman workspace was found, and the only third-party wrapper on GitHub is muzerow/rappmagic (R). Caution: api.magicapp.org (\"The MAGICapp API\", Swagger UI in search results) is an unrelated medical-guidelines platform and a pure name collision.",
+          "facts": [
+            {
+              "claim": "AppMagic officially markets a public API: its tool-description page says \"Break loose of the UI's limitations and fully utilize our data-rich API. With 50+ endpoints... the endpoints can be tailored to your team's needs\" and directs feedback to info(at)appmagic.rocks.",
+              "evidence_url": "https://appmagic.rocks/tool-descriptions/api",
+              "confidence": "high"
+            },
+            {
+              "claim": "Official API documentation exists at https://api.appmagic.rocks/v1/docs (ReDoc) plus an interactive Swagger UI at https://api.appmagic.rocks/v1/docs/interactive; both load the spec from /swagger.json.",
+              "evidence_url": "https://api.appmagic.rocks/v1/docs",
+              "confidence": "high"
+            },
+            {
+              "claim": "A full OpenAPI (Swagger 2.0) spec is publicly downloadable without auth: title \"Appmagic API\", version 1.0.0, basePath /v1, schemes https, 116 paths / 117 operations (72 GET, 45 POST), global produces application/json and text/csv.",
+              "evidence_url": "https://api.appmagic.rocks/swagger.json",
+              "confidence": "high"
+            },
+            {
+              "claim": "Authentication is HTTP Basic only (securityDefinitions: BasicAuth type basic, applied globally). The spec's own words: \"Basic Auth header: Authorization: Basic base64(login:password)\" or \"URL authentication: https://login:password(at)api.appmagic.rocks/v1/mau\". No Bearer token or API-key scheme is defined.",
+              "evidence_url": "https://api.appmagic.rocks/swagger.json",
+              "confidence": "high"
+            },
+            {
+              "claim": "Credentials are the user's AppMagic account login and password (not a separately issued token): the community R wrapper's am_auth(name, password) builds \"Basic \" + base64(name:password) and links to the official docs anchor https://api.appmagic.rocks/v1/docs#section/Authentication.",
+              "evidence_url": "https://github.com/muzerow/rappmagic/blob/master/R/am_auth.r",
+              "confidence": "high"
+            },
+            {
+              "claim": "Every API operation is also exposed as an MCP tool at https://api.appmagic.rocks/mcp (JSON-RPC 2.0, Streamable HTTP transport); the spec includes a Claude Code integration example: claude mcp add --transport http appmagic https://api.appmagic.rocks/mcp --header \"Authorization: Basic $AUTH\". Live probe: GET /mcp returns 405 with allow: POST, consistent with Streamable HTTP.",
+              "evidence_url": "https://api.appmagic.rocks/swagger.json",
+              "confidence": "high"
+            },
+            {
+              "claim": "Rate limiting is documented via response headers on every operation: X-Concurrent-Requests-Allowed (\"The number of concurrent requests allowed\"), X-RateLimit-Limit (\"Request limit per day\"), X-RateLimit-Remaining, X-RateLimit-Reset, plus 429 \"too many requests\" responses carrying Retry-After. No numeric quota values are published anywhere in the spec (implying account/plan-specific limits).",
+              "evidence_url": "https://api.appmagic.rocks/swagger.json",
+              "confidence": "high"
+            },
+            {
+              "claim": "No public plan-to-API mapping or self-serve pricing exists: https://appmagic.rocks/pricing renders as a demo-request form (\"Select the tools you're interested in on the demo form, and we'll prepare a walkthrough... along with a pricing plan tailored to your needs\"); API access is sold through this sales-led process.",
+              "evidence_url": "https://appmagic.rocks/pricing",
+              "confidence": "high"
+            },
+            {
+              "claim": "AppMagic was acquired by Sensor Tower (announced May 12, 2026) and is positioned as Sensor Tower's dedicated SMB market-intelligence solution; appmagic.rocks footer now reads \"(c) 2026 Sensor Tower, Inc\".",
+              "evidence_url": "https://www.prnewswire.com/news-releases/sensor-tower-acquires-appmagic-adding-dedicated-smb-solution-to-comprehensive-suite-of-digital-intelligence-302768743.html",
+              "confidence": "high"
+            },
+            {
+              "claim": "The AppMagic API is NOT listed in the apis.guru OpenAPI directory (0 matches among 2,529 listed APIs), and no public Postman workspace/collection for it was found.",
+              "evidence_url": "https://api.apis.guru/v2/list.json",
+              "confidence": "medium"
+            },
+            {
+              "claim": "api.magicapp.org (\"The MAGICapp API\", Swagger UI at https://api.magicapp.org/swagger-ui/index.html) that appears in searches for \"AppMagic API\" is an unrelated medical guideline platform (440 paths about recommendations, PICOs, guidelines) - a name collision, not AppMagic.",
+              "evidence_url": "https://api.magicapp.org/api-docs",
+              "confidence": "high"
+            },
+            {
+              "claim": "At least one lightweight endpoint responds without credentials: unauthenticated GET https://api.appmagic.rocks/v1/last-date returned HTTP 200 {\"last_date\":\"2026-06-08\"} (with www-authenticate: Basic header, served via Cloudflare), even though the spec marks all operations as requiring BasicAuth.",
+              "evidence_url": "https://api.appmagic.rocks/v1/last-date",
+              "confidence": "high"
+            },
+            {
+              "claim": "Responses support both JSON and CSV: global produces is [application/json, text/csv], selected per-request via the Accept header (the rappmagic wrapper defaults to Accept: text/csv).",
+              "evidence_url": "https://api.appmagic.rocks/swagger.json",
+              "confidence": "high"
+            },
+            {
+              "claim": "A third-party review site (research.com) claims AppMagic's premium version \"starts from $2480\"; this is unverified third-party information, not from AppMagic.",
+              "evidence_url": "https://research.com/software/reviews/appmagic",
+              "confidence": "low"
+            }
+          ],
+          "endpoints_or_features": [
+            "Base URL: https://api.appmagic.rocks/v1 (Swagger 2.0 spec at https://api.appmagic.rocks/swagger.json; ReDoc docs /v1/docs; Swagger UI /v1/docs/interactive; MCP at /mcp). Spec tags: history, tops, applications, united applications, publishers, united publishers, categories, tags, charts, Ad Intelligence, contacts, sdkint, available countries",
+            "GET /tops/application - top charts; params: sort (top_free|top_grossing|top_featuring, required), store (1|2|3, required), country (alpha-2 or WW/W1/E1, required), date (required, min 2015-01-01), aggregation (daily|weekly|monthly), category_id, tag_id[], limit; Accept: application/json or text/csv",
+            "GET /tops/applications, /tops/united-application, /tops/united-applications, /tops/publishers, /tops/trending, /tops/soft-launches, /tops/ltv, /tops/advanced-search - other top-chart variants",
+            "GET /history/application - per-app time series; params: store, store_application_id, country, aggregation, date_from, date_to, category_id. Also POST /history/applications, GET /history/united-application(s)",
+            "POST /history/dau, /history/mau, /history/retention, /history/session-stats, /history/united-applications-dau, /history/united-applications-mau, /history/united-applications-session-stats, /history/united-retention - audience metric histories",
+            "POST /dau, /mau, /united-dau, /united-mau, /arpdau (ARPDAU Chart), /retention, /retention-v2, /united_retention, /united-retention-v2, /session-stats, /ad-spend, /web-shop-revenue (Web Shop Revenue Chart), /market-segments/cumulative - chart/metric endpoints",
+            "GET/POST /applications, POST /applications/app-info-v2(+/releases), POST /applications/release-notes, GET /applications/reviews, POST /applications/search-by-ids, GET /applications/{store}/{store_application_id} (+/info, /competitors, /release-notes, /screenshots, /similarity) - app metadata",
+            "GET /united-applications, /united-applications/{id} (+/data-countries, /ltv), POST /united-applications/search-by-ids, /united-applications/search-by-app-ids - cross-store unified apps",
+            "GET /publishers, /publishers/{store}/{store_publisher_id} (+/applications); GET /united-publishers, /united-publishers/{id} (+/data-countries, /united-applications), /united-publishers/lifetime-data, POST /united-publishers/search-by-ids - publisher data",
+            "Ad Intelligence: GET /adint/stats, /adint/creatives, /adint/application-ads, /adint/ad-source-values, /adint/filter_values; POST /adint/series",
+            "ASO/ASA keyword intelligence: POST /aso/by_app, /aso/by_keyword; GET /aso/dates, /aso/series, /aso/filter_values; POST /asa/by_app, /asa/by_keyword; GET /asa/dates, /asa/series, /asa/filter_values; GET /keywords/all",
+            "SDK intelligence: POST /sdkint/applications, /sdkint/applications/changed, /sdkint/publishers; GET /sdkint/sdks, /sdkint/sdks/all",
+            "Live ops / product insights: GET /live-ops/games, /live-ops/live-ops, /live-ops/live-ops-calendar, /live-ops/updates, /live-ops/tags-values",
+            "Steam analytics: GET /steam/top, /steam/app/info, /steam/app/united, /steam/app/metrics-by-countries, /steam/categories, /steam/genres, /steam/tags, /steam/last-date; POST /steam/charts/metrics, /steam/charts/retention, /steam/charts/user-activity, /steam/charts/wishlist",
+            "Contacts: GET /contacts/companies/{id}; POST /contacts/profiles (LinkedIn-style publisher contacts per rappmagic wrapper)",
+            "Taxonomy/meta: GET /categories, /tags, /app_categories, /app_tags, /app_publishers, /last-date, /featuring, /app-transfers, /apps_downloads, /country_downloads, /last_versions; period comparison: POST /period-comparison/custom-apps, /period-comparison/top-apps, GET /period-comparison/last-date",
+            "MCP feature: every REST operation auto-exposed as an MCP tool at POST https://api.appmagic.rocks/mcp (JSON-RPC 2.0, Streamable HTTP) with Basic auth header; official Claude Code one-liner documented in the spec"
+          ],
+          "repos_and_packages": [
+            {
+              "name": "muzerow/rappmagic",
+              "url": "https://github.com/muzerow/rappmagic",
+              "notes": "Only third-party wrapper found for the real AppMagic API (v1.0.0, MIT). 35 R functions mirroring official endpoints (tops, history, applications, united apps/publishers, ads, contacts, categories/tags). am_auth() confirms Basic auth = base64(account name:password); function docs link to official anchors like https://api.appmagic.rocks/v1/docs#operation/getTopApplications.",
+              "language": "R",
+              "stars_or_downloads": "3 stars"
+            },
+            {
+              "name": "AppMagic official OpenAPI spec (self-hosted)",
+              "url": "https://api.appmagic.rocks/swagger.json",
+              "notes": "Swagger 2.0, ~339 KB, 116 paths / 117 operations. Not mirrored on apis.guru (0 matches in 2,529 APIs) and no public Postman workspace found; no appmagic package on PyPI (404) and the npm 'appmagic' package is unrelated.",
+              "language": "OpenAPI/Swagger 2.0 JSON",
+              "stars_or_downloads": "n/a"
+            },
+            {
+              "name": "MAGICapp API (name collision - NOT AppMagic)",
+              "url": "https://api.magicapp.org/swagger-ui/index.html",
+              "notes": "Medical guideline authoring platform (PICOs, recommendations, 440 paths, OpenAPI 3.1). Appears in searches for 'AppMagic API' but is completely unrelated to appmagic.rocks.",
+              "language": "OpenAPI 3.1",
+              "stars_or_downloads": "n/a"
+            }
+          ],
+          "gaps": [
+            "Which named plan tiers include API access and at what price: AppMagic publishes no plan matrix; /pricing is a demo-request form and pricing is quoted per-customer. The only price figure found ($2,480+ for premium, research.com) is third-party and unverified.",
+            "Numeric rate-limit quotas: the spec documents the limit headers (daily request limit, concurrent-request cap) and 429/Retry-After semantics, but actual values are never published and are presumably set per account/plan.",
+            "Exact credential provisioning flow: evidence strongly indicates Basic auth uses the AppMagic account login:password (per the official docs Authentication section anchor and the rappmagic wrapper), but I did not authenticate (per task rules), so I could not confirm whether free accounts get API access or whether API entitlement is toggled server-side per contract.",
+            "Whether the documented 116-path surface is fully available to all API customers or gated per-contract: the marketing page says endpoints \"can be tailored to your team's needs\", suggesting per-customer entitlement, but no public entitlement matrix exists.",
+            "No dedicated help-center subdomain found: help.appmagic.rocks and intercom.help/appmagic both 404; appmagic.rocks/help redirects into the app's Top Apps view. Official long-form docs live only at api.appmagic.rocks/v1/docs and appmagic.rocks/tool-descriptions|articles.",
+            "Postman public-network search via the unauthenticated proxy returned an empty result set, so absence of a public Postman workspace is probable but not exhaustively verified.",
+            "Post-acquisition roadmap: whether Sensor Tower will keep the AppMagic API separate from Sensor Tower's own API offering is not publicly stated."
+          ]
+        }
+      },
+      {
+        "key": "wrappers",
+        "out": {
+          "summary": "The only substantive, full-coverage community wrapper for the AppMagic API is muzerow/rappmagic, an R package (3 stars, MIT, last pushed 2024-06-27) by Kirill Mukhin mapping ~34 official endpoints under base URL https://api.appmagic.rocks/v1/. Its source reveals the auth pattern: Authorization header = Basic + base64(name:password) (HTTP Basic), with Accept text/csv (default) or JSON and Accept-Encoding gzip. It has zero issues, so no 403/rate-limit complaints there. Barashkis/AppMagicSubscription (Python, 2022, Telegram bot) deliberately does NOT use the API; it drives a real browser via undetected-chromedriver + selenium-wire, logs in through Google, and intercepts XHR (search-by-ids, ltv, data-countries), because its README states the API is very sensible to requests and browser scraping is the only way to pass through AppMagic security; ~1000 apps take 4-5 hours. novaforge-team/crawl-appmagic-web (TypeScript/Next.js, May 2026) is a viewer for already-crawled AppMagic JSON (search/ltv/adint ad data), confirming response shapes, but the crawler is not in the repo. LevGogol/get_playable is a Chrome extension that DOM-scrapes playable-ad iframe links on AppMagic and SensorTower. No appmagic package exists on PyPI; the npm appmagic package is an unrelated empty placeholder. All other ~40 GitHub appmagic repos are unrelated. GitHub code-search API needs auth (401) and grep.app/Sourcegraph returned nothing.</summary>\n<_pad>ignore",
+          "facts": [
+            {
+              "claim": "muzerow/rappmagic is an R wrapper for the AppMagic API: 3 stars, 0 forks, MIT, created 2021-12-13, last pushed 2024-06-27, 0 issues (no 403/rate-limit reports filed).",
+              "evidence_url": "https://api.github.com/repos/muzerow/rappmagic",
+              "confidence": "high"
+            },
+            {
+              "claim": "rappmagic auth: am_auth builds base64 of name-colon-password and returns Basic plus token, sent via the Authorization header. HTTP Basic auth.",
+              "evidence_url": "https://raw.githubusercontent.com/muzerow/rappmagic/master/R/am_auth.r",
+              "confidence": "high"
+            },
+            {
+              "claim": "rappmagic requests set Accept-Encoding gzip and default Accept text/csv; am_app accept param defaults to text/csv; non-200 raises an error with status code and message.",
+              "evidence_url": "https://raw.githubusercontent.com/muzerow/rappmagic/master/R/am_top_apps.r",
+              "confidence": "high"
+            },
+            {
+              "claim": "AppMagic API base URL is https://api.appmagic.rocks/v1/; auth documented at https://api.appmagic.rocks/v1/docs section Authentication, per rappmagic am_auth docstring.",
+              "evidence_url": "https://raw.githubusercontent.com/muzerow/rappmagic/master/R/am_auth.r",
+              "confidence": "high"
+            },
+            {
+              "claim": "rappmagic exposes 35 functions over ~34 endpoints (General, Applications, United Applications, History, Tops, Publishers, United Publishers, Ad Intelligence, Contacts); author Kirill Mukhin of Geeky House.",
+              "evidence_url": "https://raw.githubusercontent.com/muzerow/rappmagic/master/README.md",
+              "confidence": "high"
+            },
+            {
+              "claim": "Barashkis/AppMagicSubscription (Python, 0 stars, 2022) is a Telegram bot scraping AppMagic WITHOUT the API via undetected_chromedriver, selenium-wire, bs4 and a bundled chromedriver.exe; README says scraping is the only way to pass through AppMagic security and the API is very sensible to requests, ~1000 apps taking 4-5 hours.",
+              "evidence_url": "https://raw.githubusercontent.com/Barashkis/AppMagicSubscription/master/README.md",
+              "confidence": "high"
+            },
+            {
+              "claim": "AppMagicSubscription logs in via automated Google OAuth using APPMAGIC_LOGIN/APPMAGIC_PASSWORD from env, then intercepts in-page XHR via selenium-wire for URLs containing search-by-ids, ltv, and data-countries.",
+              "evidence_url": "https://raw.githubusercontent.com/Barashkis/AppMagicSubscription/master/main.py",
+              "confidence": "high"
+            },
+            {
+              "claim": "AppMagicSubscription parses search-by-ids data (name, unitedPublisher.name, downloads, revenue, tags) with sentinel mapping downloads/revenue 0 to None and 1 to 5000; tags bucketed by type; ltv bucketed by Tier-1 East/West/global; data-countries uses country, percent_downloads, percent_revenue.",
+              "evidence_url": "https://raw.githubusercontent.com/Barashkis/AppMagicSubscription/master/main.py",
+              "confidence": "high"
+            },
+            {
+              "claim": "novaforge-team/crawl-appmagic-web (TypeScript/Next.js 15, 0 stars, 2026-05-12, package appmagic-preview) is a static viewer reading pre-crawled AppMagic JSON (meta.json, 01_search.json) with per-app and ads routes, tracking ads_count, ads_processed, ad_details, united_application_id, revenue, icon_url. Crawler not in repo.",
+              "evidence_url": "https://raw.githubusercontent.com/novaforge-team/crawl-appmagic-web/main/lib/data.ts",
+              "confidence": "high"
+            },
+            {
+              "claim": "LevGogol/get_playable is a Chrome Web Store extension (id ihcleanhlnbbgodmgjcjoklpeckmhaop, MIT) for SensorTower and AppMagic; content.js uses a MutationObserver to detect iframe src and copy playable-ad URLs. DOM scraping, not API.",
+              "evidence_url": "https://raw.githubusercontent.com/LevGogol/get_playable/main/README.md",
+              "confidence": "high"
+            },
+            {
+              "claim": "No PyPI package named appmagic (or appmagic-api/-client/-scraper/pyappmagic) exists; all return HTTP 404.",
+              "evidence_url": "https://pypi.org/pypi/appmagic/json",
+              "confidence": "high"
+            },
+            {
+              "claim": "The only npm package named appmagic is an unrelated empty placeholder by ray2ding (v0.0.2, readme Start a new package).",
+              "evidence_url": "https://registry.npmjs.org/appmagic",
+              "confidence": "high"
+            },
+            {
+              "claim": "GitHub repo search for appmagic returns ~44 results; aside from the four found, all are unrelated (Magic card-game apps, AI app generators, zero-star test tasks).",
+              "evidence_url": "https://api.github.com/search/repositories?q=appmagic&per_page=30",
+              "confidence": "high"
+            },
+            {
+              "claim": "GitHub code-search API is unusable unauthenticated (HTTP 401) and grep.app/Sourcegraph returned no results for appmagic.rocks.",
+              "evidence_url": "https://api.github.com/search/code?q=appmagic.rocks",
+              "confidence": "high"
+            }
+          ],
+          "endpoints_or_features": [
+            "GET https://api.appmagic.rocks/v1/tops/application - Top Applications (am_top_apps; params aggregation, sort, store, country, category_id, date, limit, tag_id)",
+            "GET /v1/tops/advanced-search - Advanced Search (am_advanced_search)",
+            "GET /v1/tops/ltv - Top LTV (am_top_ltv)",
+            "GET /v1/tops/publishers - Top Publishers (am_top_publishers)",
+            "GET /v1/tops/soft-launches - Top Soft Launches (am_top_soft_launches)",
+            "GET /v1/tops/trending - Top Trending Applications (am_top_trending)",
+            "GET /v1/tops/united-application - Top United Applications (am_top_united_apps)",
+            "GET /v1/applications - Applications by search query (am_apps; search, limit, offset)",
+            "GET /v1/applications/search-by-ids - Applications by store IDs (am_apps_ids)",
+            "GET /v1/applications/{store}/{store_application_id} - Application by store app ID (am_app)",
+            "GET /v1/applications/{store}/{id}/info - Application info (am_app_info)",
+            "GET /v1/applications/{store}/{id}/release-notes - Release notes (am_app_release_notes)",
+            "GET /v1/applications/{store}/{id}/screenshots - Screenshots (am_app_screenshots)",
+            "GET /v1/applications/{store}/{id}/similarity - Similar apps (am_app_similarity)",
+            "GET /v1/united-applications - United apps by search (am_united_apps)",
+            "GET /v1/united-applications/search-by-app-ids - United apps by store app IDs (am_united_apps_app_ids)",
+            "GET /v1/united-applications/search-by-ids - United apps by united IDs (am_united_apps_ids)",
+            "GET /v1/united-applications/{id} - United application (am_united_app)",
+            "GET /v1/united-applications/{id}/ltv - United app LTV (am_united_app_ltv)",
+            "GET /v1/history/application - Historical data for an app (am_history_apps)",
+            "GET /v1/history/united-application - History for a united app (am_history_united_app)",
+            "GET /v1/publishers - Publishers by search (am_publishers)",
+            "GET /v1/publishers/{store}/{store_publisher_id} - Publisher by store ID (am_publisher)",
+            "GET /v1/publishers/{store}/{store_publisher_id}/applications - Publisher apps (am_publisher_apps)",
+            "GET /v1/united-publishers - Search united publishers (am_united_publishers)",
+            "GET /v1/united-publishers/search-by-ids - United publishers by IDs (am_united_publishers_ids)",
+            "GET /v1/united-publishers/{id} - United publisher (am_united_publisher)",
+            "GET /v1/united-publishers/{id}/united-applications - United apps for a united publisher (am_united_publisher_united_apps)",
+            "GET /v1/categories - Categories taxonomy (am_categories)",
+            "GET /v1/tags - Tags taxonomy (am_tags)",
+            "GET /v1/adint/application-ads - Ad Intelligence: application ads (am_apps_ads)",
+            "GET /v1/contacts/companies/{id} - LinkedIn companies for a united publisher (am_contacts_companies)",
+            "GET /v1/contacts/profiles - Profiles for a company (am_contacts_profiles)",
+            "data-countries (XHR observed by browser scraper) - per-country split: country, percent_downloads, percent_revenue"
+          ],
+          "repos_and_packages": [
+            {
+              "name": "muzerow/rappmagic",
+              "url": "https://github.com/muzerow/rappmagic",
+              "notes": "R, 3 stars, MIT. THE comprehensive community API wrapper: 35 functions over ~34 endpoints, base https://api.appmagic.rocks/v1/. Auth = Authorization Basic base64(name:password). Accept text/csv (default) or JSON, Accept-Encoding gzip. Install via remotes install_github. Last pushed 2024-06-27. Zero issues filed.",
+              "language": "R",
+              "stars_or_downloads": "3 stars"
+            },
+            {
+              "name": "Barashkis/AppMagicSubscription",
+              "url": "https://github.com/Barashkis/AppMagicSubscription",
+              "notes": "Python, 0 stars, 2022. Telegram bot scraping AppMagic via browser automation (undetected_chromedriver + selenium-wire + bs4), NOT the API. README: scraping is the only way to pass through AppMagic security; API very sensible to requests (~1000 apps = 4-5 hrs). Google OAuth login via APPMAGIC_LOGIN/APPMAGIC_PASSWORD; intercepts XHR for search-by-ids, ltv, data-countries.",
+              "language": "Python",
+              "stars_or_downloads": "0 stars"
+            },
+            {
+              "name": "novaforge-team/crawl-appmagic-web",
+              "url": "https://github.com/novaforge-team/crawl-appmagic-web",
+              "notes": "TypeScript/Next.js 15, 0 stars, 2026-05-12 (package appmagic-preview). Web viewer for pre-crawled AppMagic JSON (per-app meta.json + 01_search.json), per-app and ads routes. Confirms response shapes (revenue, icon_url, ads_count/ads_processed/ad_details, united_application_id). Crawler NOT in repo.",
+              "language": "TypeScript",
+              "stars_or_downloads": "0 stars"
+            },
+            {
+              "name": "LevGogol/get_playable",
+              "url": "https://github.com/LevGogol/get_playable",
+              "notes": "JavaScript Chrome extension, 0 stars, MIT, on Chrome Web Store (id ihcleanhlnbbgodmgjcjoklpeckmhaop). DOM-scrapes playable-ad iframe src links on AppMagic and SensorTower via MutationObserver; not an API client.",
+              "language": "JavaScript",
+              "stars_or_downloads": "0 stars"
+            },
+            {
+              "name": "npm: appmagic (ray2ding)",
+              "url": "https://www.npmjs.com/package/appmagic",
+              "notes": "Unrelated placeholder. v0.0.2, readme Start a new package. NOT an AppMagic client. No other AppMagic-named npm package exists.",
+              "language": "JavaScript",
+              "stars_or_downloads": "negligible"
+            }
+          ],
+          "gaps": [
+            "Could not confirm AppMagic's official API rate limits, pricing, or exact endpoint count from appmagic.rocks itself - the API docs pages are JS-rendered and returned no extractable text via WebFetch; the 50-plus endpoints figure comes only from search-snippet summaries.",
+            "GitHub code-search API requires auth (401) and grep.app/Sourcegraph returned nothing, so additional private or low-visibility code references to api.appmagic.rocks may exist that this clean-room sweep could not surface.",
+            "The actual crawler behind novaforge-team/crawl-appmagic-web is not in the public repo, so its request cadence, auth method, and anti-bot handling are unknown.",
+            "No data on whether rappmagic still works against the current API (last commit 2024-06-27); with 0 issues there is no community signal either way.",
+            "Could not verify whether AppMagic offers official SDKs in other languages - none found in public registries, but absence does not rule out a private/partner SDK."
+          ]
+        }
+      },
+      {
+        "key": "mcp-plugins",
+        "out": {
+          "summary": "No public MCP server, Claude/agent plugin, or CLI exists for AppMagic anywhere (GitHub, official MCP registry, lobehub, mcpmarket, fastmcp.me, glama, smithery, pulsemcp all checked); the only public AppMagic client is muzerow/rappmagic, a stale (June 2024) R wrapper of AppMagic's official REST API at api.appmagic.rocks/v1 (Basic auth), whose 36 functions map the official API surface: tops (apps/publishers/trending/soft-launches/LTV/advanced-search), apps/united-apps lookup + LTV, history time series, publishers/united-publishers, ad intelligence, and LinkedIn contacts. The high-value adjacent find is virusimmortal00/sensortower-mcp (Python FastMCP, PyPI v1.2.10, 16 stars): 43 tools enumerated directly from source across App Analysis (16), Market Analysis (9), Search/Discovery (4), Store Marketing (6), Your Metrics (4), and Utilities (4), covering download/revenue estimates, DAU/MAU, retention, demographics, creatives/impressions SoV, top-and-trending with growth metrics, keywords, and reviews. A Node fork (sensor-tower-mcp-pro v1.4.0) trims this to 23 production-verified tools and adds multi-token failover; FeedMob publishes a 12-tool Sensor Tower reporting MCP (deprecated in favor of a hosted endpoint) whose find_apps_by_metric_threshold and get_api_usage tools are novel. Appfigures is the only vendor with an OFFICIAL CLI + MCP: @appfigures/cli v1.0.3 (\"af\"), registered as com.appfigures/mcp in the official MCP registry on 2026-06-05, with agent-drivable browser auth, an explorer over 120+ catalog fields (estimates, SDK presence, demographics) with aggregate/market-sizing queries, metrics query, ranks/top-charts/featured, reviews incl. reply, keywords, and a raw `api` escape hatch. AppTweak had a 4-tool community MCP (repo now 404). No data.ai, Apptopia, or 42matters MCPs exist. Scraper-based no-key MCPs (AppInsightMCP 20 tools, mcp-appstore 17 tools, aso-mcp ~20 tools) fill ASO/keyword-suggestion/review-sentiment niches.",
+          "facts": [
+            {
+              "claim": "No AppMagic MCP server exists in the official MCP registry; searches for appmagic, sensortower, apptweak, data.ai, and apptopia all return zero results; only Appfigures (com.appfigures/mcp) is registered among app-intelligence vendors",
+              "evidence_url": "https://registry.modelcontextprotocol.io/v0/servers?search=appmagic",
+              "confidence": "high"
+            },
+            {
+              "claim": "The only public AppMagic API client is muzerow/rappmagic, an R wrapper (3 stars, last pushed 2024-06-27) exposing 36 functions over AppMagic's official API",
+              "evidence_url": "https://github.com/muzerow/rappmagic",
+              "confidence": "high"
+            },
+            {
+              "claim": "AppMagic has an official REST API at https://api.appmagic.rocks/v1 with docs at /v1/docs and HTTP Basic auth (base64 of account name:password), per rappmagic source (am_auth.r, am_top_apps.r reference operation IDs like getTopApplications)",
+              "evidence_url": "https://raw.githubusercontent.com/muzerow/rappmagic/master/R/am_auth.r",
+              "confidence": "high"
+            },
+            {
+              "claim": "virusimmortal00/sensortower-mcp is a Python FastMCP server (16 stars, 4 forks, PyPI package sensortower-mcp v1.2.10 with 21 releases, requires SENSOR_TOWER_API_TOKEN) exposing 43 tools defined in src/sensortower_mcp/tools/{app_analysis,market_analysis,search_discovery,store_marketing,utilities,your_metrics}.py; its health_check tool self-reports a stale count of 40",
+              "evidence_url": "https://github.com/virusimmortal00/sensortower-mcp",
+              "confidence": "high"
+            },
+            {
+              "claim": "sensor-tower-mcp-pro (npm, v1.4.0, repo toller892/SensorTower_mcp_npm) is a pure Node.js Sensor Tower MCP with 23 production-verified tools, multi-token quota failover (primary plus up to 10 backups, auto-switch on 429/403), stdio and HTTP transports; v1.4.0 removed 9 failing tools including get_creatives, get_impressions, and impressions_rank",
+              "evidence_url": "https://www.npmjs.com/package/sensor-tower-mcp-pro",
+              "confidence": "high"
+            },
+            {
+              "claim": "FeedMob's @feedmob/sensor-tower-reporting MCP exposes 12 Sensor Tower tools and is deprecated in favor of the hosted endpoint https://insights-mcp.feedmob.com/sensortower; auth via AUTH_TOKEN env var",
+              "evidence_url": "https://github.com/feed-mob/fm-mcp-servers/blob/main/src/sensor-tower-reporting/README.md",
+              "confidence": "high"
+            },
+            {
+              "claim": "Appfigures ships the only vendor-official CLI+MCP in this space: @appfigures/cli v1.0.3 (alias af, Node 22+), registered in the official MCP registry as com.appfigures/mcp on 2026-06-05; `af mcp` runs a stdio MCP server exposing the CLI's app-intelligence commands; auth via browser code flow (agent-drivable: af auth login --code) or APPFIGURES_API_KEY, tokens stored in OS credential manager",
+              "evidence_url": "https://github.com/appfigures/cli",
+              "confidence": "high"
+            },
+            {
+              "claim": "The Appfigures CLI explorer commands query a catalog of millions of products across Apple, Google Play, Amazon with 120+ fields spanning identity, categories, ratings, chart ranks, download/revenue estimates, SDK presence, demographics, and related apps, including aggregate-products for market sizing (counts, averages, histograms)",
+              "evidence_url": "https://github.com/appfigures/cli",
+              "confidence": "high"
+            },
+            {
+              "claim": "A community AppTweak MCP (punkpeye/apptweak-mcp) exposed 4 tools (search_app, get_app_details, analyze_top_keywords, analyze_reviews) requiring an AppTweak API key; the GitHub repo now returns 404 and only marketplace mirrors (glama.ai, mcp.so) remain",
+              "evidence_url": "https://glama.ai/mcp/servers/ym377qzb03",
+              "confidence": "medium"
+            },
+            {
+              "claim": "No MCP servers exist for data.ai (absorbed into Sensor Tower), Apptopia, or 42matters; web and registry searches return nothing",
+              "evidence_url": "https://registry.modelcontextprotocol.io/v0/servers?search=apptopia",
+              "confidence": "medium"
+            },
+            {
+              "claim": "JiantaoFu/AppInsightMCP (JS, 23 stars, npx @jeromyfu/app-insight-mcp) is a scraper-based 'App Market Intelligence MCP' with 20 tools (10 App Store, 10 Google Play) needing no API key",
+              "evidence_url": "https://github.com/JiantaoFu/AppInsightMCP",
+              "confidence": "high"
+            },
+            {
+              "claim": "appreply-co/mcp-appstore (TypeScript, 56 stars, built on google-play-scraper and app-store-scraper) exposes 17 ASO tools including keyword difficulty scoring and 6 distinct keyword-suggestion strategies (by category, similarity, competition, apps, seeds, search-completion)",
+              "evidence_url": "https://github.com/appreply-co/mcp-appstore",
+              "confidence": "high"
+            },
+            {
+              "claim": "MCPBundles hosts a third-party Appfigures MCP skill with 19 tools (report getters, list endpoints, health check) using API key/OAuth",
+              "evidence_url": "https://www.mcpbundles.com/skills/appfigures",
+              "confidence": "medium"
+            },
+            {
+              "claim": "desunit/appfigures-mcp is a minimal TypeScript Appfigures MCP (0 stars) with 5 tools: products_list_mine, reports_sales, reports_revenue, reviews_list, products_search (Partner API tier required for search)",
+              "evidence_url": "https://github.com/desunit/appfigures-mcp",
+              "confidence": "high"
+            },
+            {
+              "claim": "KenanAtmaca/aso-mcp (TypeScript, 1 star, no API key) exposes ~20 tools spanning keyword research, competitor gap analysis, review sentiment, 155+ market localization comparison, ASO brief generation, and App Store Connect metadata read/write",
+              "evidence_url": "https://github.com/KenanAtmaca/aso-mcp",
+              "confidence": "high"
+            }
+          ],
+          "endpoints_or_features": [
+            "[sensortower-mcp] top_in_app_purchases(os, app_ids, country): top in-app purchases for apps",
+            "[sensortower-mcp] get_creatives(os, app_ids, start_date, countries, networks, ad_types): ad creatives with Share of Voice and publisher data; validates 14 ad networks with alias normalization (google->Youtube)",
+            "[sensortower-mcp] get_impressions(os, app_ids, dates, countries, networks, granularity): advertising impressions time series",
+            "[sensortower-mcp] impressions_rank(os, app_ids, dates, countries, networks): advertising impressions rank",
+            "[sensortower-mcp] get_usage_active_users(os, app_ids, dates, countries, granularity, data_model): DAU/WAU/MAU usage intelligence",
+            "[sensortower-mcp] get_category_history(os, app_ids, category, chart_type_ids, dates, countries): category ranking history",
+            "[sensortower-mcp] compact_sales_report_estimates(os, dates, app/publisher/unified ids, categories, countries, granularity): compact download+revenue estimates",
+            "[sensortower-mcp] category_ranking_summary(os, app_id, country): today's category rank summary for one app",
+            "[sensortower-mcp] app_analysis_retention(os, app_ids, granularity, dates, country): retention curves (D1-D90)",
+            "[sensortower-mcp] downloads_by_sources(os, app_ids, countries, dates, granularity): organic vs paid vs browser download split",
+            "[sensortower-mcp] app_analysis_demographics(os, app_ids, granularity, dates, country): age/gender demographics",
+            "[sensortower-mcp] app_update_timeline(os, app_id, country, date_limit): app update history",
+            "[sensortower-mcp] version_history(os, app_id, country): version release history",
+            "[sensortower-mcp] get_app_metadata(os, app_ids, country, include_sdk_data): metadata incl. descriptions, ratings, SDK data",
+            "[sensortower-mcp] get_download_estimates(os, app_ids, dates, countries, granularity): download estimates by country/date",
+            "[sensortower-mcp] get_revenue_estimates(os, app_ids, dates, countries, granularity): revenue estimates by country/date",
+            "[sensortower-mcp] get_top_and_trending(os, comparison_attribute, time_range, measure, category, regions, device, custom_fields_filter): top apps by downloads/revenue with growth metrics",
+            "[sensortower-mcp] get_top_publishers(os, comparison_attribute, time_range, measure, category, country): top publishers by downloads/revenue",
+            "[sensortower-mcp] get_store_summary(os, categories, dates, granularity, countries): store-wide summary stats",
+            "[sensortower-mcp] usage_top_apps(os, comparison_attribute, time_range, measure, regions, category): top apps by active users with growth",
+            "[sensortower-mcp] get_category_rankings(os, category, chart_type, country, date): top ranked apps for a category chart",
+            "[sensortower-mcp] top_apps(os, role, date, period, category, country, network): Share of Voice for top advertisers/publishers",
+            "[sensortower-mcp] top_apps_search(os, app_id, role, ...): rank of a specific top advertiser/publisher",
+            "[sensortower-mcp] top_creatives(os, date, period, category, country, network, ad_types, placements, video_durations, aspect_ratios, banner_dimensions, new_creative): top ad creatives with rich filters",
+            "[sensortower-mcp] games_breakdown(os, categories, dates, granularity, countries): aggregated game-category downloads+revenue",
+            "[sensortower-mcp] search_entities(os, entity_type, term, limit): search apps or publishers by name",
+            "[sensortower-mcp] get_publisher_apps(os, publisher_id, limit, offset): apps for a publisher",
+            "[sensortower-mcp] get_unified_publisher_apps(unified_id): unified publisher details + apps",
+            "[sensortower-mcp] get_app_ids_by_category(os, category, release/update date filters): app IDs by category",
+            "[sensortower-mcp] get_featured_today_stories(country, dates): App Store Today stories",
+            "[sensortower-mcp] get_featured_apps(category, country, dates): featured apps on Apps/Games pages",
+            "[sensortower-mcp] get_featured_creatives(os, app_id, countries, types, dates): featured creatives and positions over time",
+            "[sensortower-mcp] get_keywords(os, app_id, country): current keyword rankings for an app",
+            "[sensortower-mcp] get_reviews(os, app_id, country, dates, rating_filter, search_term, username): app reviews with filtering",
+            "[sensortower-mcp] research_keyword(os, term, country): keyword research with related terms and difficulty",
+            "[sensortower-mcp] analytics_metrics / sources_metrics / sales_reports / unified_sales_reports: connected-account (own apps) App Store analytics, traffic sources, and sales reports",
+            "[sensortower-mcp] get_country_codes / get_category_ids / get_chart_types / health_check: taxonomy helpers + service health (LLM-friendly enum discovery pattern)",
+            "[sensor-tower-mcp-pro npm] 23-tool verified subset of the above + multi-token failover (SENSOR_TOWER_API_TOKEN_BACKUP..._10, auto-switch on 429/403) + --transport stdio|http CLI flags",
+            "[feedmob sensor-tower-reporting] find_apps_by_metric_threshold: discover apps exceeding download/revenue thresholds (novel discovery tool)",
+            "[feedmob sensor-tower-reporting] get_api_usage: cached/refreshed API quota usage reporting (novel quota tool)",
+            "[feedmob sensor-tower-reporting] get_network_analysis / get_network_analysis_rank: impressions SoV time series and cross-geo rank",
+            "[feedmob sensor-tower-reporting] get_app_metadata, get_top_in_app_purchases, get_compact_sales_report_estimates, get_active_users, get_category_history, get_category_ranking_summary, get_retention, get_downloads_by_sources: core Sensor Tower wrappers; hosted remote MCP at insights-mcp.feedmob.com/sensortower",
+            "[af CLI official] af apps search|tracked|get: unified app search across stores, account-tracked apps, app record lookup",
+            "[af CLI official] af explorer list-products: query 120+ catalog fields (ranks, ratings, estimates, SDKs, demographics) with a JSON query grammar, e.g. iOS apps using Firebase with $1M+ US revenue",
+            "[af CLI official] af explorer aggregate-products: counts/averages/min-max/histograms over matching apps for market sizing",
+            "[af CLI official] af explorer describe-fields: introspect catalog fields and the caller's access level per field",
+            "[af CLI official] af metrics query: any numeric dataset (estimates.sales, estimates.revenue, etc.) grouped by up to 2 dimensions as a partition tree",
+            "[af CLI official] af store app-ranks|top-charts|categories|featured|app-listing: rank history with day-over-day deltas, top charts, category taxonomy, featured/editorial placements, full localized store listing",
+            "[af CLI official] af reviews list|breakdown|reply: review reading, dimension-bucketed counts, and posting/withdrawing developer replies (write capability)",
+            "[af CLI official] af keywords list|rankings: tracked keywords and organic keyword positions with popularity/competitiveness",
+            "[af CLI official] af sdks list: SDK taxonomy lookup",
+            "[af CLI official] af docs get: ship reference docs/playbooks as a CLI command (agent self-help pattern)",
+            "[af CLI official] af api: raw authenticated API escape hatch for endpoints without a command",
+            "[af CLI official] af mcp: stdio MCP server exposing the CLI's app-intelligence commands as MCP tools; af auth login designed so an agent can drive the auth flow end to end",
+            "[appfigures-mcp desunit] products_list_mine, reports_sales, reports_revenue, reviews_list, products_search: minimal owned-app reporting + Partner-tier store search",
+            "[MCPBundles Appfigures] 19 tools: get adspend/ads/payments/ratings/revenue/review-counts/sales/subscriptions reports, api usage, health check, list categories/countries/events/external-accounts/languages/products/reviews/stores/users",
+            "[apptweak-mcp] search_app(name, platform): find app by name on ios/android",
+            "[apptweak-mcp] get_app_details(id): detailed app info",
+            "[apptweak-mcp] analyze_top_keywords: top keywords with brand analysis and estimated installs",
+            "[apptweak-mcp] analyze_reviews: review/rating analysis for satisfaction insights",
+            "[AppInsightMCP] 10 App Store scraper tools: app-store-details/list/search/developer/privacy/suggest/similar/reviews/ratings/version-history",
+            "[AppInsightMCP] 10 Google Play scraper tools: google-play-details/list/search/developer/suggest/reviews/similar/permissions/datasafety/categories",
+            "[mcp-appstore] search_app, get_app_details, get_similar_apps, get_pricing_details, get_developer_info, get_version_history, get_android_categories, fetch_reviews, analyze_reviews: scraper-based store intelligence",
+            "[mcp-appstore] analyze_top_keywords + get_keyword_scores + suggest_keywords_by_{category,similarity,competition,apps,seeds,search}: ASO keyword difficulty/traffic scoring and 6 suggestion strategies",
+            "[aso-mcp] search_keywords, suggest_keywords, get_app_details, analyze_competitors, optimize_metadata, analyze_reviews, track_ranking, keyword_gap, localized_keywords (155+ markets), get_aso_report, discover_keywords, generate_aso_brief, clear_cache: keyless ASO research + report/brief generation",
+            "[aso-mcp] connect_setup/get_app/get_metadata/update_metadata/batch_update_metadata/list_localizations: App Store Connect metadata read/write from the same MCP",
+            "[AppMagic official API via rappmagic] GET /v1/tops/application (am_top_apps: aggregation, sort, store, country, category_id, tag_id, date, limit) + am_top_publishers, am_top_trending, am_top_soft_launches, am_top_ltv, am_top_united_apps, am_advanced_search: tops/trending/soft-launch/LTV charts",
+            "[AppMagic official API via rappmagic] am_apps/am_apps_ids/am_app/am_app_info/am_app_release_notes/am_app_screenshots/am_app_similarity: app search, metadata, release notes, screenshots, similarity",
+            "[AppMagic official API via rappmagic] am_united_apps/_app_ids/_ids, am_united_app, am_united_app_ltv: cross-store unified app entities + LTV analytics",
+            "[AppMagic official API via rappmagic] am_history_apps/am_history_united_app: historical time-series for apps and unified apps",
+            "[AppMagic official API via rappmagic] am_publishers/am_publisher/am_publisher_apps + am_united_publisher(s)/_ids/_united_apps: publisher and unified-publisher lookups",
+            "[AppMagic official API via rappmagic] am_apps_ads: ad intelligence (application ads)",
+            "[AppMagic official API via rappmagic] am_contacts_companies/am_contacts_profiles: LinkedIn company and people contacts from a united publisher (unique B2B contact feature)",
+            "[AppMagic official API via rappmagic] am_categories/am_tags: taxonomy; am_auth: Basic token from name+password"
+          ],
+          "repos_and_packages": [
+            {
+              "name": "virusimmortal00/sensortower-mcp",
+              "url": "https://github.com/virusimmortal00/sensortower-mcp",
+              "language": "Python (FastMCP)",
+              "stars_or_downloads": "16 stars, 4 forks; PyPI sensortower-mcp v1.2.10 (21 releases)",
+              "notes": "Highest-value adjacent MCP: 43 tools across App Analysis/Market Analysis/Search/Store Marketing/Your Metrics/Utilities; bundles Sensor Tower OpenAPI specs in swaggerdocs/; input normalization for ad-network aliases; Docker + stdio/HTTP transports; SENSOR_TOWER_API_TOKEN required"
+            },
+            {
+              "name": "sensor-tower-mcp-pro",
+              "url": "https://www.npmjs.com/package/sensor-tower-mcp-pro",
+              "language": "Node.js (TypeScript)",
+              "stars_or_downloads": "v1.4.0 (2026-02-03)",
+              "notes": "Repo toller892/SensorTower_mcp_npm; 23 production-verified tools (dropped 9 failing incl. creatives/impressions); multi-token quota failover up to 10 backups; CLI flags --transport/--port/--token"
+            },
+            {
+              "name": "feed-mob/fm-mcp-servers (sensor-tower-reporting)",
+              "url": "https://github.com/feed-mob/fm-mcp-servers/blob/main/src/sensor-tower-reporting/README.md",
+              "language": "JavaScript",
+              "stars_or_downloads": "3 stars; npm @feedmob/sensor-tower-reporting",
+              "notes": "12 Sensor Tower tools; deprecated in favor of hosted remote MCP https://insights-mcp.feedmob.com/sensortower; novel tools: find_apps_by_metric_threshold, get_api_usage"
+            },
+            {
+              "name": "appfigures/cli (@appfigures/cli, com.appfigures/mcp)",
+              "url": "https://github.com/appfigures/cli",
+              "language": "JavaScript (Node 22+)",
+              "stars_or_downloads": "4 stars; npm v1.0.3; official MCP registry entry published 2026-06-05",
+              "notes": "ONLY vendor-official CLI+MCP in app market intelligence; `af` alias; `af mcp` stdio server; agent-drivable auth flow; explorer with 120+ fields + aggregation; reviews reply (write); docs-as-command; raw `api` escape hatch; JSON-on-stdout design"
+            },
+            {
+              "name": "desunit/appfigures-mcp",
+              "url": "https://github.com/desunit/appfigures-mcp",
+              "language": "TypeScript",
+              "stars_or_downloads": "0 stars",
+              "notes": "Minimal community Appfigures MCP: 5 tools (products_list_mine, reports_sales, reports_revenue, reviews_list, products_search); PAT auth; zero heavy deps"
+            },
+            {
+              "name": "MCPBundles Appfigures MCP skill",
+              "url": "https://www.mcpbundles.com/skills/appfigures",
+              "language": "hosted",
+              "stars_or_downloads": "19 tools",
+              "notes": "Third-party hosted Appfigures MCP: 9 report tools, 8 list tools, api-usage, health check; OAuth for Claude.ai"
+            },
+            {
+              "name": "punkpeye/apptweak-mcp",
+              "url": "https://glama.ai/mcp/servers/ym377qzb03",
+              "language": "Node.js",
+              "stars_or_downloads": "repo 404 (deleted); marketplace mirrors only",
+              "notes": "AppTweak API MCP with 4 tools: search_app, get_app_details, analyze_top_keywords (brand analysis + estimated installs), analyze_reviews; APPTWEAK_API_KEY required"
+            },
+            {
+              "name": "muzerow/rappmagic",
+              "url": "https://github.com/muzerow/rappmagic",
+              "language": "R",
+              "stars_or_downloads": "3 stars; last pushed 2024-06-27",
+              "notes": "ONLY public AppMagic client of any kind; 36 functions wrapping api.appmagic.rocks/v1 (Basic auth); covers tops, apps, united apps, LTV, history, publishers, ad intelligence, and LinkedIn contacts endpoints; author is a data analyst at Geeky House"
+            },
+            {
+              "name": "JiantaoFu/AppInsightMCP",
+              "url": "https://github.com/JiantaoFu/AppInsightMCP",
+              "language": "JavaScript",
+              "stars_or_downloads": "23 stars; npm @jeromyfu/app-insight-mcp",
+              "notes": "Scraper-based 'App Market Intelligence MCP', 20 tools (10 App Store + 10 Google Play incl. privacy/datasafety/permissions); no API key; NPX/Docker/Smithery install"
+            },
+            {
+              "name": "appreply-co/mcp-appstore",
+              "url": "https://github.com/appreply-co/mcp-appstore",
+              "language": "TypeScript",
+              "stars_or_downloads": "56 stars",
+              "notes": "Most-starred scraper ASO MCP: 17 tools; keyword difficulty/traffic scoring + 6 keyword suggestion strategies; built on google-play-scraper/app-store-scraper"
+            },
+            {
+              "name": "KenanAtmaca/aso-mcp",
+              "url": "https://github.com/KenanAtmaca/aso-mcp",
+              "language": "TypeScript",
+              "stars_or_downloads": "1 star",
+              "notes": "Keyless ASO MCP, ~20 tools: keyword research, competitor/keyword gap, 155+ market localization, ASO report/brief generation, plus App Store Connect metadata read/write tools"
+            },
+            {
+              "name": "mikusnuz/app-publish-mcp",
+              "url": "https://github.com/mikusnuz/app-publish-mcp/",
+              "language": "unknown",
+              "stars_or_downloads": "n/a",
+              "notes": "Adjacent (publishing-side, not intelligence): unified App Store Connect + Google Play Console MCP claiming 91 tools for listings/screenshots/releases/reviews/submissions"
+            },
+            {
+              "name": "ngo275/app-agent",
+              "url": "https://github.com/ngo275/app-agent",
+              "language": "TypeScript",
+              "stars_or_downloads": "n/a",
+              "notes": "AI-first OSS ASO/release agent positioning itself as an alternative to Sensor Tower/AppTweak/App Radar; agent product rather than MCP server"
+            }
+          ],
+          "gaps": [
+            "Exact MCP tool names/schemas exposed by the official `af mcp` server were not verifiable (README states it exposes the CLI's app-intelligence commands as tools, but no per-tool manifest is published; would need to run `npx @appfigures/cli mcp` to introspect)",
+            "AppMagic's official API docs page (https://api.appmagic.rocks/v1/docs) is JS-rendered and returned no content to fetching; the endpoint surface was reconstructed from the rappmagic wrapper, which is ~2 years stale and may miss newer AppMagic endpoints (e.g. downloads/revenue estimate exports, ASO/ASA endpoints if they exist in the API)",
+            "punkpeye/apptweak-mcp source is gone (GitHub 404, mcp.so mirror 403), so its 4 tools are known only from marketplace descriptions, not parameter-level source",
+            "No download/usage counts obtained for PyPI sensortower-mcp or npm packages (pypistats/npm downloads not queried)",
+            "Could not confirm whether Sensor Tower offers any official/private MCP behind its customer login (docs.sensortower.com not crawled; public evidence suggests none exists)",
+            "The claim that virusimmortal00/sensortower-mcp covers '62% of Sensor Tower API endpoints' comes from an mcpmarket.com listing snippet and was not independently verified against the swagger specs",
+            "No data.ai-branded MCP/CLI found, consistent with data.ai being folded into Sensor Tower after the 2024 acquisition, but absence is hard to prove exhaustively; same caveat for Apptopia and 42matters"
+          ]
+        }
+      },
+      {
+        "key": "competitors",
+        "out": {
+          "summary": "The app-market-intelligence API landscape splits into three tiers. (1) Enterprise estimate platforms: Sensor Tower (which acquired data.ai in 2024 and AppMagic itself on May 13, 2026, repositioning AppMagic as its SMB offering) exposes download/revenue estimates, top charts, publisher portfolios, DAU/WAU/MAU, D1-D90 retention, demographics, and ad-creative intelligence via API plus data feeds/Snowflake/alerts; data.ai's api.data.ai v1.3 mirrors this with Intelligence Premium (downloads & revenue, top charts, rank history, usage & engagement, advertising, SDK insights), a free metadata/reviews/ratings tier, and Connect for first-party sales. (2) ASO-centric APIs: AppTweak (full OpenAPI + llms.txt; keyword metrics/live search/suggestions, top charts + history, app metadata/metrics history, reviews, CPP intelligence, in-app events, featured content, ASC/GPC integrations), MobileAction (keyword rankings/history, top keywords, ad-creative intelligence, CPP intelligence, visibility score, App Match), ASOdesk (keyword stats/suggestions, estimated installs per keyword, top-100 live results, category rankings, trending searches), and AppFollow (the review-ops leader: fetch/reply/tag/AI-summarize reviews, ratings history, ASO reports, rankings, featured, credit-priced v2 API). (3) Raw-data APIs: Appfigures (developer-account reporting + public Estimates/Ranks/Reviews/ASO/SDKs) and 42matters (the closest public analog to an AppMagic CLI: app lookup, download estimates, MAU, top charts + rank history, reviews, SDK/permission/domain search, advanced query, changelog, app-ads.txt, SKAdNetwork, CTV platforms, bulk file dumps). Table-stakes features for an AppMagic CLI: top charts + rank history, per-app download/revenue estimates, app metadata lookup/search, publisher portfolios, keyword rank tracking, soft-launch discovery (an AppMagic differentiator), and cross-store app matching. Concrete pain points: estimates off 2-3x for non-US Android (HN), opaque enterprise pricing (~$42K/yr lowest reported Sensor Tower quote, no self-serve), and silent plan-limit changes plus evasive support (AppTweak G2 reviews).",
+          "facts": [
+            {
+              "claim": "Appfigures public API (docs.appfigures.com) covers Products, SDKs, Sales/Revenue reports, Subscriptions, Ads, Ad Spend, Ratings, Payments, Usage, Estimates (public download/revenue estimates), Reviews, Ranks, ASO keyword ranks, Featured placements, Events, Users, and External Accounts, with OAuth or client-key auth.",
+              "evidence_url": "https://docs.appfigures.com/",
+              "confidence": "high"
+            },
+            {
+              "claim": "42matters' API covers, for Google Play and iOS: app lookup, download estimates, MAU, reviews + review analysis, IAB category, app-ads.txt, changelog, ratings history, country availability, cross-store app matching, integrated-SDK detection, text search, search by domain/SDK/permissions, changelog search, advanced query, top charts, and app rank history; iOS adds SKAdNetwork data; Tencent/Amazon/Huawei get lookup + top charts; CTV platforms (Roku, Fire TV, Samsung, LG, Vizio, tvOS, Google TV) get app enrichment; plus daily/weekly/monthly bulk file dumps.",
+              "evidence_url": "https://42matters.com/docs/overview",
+              "confidence": "high"
+            },
+            {
+              "claim": "AppTweak's public API (developers.apptweak.com, with an llms.txt OpenAPI index) spans keyword metrics current/history, keyword live search (incl. with ads), keyword suggestions, trending keywords, share of voice, top installs, app paid keywords, category rankings current/history, top charts current/history, DNA charts, app metadata and app metrics current/history, reviews (displayed/search/stats), CPP intelligence (by app/category/keyword/DNA), featured content, in-app events, Twin App, tracked-app management, and App Store Connect / Google Play Console integrations.",
+              "evidence_url": "https://developers.apptweak.com/llms.txt",
+              "confidence": "high"
+            },
+            {
+              "claim": "MobileAction's public API (docs.mobileaction.co) has six service groups: Ad Intelligence (creatives filtered by date/network/country, ad badges, country distribution), App Store and Google Play keyword services (keyword rankings + history capped at 30 days per request, top keywords, metadata, app lists), Dashboard services (tracked apps, daily rankings, add keywords max 200/request, competitor management), CPP Intelligence (CPPs by app or keyword with screenshots, promo text, videos, impression share), and Other Services (App Match cross-store IDs, visibility score + history).",
+              "evidence_url": "https://docs.mobileaction.co/",
+              "confidence": "high"
+            },
+            {
+              "claim": "AppFollow API v2 (docs.api.appfollow.io) is credit-priced per call and covers ASO search/keyword research/Search Ads recommendations/ASO reports, tracked keywords, rankings, public top charts, featured apps, ratings history, full review operations (fetch, reply, tags, notes, bug-tracker links, AI summary, semantic NLP tags), reply-speed analytics, versions/what's-new, downloads & revenue and subscriptions from connected consoles, and account/collection/user management; rate limits are 1,000 req/hr per token and 10,000 req/hr per account.",
+              "evidence_url": "https://docs.api.appfollow.io/llms.txt",
+              "confidence": "high"
+            },
+            {
+              "claim": "ASOdesk's API (api.asodesk.com, token + credits, Root account only) exposes application info/meta/rating/competitors/reviews, app keyword rankings and rank movement, Apple Search Ads suggestions, keyword stats/suggestions/auto-suggestions, estimated installs by keyword, top-100 search results per keyword, category rankings, top charts, and trending searches, over a claimed 18M+ apps and 34M+ keywords in 100+ countries.",
+              "evidence_url": "https://api.asodesk.com/static/docs/html/index.html",
+              "confidence": "high"
+            },
+            {
+              "claim": "Sensor Tower's API (documented at app.sensortower.com/api/docs, behind login) covers App Analysis, Market Analysis, Store Marketing, Usage Intelligence, ad creatives, and utility endpoints; the sensortowerR CRAN wrapper confirms concrete capabilities: per-app download/revenue estimates, app/publisher/category rankings, market metrics, YoY comparisons, DAU/WAU/MAU, session metrics, D1-D90 retention, demographics, ratings/reviews facets, publisher portfolios, custom-field filtered top apps, and unified cross-platform app-ID mapping.",
+              "evidence_url": "https://cloud.r-project.org/web/packages/sensortowerR/refman/sensortowerR.html",
+              "confidence": "high"
+            },
+            {
+              "claim": "Sensor Tower Connect delivers data via REST API, scheduled Parquet/CSV data feeds to cloud storage, Snowflake integration, a Salesforce app, and custom email/Slack alerts on metric changes.",
+              "evidence_url": "https://sensortower.com/product/connect",
+              "confidence": "high"
+            },
+            {
+              "claim": "data.ai's API (api.data.ai, v1.3) is organized as Intelligence Premium (ratings over time, app store rankings, top charts, downloads & revenue, usage & engagement, user acquisition/advertising data, ASO DNA delta, company & publisher details, SDK insights), Intelligence Free (app details, rank history, reviews, ratings, featured, bulk app details), and Connect (account connections, product sales, product usage); engagement metrics include DAU/WAU/MAU, session duration, retention, cross-app usage, and age/gender demographics across 150+ countries.",
+              "evidence_url": "https://helpcenter.data.ai/community/s/article/API-Introduction",
+              "confidence": "medium"
+            },
+            {
+              "claim": "Sensor Tower acquired AppMagic on May 13, 2026, positioning it as its small-and-medium-business offering, continuing consolidation after acquiring data.ai in 2024; AppMagic is known for free/grossing rankings, Top Trending apps, and Top Soft Launches.",
+              "evidence_url": "https://www.pocketgamer.biz/sensor-tower-acquires-mobile-market-intelligence-rival-appmagic/",
+              "confidence": "high"
+            },
+            {
+              "claim": "Pain point - estimate accuracy: HN commenters report Sensor Tower/App Annie estimates are 'way off in both download counts and active users, sometimes by 2-3x' for Android apps popular outside the US, and one developer comparing real sales found Sensor Tower 'off by way more than 10%'; the estimation models (rank-to-download regression calibrated on volunteered developer data) also struggle near top chart positions.",
+              "evidence_url": "https://news.ycombinator.com/item?id=21014423",
+              "confidence": "high"
+            },
+            {
+              "claim": "Pain point - pricing opacity and enterprise gating: Sensor Tower has no self-serve plan, free tier, or monthly option; entry is ~$500/month for one module/market, and of three indie teams quoted in Q1 2026 the lowest annual contract reported was ~$42K, while it bundles six modules (Store, Ad, App, Audience, Market, Usage Intelligence) of which indies typically need one.",
+              "evidence_url": "https://trysonar.app/blog/sensor-tower-pricing",
+              "confidence": "medium"
+            },
+            {
+              "claim": "Pain point - silent plan changes and trust: an AppTweak G2 reviewer reported their plan's limits suddenly changed and support left the question unanswered for days; other reviewers cite uncertain keyword search-volume accuracy, costs that escalate with apps/keywords, and hard-to-navigate feature sprawl; MobileAction reviewers cite stale data refresh timing and lengthy contracts.",
+              "evidence_url": "https://www.g2.com/products/apptweak/reviews",
+              "confidence": "medium"
+            },
+            {
+              "claim": "Top power-user workflows in this domain: (1) tracking competitor download/revenue estimates over time, (2) soft-launch discovery (AppMagic's Top Soft Launches is a named differentiator), (3) monitoring top-chart and rank movement, (4) keyword rank tracking + share of voice, (5) ad-creative spying across networks with impression share to find scaling creatives and white space, (6) review monitoring/reply ops, (7) SDK/tech-stack detection, (8) market sizing by category/country.",
+              "evidence_url": "https://sensortower.com/product/mobile-app/app-advertising-insights",
+              "confidence": "medium"
+            }
+          ],
+          "endpoints_or_features": [
+            "Top charts (free/paid/grossing), current + history — Sensor Tower, data.ai, AppTweak (Top Charts Current/History), ASOdesk, AppFollow (Public Top Charts), 42matters; table stakes for any market-intel CLI",
+            "App rank history / category rankings over time — AppTweak (App Category Ranking History), 42matters (App Rank History), data.ai (App Rank History, free tier), Appfigures (Ranks)",
+            "Per-app download & revenue estimates — Sensor Tower (st_metrics), data.ai (Downloads & Revenue), Appfigures (Estimates), 42matters (Download Estimates), AppMagic",
+            "Market/category-level metrics + YoY comparison — Sensor Tower (st_market_metrics, st_yoy_metrics), data.ai (Market Intelligence)",
+            "App metadata lookup + search — all eight tools; 42matters adds text search, search-by-domain, search-by-permissions, advanced multi-parameter query; AppTweak keeps metadata history",
+            "Publisher portfolio / publisher rankings — Sensor Tower (st_publisher_apps, st_publisher_portfolio), data.ai (Company & Publisher Details), AppMagic publisher rankings",
+            "Keyword rank tracking + history — AppTweak, MobileAction (30-day windows), ASOdesk (rank movement), AppFollow, Appfigures (ASO keyword ranks)",
+            "Keyword metrics (volume/difficulty) + suggestions + trending keywords — AppTweak (Keyword Metrics, Suggestions, Discover), ASOdesk (keyword stats/suggestions, Trending Searches), MobileAction (Top Keywords)",
+            "Keyword live search / top-N results per keyword — AppTweak (Keyword Live Search, with-ads variant), ASOdesk (Top 100 search results)",
+            "Estimated installs per keyword (organic traffic attribution) — ASOdesk (Estimated installs by keyword, Organic Report), AppTweak (Top Installs)",
+            "Apple Search Ads / paid keyword intelligence — AppTweak (App Paid Keywords, Share of Voice), MobileAction (SearchAds), ASOdesk (Search Ads suggestions), AppFollow (ASO Search Ads recommendations)",
+            "Ad creative intelligence / creative spy — Sensor Tower (get_creatives across networks), MobileAction (Ad Intelligence: creatives by date/network/country, ad badges), data.ai (User Acquisition data)",
+            "Custom Product Page (CPP) intelligence — AppTweak (CPP by app/category/keyword/DNA) and MobileAction (CPP search with screenshots, promo text, videos, impression share)",
+            "Reviews fetch + stats — all tools; AppFollow adds reply, tags, notes, bug-tracker links, AI summaries, semantic NLP tags, reply-speed analytics; 42matters adds review analysis",
+            "Ratings history — AppFollow, 42matters, ASOdesk, data.ai (Ratings Over Time), Appfigures",
+            "Usage intelligence: DAU/WAU/MAU, session duration, D1-D90 retention, demographics, cross-app usage — Sensor Tower and data.ai (enterprise tiers); 42matters offers MAU only",
+            "SDK detection / search apps by SDK — 42matters (Integrated SDKs, Search by SDKs), data.ai (SDK Insights), Appfigures (SDKs)",
+            "Cross-store app matching / unified IDs — 42matters (App Matching), MobileAction (App Match), Sensor Tower (unified app ID mapping)",
+            "Featured placement tracking — AppTweak (Featured Content), AppFollow (Featured Apps), Appfigures (Featured), data.ai (App Featured)",
+            "In-app events tracking — AppTweak (In-App Events endpoints); LiveOps-style intel is otherwise rare via API",
+            "App version changelog / what's-new tracking — 42matters (Changelog + Changelog Search), AppFollow (Versions, What's New)",
+            "Soft-launch discovery — AppMagic (Top Soft Launches, a named differentiator); approximable elsewhere via 42matters Country Availability + new-release top charts",
+            "Visibility score (composite organic+paid presence) — MobileAction (visibility score + history)",
+            "Own-store-account reporting integrations (App Store Connect / Google Play Console) — AppTweak, AppFollow, Appfigures (Sales/Subscriptions/Ads), data.ai Connect",
+            "Bulk data delivery: file dumps / data feeds / warehouse — 42matters (daily/weekly/monthly dumps), Sensor Tower Connect (Parquet/CSV feeds, Snowflake)",
+            "Custom alerts on metric changes (email/Slack) — Sensor Tower Connect",
+            "App-ads.txt and SKAdNetwork data — 42matters (unique among those surveyed)",
+            "Connected-TV store coverage (Roku/Fire TV/Samsung/LG/Vizio/tvOS/Google TV) — 42matters",
+            "Tracked-app/keyword portfolio management endpoints — AppTweak (Tracked Applications CRUD), MobileAction (Dashboard services), AppFollow (collections/apps/users), all credit- or quota-metered"
+          ],
+          "repos_and_packages": [
+            {
+              "name": "sensortowerR",
+              "url": "https://cran.r-project.org/package=sensortowerR",
+              "language": "R",
+              "notes": "CRAN package wrapping Sensor Tower's API; its function list is the best public enumeration of ST endpoints (metrics, rankings, active users, retention, demographics, publisher portfolio, facets).",
+              "stars_or_downloads": "on CRAN"
+            },
+            {
+              "name": "sensortower-mcp",
+              "url": "https://github.com/virusimmortal00/sensortower-mcp",
+              "language": "Python",
+              "notes": "MCP server for Sensor Tower APIs; bundles OpenAPI specs in swaggerdocs/ covering App Analysis, Market Analysis, Store Marketing, Usage Intelligence; named tools include get_creatives and search_entities.",
+              "stars_or_downloads": "unknown"
+            },
+            {
+              "name": "Appfigures API docs",
+              "url": "https://docs.appfigures.com/",
+              "language": "REST/JSON",
+              "notes": "Fully public API reference: sales, revenue, subscriptions, ads, ratings, reviews, ranks, ASO, featured, estimates, SDKs.",
+              "stars_or_downloads": "n/a"
+            },
+            {
+              "name": "42matters API docs",
+              "url": "https://42matters.com/docs/overview",
+              "language": "REST/JSON",
+              "notes": "Public app-data API; closest functional analog to an AppMagic CLI backend (lookup, top charts, rank history, search-by-SDK/permission, dumps).",
+              "stars_or_downloads": "n/a"
+            },
+            {
+              "name": "AppTweak developer docs",
+              "url": "https://developers.apptweak.com/",
+              "language": "REST/JSON + OpenAPI",
+              "notes": "Public docs with machine-readable llms.txt index (https://developers.apptweak.com/llms.txt) and OpenAPI endpoint specs; broadest public ASO API surface.",
+              "stars_or_downloads": "n/a"
+            },
+            {
+              "name": "MobileAction API docs",
+              "url": "https://docs.mobileaction.co/",
+              "language": "REST/JSON",
+              "notes": "Public docs: keyword services (iOS + Google Play), Ad Intelligence, CPP Intelligence, Dashboard services, App Match, visibility score.",
+              "stars_or_downloads": "n/a"
+            },
+            {
+              "name": "AppFollow API reference",
+              "url": "https://docs.api.appfollow.io/reference/overview",
+              "language": "REST/JSON",
+              "notes": "v2 API with llms.txt index (https://docs.api.appfollow.io/llms.txt); credit-priced per endpoint; strongest review-ops surface (reply, AI summary, semantic tags).",
+              "stars_or_downloads": "n/a"
+            },
+            {
+              "name": "ASOdesk API docs",
+              "url": "https://api.asodesk.com/static/docs/html/index.html",
+              "language": "REST/JSON",
+              "notes": "Public endpoint reference: keyword stats, estimated installs per keyword, top-100 results, app competitors, category rankings, trending searches; token + credits model, Root account only.",
+              "stars_or_downloads": "n/a"
+            }
+          ],
+          "gaps": [
+            "Sensor Tower's official API reference (app.sensortower.com/api/docs) is behind a login; its endpoint enumeration here is reconstructed from the sensortowerR CRAN wrapper and a community MCP server, not first-party docs, so exact endpoint paths/parameters are unverified.",
+            "data.ai's help-center API articles returned HTTP 403 to the crawler; the Intelligence Premium/Free/Connect endpoint list comes from search-result snippets of those articles (medium confidence), and data.ai API availability post-Sensor-Tower-acquisition (2024) and post-AppMagic-acquisition (May 2026) is unclear.",
+            "Reddit (r/gamedev, r/androiddev) is blocked to the crawler, so the requested Reddit thread citations could not be obtained; pain points are instead sourced from Hacker News, G2 reviews, and a 2026 pricing-comparison blog quoting indie-team Sensor Tower quotes.",
+            "Could not enumerate exact per-endpoint paths/parameters for ASOdesk and MobileAction (only category-level groupings), nor rate limits/pricing tiers for 42matters and AppTweak API plans.",
+            "AppMagic's own (non-public) API surface was deliberately not inspected per clean-room rules; its feature set here is inferred only from public descriptions (free/grossing rankings, Top Trending, Top Soft Launches) and acquisition coverage.",
+            "No quantitative adoption numbers (stars/downloads) found for the third-party wrappers (sensortowerR, sensortower-mcp)."
+          ]
+        }
+      },
+      {
+        "key": "product-surface",
+        "out": {
+          "summary": "AppMagic (appmagic.rocks) is a mobile app market-intelligence SaaS built as an Angular single-page app (main bundle ~4.5MB at /assets/angular2/main-*.js; Sentry + Centrifugo real-time). Its product surface spans ~25 modules: Top Charts (free & grossing rankings of apps and publishers), Top Trending, Top Soft Launches (soft-launch detector), Period Comparison dashboard, App page metrics (download/revenue estimates, DAU/MAU, ARPDAU, retention D1-D360, sessions, daily playtime, ad spend), App Ranking History, Similarity dashboard/graph, Market Segment + Market Segment Compare dashboards, Custom dashboards, ASO Intelligence Toolkit (keywords + store-search-ranking dashboards), ASA/Apple Search Ads intelligence, Ad Intelligence (150M+ creative videos, impressions, country/network breakdowns), Monetization Intelligence (in-game offer library from 80+ casual/midcore games, IAP pricing/UI), LiveOps & Updates Calendar (200+ game deconstructions + advanced search + rankings), Feature Library/Feature Intelligence (UI screens), SDK Intelligence, App Tracker (favorites + Slack alerts), App Transfers, Success Meter, and a 500+ tag genre taxonomy. It has expanded beyond mobile to Steam Analytics (130,000+ titles/DLCs: Revenue, Downloads, DAU/MAU, Daily CCU, playtime, Followers, pricing) plus Xbox and PlayStation dashboards. Distinctive concepts: a 'united' app/publisher model that merges iPhone (store 2), iPad (store 3) and Google Play (store 1) into one entity (confirmed in API responses via store_ids arrays and unitedPublisher objects), high-precision multi-dimensional game tag taxonomy (types: apps, games, domain, features, themes, settings, artstyles, complexity, ip, meta), soft-launch detection, and featuring-impact analysis. Coverage: 14M apps, 4.6M publishers. The logged-out free tier serves /api/v2/top/free (top FREE ranking with names, icons, united publisher, tags, store IDs but download/revenue/score fields zeroed) and /api/v2/search; period-comparison and ASA endpoints return 'unauthorized' without login. From Jan 1, 2026 the Period Comparison dashboard replaces the free Top Trending chart and narrow genre-tag granularity becomes premium-only. A 3-day free trial of all features exists; full pricing is private (reported Premium ~$2480 with base + add-on modules; a €9/€29 OMR listing appears to be an unconfirmed template).",
+          "facts": [
+            {
+              "claim": "AppMagic self-describes as a mobile app market-intelligence service offering high-precision genre classification, multi-app/publisher comparison, soft-launch detection, and evaluation of the monetary impact of featuring.",
+              "evidence_url": "https://appmagic.rocks/",
+              "confidence": "high"
+            },
+            {
+              "claim": "The site is an Angular SPA: HTML loads polyfills-*.js and main-KMKAOXPI.js under base href /assets/angular2/; uses Sentry (Powered by Sentry) and Centrifugo/Centrifuge for real-time websockets.",
+              "evidence_url": "https://appmagic.rocks/assets/angular2/main-KMKAOXPI.js",
+              "confidence": "high"
+            },
+            {
+              "claim": "Logged-out public API: GET /api/v2/top/free?store=2&country=US returns the Top FREE chart with app name, icon_url, tags, unitedPublisher (id/name/HQ/LinkedIn headcount/decision-maker location), and merged store_ids, but downloads/revenue/score fields are 0 (estimates gated behind login/paid).",
+              "evidence_url": "https://appmagic.rocks/api/v2/top/free?store=2&country=US",
+              "confidence": "high"
+            },
+            {
+              "claim": "The 'united apps' concept is real: a single entity merges Google Play (store 1), iPhone (store 2) and iPad (store 3) - e.g. store_ids ['2_1465944282','3_1465944282','1_com.cbsinteractive.loveisland'] - and exposes a unitedPublisher object.",
+              "evidence_url": "https://appmagic.rocks/api/v2/top/free?store=2&country=US",
+              "confidence": "high"
+            },
+            {
+              "claim": "Public search (GET /api/v2/search?query=...) returns apps with a granular tag taxonomy whose type field spans: apps, games, domain, features, themes, settings, artstyles, complexity, ip, meta.",
+              "evidence_url": "https://appmagic.rocks/api/v2/search?query=puzzle",
+              "confidence": "high"
+            },
+            {
+              "claim": "Period Comparison and ASA (Apple Search Ads) data require login: /api/v2/period-comparison/last-date and /api/v2/dmint/asa/dates both return {\"message\":\"unauthorized\"} when logged out.",
+              "evidence_url": "https://appmagic.rocks/api/v2/period-comparison/last-date",
+              "confidence": "high"
+            },
+            {
+              "claim": "GET /api/v2/last-date returns the latest data date (e.g. 2026-06-08), and /api/v2/init returns the country grouping config (regions AS, EM, NT, W1, WW, E1) and store config.",
+              "evidence_url": "https://appmagic.rocks/api/v2/last-date",
+              "confidence": "high"
+            },
+            {
+              "claim": "From January 1, 2026, the new Period Comparison dashboard replaces the free Top Trending Apps chart, and narrow genre-tag granularity becomes premium-only.",
+              "evidence_url": "https://appmagic.rocks/tool-descriptions/update-for-free-access",
+              "confidence": "high"
+            },
+            {
+              "claim": "Free/public features include free and grossing rankings of apps and publishers, Top Trending apps, and Top Soft Launches.",
+              "evidence_url": "https://appmagic.rocks/",
+              "confidence": "high"
+            },
+            {
+              "claim": "Ad Intelligence analyzes top-performing creatives from a library of 150M+ videos using impressions as the key metric, with country and network breakdowns, positioned to lower CPI and raise CTR.",
+              "evidence_url": "https://appmagic.rocks/tool-descriptions/ad-intelligence",
+              "confidence": "high"
+            },
+            {
+              "claim": "Monetization Intelligence is a library of in-game offers from 80+ top-performing casual and midcore games covering IAP pricing tactics and offer UI strategies.",
+              "evidence_url": "https://appmagic.rocks/tool-descriptions/monetization-intelligence",
+              "confidence": "high"
+            },
+            {
+              "claim": "LiveOps & Updates Calendar lets users analyze and track LiveOps campaigns/events of top games; includes deconstructions of 200+ top games across casual, mid-core and hybrid-casual, plus LiveOps advanced search and LiveOps rankings.",
+              "evidence_url": "https://appmagic.rocks/tool-descriptions/live-ops",
+              "confidence": "high"
+            },
+            {
+              "claim": "AppMagic offers an SDK Intelligence tool (which SDKs apps use) and an ASO Intelligence Toolkit providing keyword suggestions, trend insights and store-search-ranking dashboards.",
+              "evidence_url": "https://appmagic.rocks/tool-descriptions/sdk/?hl=en",
+              "confidence": "high"
+            },
+            {
+              "claim": "User Behavior Metrics module provides DAU/MAU, retention, ARPDAU and engagement data; Udonis reports retention tracking from D1 to D360.",
+              "evidence_url": "https://appmagic.rocks/tool-descriptions/user-behavior-metrics",
+              "confidence": "medium"
+            },
+            {
+              "claim": "AppMagic data coverage is cited as 14M apps and 4.6M publishers with a navigation system of 500+ tags.",
+              "evidence_url": "https://www.blog.udonis.co/mobile-marketing/top-mobile-intelligence-providers",
+              "confidence": "medium"
+            },
+            {
+              "claim": "Steam Analytics launched covering 130,000+ Steam titles and DLCs with metrics: Revenue, Downloads, DAU/MAU, Average Daily Playtime, Daily CCU, Followers, plus pricing - extending AppMagic beyond mobile.",
+              "evidence_url": "https://appmagic.rocks/blog/live-steam",
+              "confidence": "high"
+            },
+            {
+              "claim": "The Angular router/bundle defines console/store dashboards beyond mobile: /dashboards/steam, /dashboards/steam-publisher, /dashboards/xbox, /dashboards/playstation, plus /dashboards/app-ranking-history, /dashboards/similarity and /dashboards/custom.",
+              "evidence_url": "https://appmagic.rocks/assets/angular2/main-KMKAOXPI.js",
+              "confidence": "high"
+            },
+            {
+              "claim": "Additional modules surfaced in routes/i18n keys: App Tracker (with Slack alerts via /api/v2/alerts/slack), App Transfers, Success Meter, Feature Library, Favorites, Market Segment + Market Segment Compare dashboards, Research reports, Blog, and API/Custom Data Dumps access.",
+              "evidence_url": "https://appmagic.rocks/assets/angular2/main-KMKAOXPI.js",
+              "confidence": "high"
+            },
+            {
+              "claim": "AppMagic offers a 3-day free trial of all features (often with a 10% promo via partner links).",
+              "evidence_url": "https://www.blog.udonis.co/mobile-marketing/top-mobile-intelligence-providers",
+              "confidence": "medium"
+            },
+            {
+              "claim": "Full pricing is not published publicly; one review reports Premium starting around $2480 with customizable base + add-on module plans, while an OMR listing shows Basic EUR9 / Pro EUR29 (appears to be an unconfirmed template).",
+              "evidence_url": "https://omr.com/en/reviews/product/appmagic/pricing",
+              "confidence": "low"
+            },
+            {
+              "claim": "The blog publishes data-backed industry reports and articles (e.g. Casual Puzzles 2026 citing $8.7B IAP revenue and 7.3B downloads in 2025), retrievable via /api/v2/blog.",
+              "evidence_url": "https://appmagic.rocks/api/v2/blog",
+              "confidence": "high"
+            }
+          ],
+          "endpoints_or_features": [
+            "GET /api/v2/init - country groupings (AS/EM/NT/W1/WW/E1) and store config; public",
+            "GET /api/v2/last-date - latest data date (e.g. 2026-06-08); public",
+            "GET /api/v2/top/free?store={1|2|3}&country={CC} - Top FREE chart, public but download/revenue/score zeroed when logged out (store 1=Google Play, 2=iPhone, 3=iPad)",
+            "GET /api/v2/search?query={q} - app/tag search; public; returns tag taxonomy",
+            "GET /api/v2/blog and /api/v2/blog/article - blog content; public",
+            "GET /api/v2/screens - app UI screens (Feature Library); references view-hierarchy.json",
+            "POST /api/v2/period-comparison/compare, /period-comparison/custom-apps, /period-comparison/last-date - Period Comparison dashboard; auth required",
+            "GET /api/v2/dmint/asa/* (dates, series, terms, terms/apps/multi-new, add-keywords, filterValues) - Apple Search Ads intelligence; auth required",
+            "/api/v2/alerts/slack - App Tracker Slack alerts",
+            "/api/v2/auth/* - login via Google, Facebook, email, WeChat/Weixin, KakaoTalk",
+            "/api/v2/centrifugo + /connection/websocket - Centrifugo real-time push",
+            "Top Charts module (/top-charts/apps) - free & grossing app and publisher rankings",
+            "Top Soft Launches / soft-launch detector (/top-charts soft launches)",
+            "Period Comparison dashboard - compares revenue/downloads across two periods (becomes free default Jan 2026)",
+            "App page metrics - download & revenue estimates, DAU/MAU, ARPDAU, retention (D1-D360), sessions, daily playtime, ad spend",
+            "App Ranking History dashboard (/dashboards/app-ranking-history)",
+            "Similarity dashboard + Similarity graph (/dashboards/similarity) - find similar apps",
+            "Market Segment Dashboard + Market Segment Compare Dashboard - genre/segment dynamics and leaders",
+            "Custom dashboards (/dashboards/custom)",
+            "ASO Intelligence Toolkit - keyword suggestions, trends, store-search-ranking dashboards",
+            "ASA (Apple Search Ads) Intelligence - keyword/term series",
+            "Ad Intelligence (/ad-intelligence) - 150M+ creative videos, impressions metric, country & network breakdowns",
+            "Monetization Intelligence (/monetization-intelligence) - in-game offer library from 80+ casual/midcore games, IAP pricing & UI",
+            "LiveOps & Updates Calendar (/live-ops-calendar, /live-ops-advanced-search, /live-ops-insights-by-titles) - event tracking + 200+ game deconstructions + LiveOps rankings",
+            "Feature Library / Feature Intelligence (/feature-library) - app UI screens/feature intel",
+            "SDK Intelligence (/tool-descriptions/sdk) - SDK usage detection",
+            "App Tracker (app-tracker) + Favorites/favorite groups + Slack alerts",
+            "App Transfers (/app-transfers) - app ownership transfers between publishers",
+            "Success Meter (/success-meter)",
+            "Tag/Genre taxonomy - 500+ tags, types: apps, games, domain, features, themes, settings, artstyles, complexity, ip, meta",
+            "Steam Analytics (/dashboards/steam, /dashboards/steam-publisher) - 130,000+ titles; Revenue, Downloads, DAU/MAU, Daily CCU, playtime, Followers, pricing",
+            "Xbox and PlayStation dashboards (/dashboards/xbox, /dashboards/playstation)",
+            "Research reports (/research) - Mobile Landscape, Casual Gaming, Monetization, LiveOps reports",
+            "API access + Custom Data Dumps (articleApi / articleCustomDataDumps)",
+            "United apps/publishers - merges iPhone/iPad/Google Play into one entity (unitedPublisher + merged store_ids)"
+          ],
+          "repos_and_packages": [],
+          "gaps": [
+            "Could not retrieve full release-notes/changelog text: /release-notes is an SPA shell and the i18n translation strings are not served as a standalone JSON (the /i18n/en.json path returns the SPA fallback HTML, not translations), so exact dated changelog entries could not be enumerated.",
+            "Exact free-vs-paid boundary for each metric is inferred from API behavior (top/free returns zeroed download/revenue; period-comparison and ASA return 'unauthorized') rather than from an official published feature-matrix table.",
+            "Confirmed pricing is unavailable: AppMagic does not publish prices; the ~$2480 Premium figure and the EUR9/EUR29 OMR tiers are third-party/unconfirmed and conflict.",
+            "Retention granularity (D1-D360) and some user-behavior metric details come from a third-party (Udonis) summary, not directly verified on an AppMagic page in this session.",
+            "Exact mechanics of download/revenue estimation methodology (data sources, modeling) were only described in general terms; the how-metrics-work article is an SPA shell not fully read.",
+            "Did not verify the precise official list/order of nav menu groups as rendered (only the 'Ad Intelligence', 'Market Segments', and 'Learn' group i18n keys were confirmed in the bundle).",
+            "SDK Intelligence and Feature Library specifics (e.g. how many SDKs tracked, screenshot/view-hierarchy depth) were not quantified from public sources."
+          ]
+        }
+      }
+    ],
+    "critic": {
+      "contradictions": [
+        "MCP existence: the mcp-plugins researcher's headline claim 'No public MCP server, Claude/agent plugin, or CLI exists for AppMagic anywhere' directly contradicts the official-api researcher's finding that AppMagic ships a vendor-official MCP endpoint at https://api.appmagic.rocks/mcp. Adjudicated in favor of official-api: I verified live (2026-06-10) that the spec's info.description documents '## MCP (Model Context Protocol) — Every API operation is exposed as an MCP tool for AI agents at /mcp (JSON-RPC 2.0, Streamable HTTP transport)' with a 'claude mcp add --transport http appmagic https://api.appmagic.rocks/mcp' example, and GET https://api.appmagic.rocks/mcp returns 405 (POST-only), consistent with Streamable HTTP. The mcp-plugins researcher only checked registries/marketplaces (registry.modelcontextprotocol.io, glama, smithery, etc.), where AppMagic is indeed absent — their narrow claim is true, their broad claim is false.",
+        "HTTP methods on shared endpoints: the wrappers researcher lists /applications/search-by-ids, /united-applications/search-by-ids, /united-applications/search-by-app-ids, /united-publishers/search-by-ids, and /contacts/profiles as GET (derived from rappmagic, last pushed 2024-06-27), while the official-api researcher lists them as POST. Adjudicated by parsing the live spec (https://api.appmagic.rocks/swagger.json, fetched 2026-06-10): all five are POST-only today. The R wrapper is ~2 years stale and must not drive method/shape decisions.",
+        "Machine-readable spec availability: both the wrappers researcher ('API docs pages are JS-rendered and returned no extractable text... the 50-plus endpoints figure comes only from search-snippet summaries') and the mcp-plugins researcher ('endpoint surface was reconstructed from the rappmagic wrapper') concluded no fetchable official spec exists, contradicting the official-api researcher's downloadable Swagger 2.0 spec. Verified live: https://api.appmagic.rocks/swagger.json returns HTTP 200, 339,254 bytes, no auth required. Two of four researchers materially under-discovered the canonical source; their endpoint inventories should be discarded in favor of the spec.",
+        "API hostility vs official API: Barashkis/AppMagicSubscription's README (cited by wrappers) claims 'scraping is the only way to pass through AppMagic security' and the API is 'very sensible to requests' — contradicting the existence of a documented, Basic-auth, rate-limit-headered official API. Resolution: the 2022 scraper targeted the appmagic.rocks web-app's private XHR endpoints (search-by-ids/ltv/data-countries behind Google OAuth + anti-bot), a DIFFERENT surface from api.appmagic.rocks/v1. The findings conflate two API surfaces; a build brief must keep them strictly separate.",
+        "Spec-declared auth vs live behavior (internal to official-api's findings, now confirmed): the spec applies BasicAuth globally with no per-operation overrides (verified: /last-date inherits global security), yet unauthenticated GET https://api.appmagic.rocks/v1/last-date returned HTTP 200 {\"last_date\":\"2026-06-08\"} on 2026-06-10, while /v1/categories and /v1/tags returned 401. The spec does not accurately describe live auth enforcement on at least one endpoint.",
+        "Endpoint-count framing: the marketing page (https://appmagic.rocks/tool-descriptions/api) says '50+ endpoints' while the spec defines 116 paths / 117 operations (verified). Also minor: wrappers says rappmagic has 35 functions over ~34 endpoints; mcp-plugins says 36 functions. And the Sensor Tower acquisition date is given as 2026-05-12 (official-api, PRNewswire) vs 'May 13, 2026' (competitors).",
+        "Researcher count vs delivered findings: the task says 5 researchers but only 4 outputs are present and the fourth ('competitors') is truncated mid-sentence in the data.ai section — any fifth researcher's findings (likely pricing/community signal) are missing entirely, so contradictions involving that material cannot be assessed."
+      ],
+      "load_bearing_unknowns": [
+        "Credential/entitlement model (the self-serve question): there is NO separate API token at all — auth is the AppMagic account login:password over HTTP Basic (spec securityDefinitions + rappmagic am_auth both confirm). Unknown and blocking: whether any paid (or trial/free) account's credentials are accepted by api.appmagic.rocks, or whether API access is a server-side entitlement toggled per sales contract (pricing is 100% sales-led via the demo form at https://appmagic.rocks/pricing). This determines the CLI's entire onboarding story and must be resolved with one authenticated probe by an actual account holder before writing the brief.",
+        "Per-endpoint entitlement gating: the marketing page says endpoints 'can be tailored to your team's needs', implying the 116-path surface may be contract-gated per group (ASO/ASA, contacts, Steam, live-ops, SDK intelligence). Unknown which commands will 403 for a typical customer; the CLI must either probe-and-degrade or ship a plan-aware capability check, and the brief can't choose without one real account's 200/403 map.",
+        "Numeric rate limits: the spec documents X-RateLimit-Limit ('Request limit per day'), X-RateLimit-Remaining/Reset, X-Concurrent-Requests-Allowed, and 429 + Retry-After, but publishes zero numeric values (plan-dependent). Order of magnitude (100/day vs 100k/day) decides whether bulk commands, local caching, and pagination fan-out are viable. Resolvable only by reading the headers from one authenticated request.",
+        "Extent of the unauthenticated surface: /v1/last-date serves 200 without credentials (re-verified 2026-06-10) but /v1/categories and /v1/tags return 401. Unknown whether last-date is an intentional free endpoint or an enforcement gap, and whether any other open endpoints exist; a no-auth demo mode cannot be promised in the brief, and only a systematic unauthenticated sweep of all 116 paths (cheap, ~117 HEAD/GET probes) would settle it.",
+        "Post-acquisition longevity: Sensor Tower acquired AppMagic (announced May 2026, https://www.prnewswire.com/news-releases/sensor-tower-acquires-appmagic-adding-dedicated-smb-solution-to-comprehensive-suite-of-digital-intelligence-302768743.html). No public statement on whether api.appmagic.rocks/v1 persists, gets merged into Sensor Tower's API, or is deprecated. The brief should mandate a configurable base URL and spec-drift detection, but the risk level itself is unknowable today.",
+        "Response-schema fidelity: the Swagger 2.0 response schemas, CSV column layouts (produces: application/json + text/csv, Accept-negotiated), error payload shapes, and data sentinels (the web-app scraper observed downloads/revenue sentinel mappings like 0->null, 1->5000 — unknown if the official API does the same) have not been validated against any live authenticated response. Codegen from unvalidated schemas risks silent decode failures.",
+        "Spec currency/versioning: info.version is '1.0.0' with no changelog, no apis.guru mirror, and no ETag/date evidence of when the spec last changed; whether AppMagic keeps swagger.json in lockstep with the live API (the /last-date auth drift suggests imperfect fidelity) is unknown, so the brief needs a re-fetch-and-diff step at build time."
+      ],
+      "top_facts": [
+        "Canonical API base is https://api.appmagic.rocks/v1, defined by an official, publicly downloadable (no auth) Swagger 2.0 spec at https://api.appmagic.rocks/swagger.json — independently re-verified 2026-06-10: HTTP 200, 339,254 bytes, title 'Appmagic API' v1.0.0, basePath /v1, schemes https, 116 paths / 117 operations (72 GET, 45 POST), global produces [application/json, text/csv]; human docs at https://api.appmagic.rocks/v1/docs. Corroborated by three of four researchers and by the rappmagic wrapper's base URL.",
+        "Authentication is HTTP Basic only, using the AppMagic account login:password (no bearer token, no API key, no self-serve token issuance): securityDefinitions contains a single global BasicAuth scheme (verified in the live spec), the spec description documents 'Authorization: Basic base64(login:password)' and URL-embedded credentials, and the independent rappmagic wrapper's am_auth(name, password) (https://github.com/muzerow/rappmagic/blob/master/R/am_auth.r) confirms the same scheme against the official docs' Authentication anchor. Caveat: enforcement has at least one live gap (/v1/last-date answers 200 unauthenticated; /v1/categories and /v1/tags correctly 401).",
+        "AppMagic ships a vendor-official MCP endpoint at https://api.appmagic.rocks/mcp exposing every API operation as an MCP tool (JSON-RPC 2.0, Streamable HTTP), documented inside the spec's own description with a Claude Code one-liner ('claude mcp add --transport http appmagic https://api.appmagic.rocks/mcp --header \"Authorization: Basic $AUTH\"') — verified 2026-06-10 by parsing the spec text and probing GET /mcp (405, POST-only). Rate limiting is documented structurally on operations (X-RateLimit-Limit per day, X-Concurrent-Requests-Allowed, 429 + Retry-After) with no published numeric quotas."
+      ],
+      "spec_source_recommendation": "Drive generation from the official spec at https://api.appmagic.rocks/swagger.json (re-fetched at build time, not a cached copy). It is the only source that is simultaneously official, machine-readable, complete (116 paths vs the marketing '50+'), unauthenticated-fetchable, and self-documenting on auth, rate-limit headers, content negotiation (JSON/CSV), and the MCP endpoint. Apply three supplements and two exclusions. Supplements: (1) an unauthenticated probe sweep of all paths to map real 401-vs-200 behavior, since the spec's global BasicAuth claim is demonstrably inexact (/v1/last-date is open); (2) one authenticated smoke pass by an actual account holder to capture real rate-limit header values, per-endpoint 403 entitlement map, and response-schema fidelity before codegen is finalized; (3) muzerow/rappmagic source strictly as a tertiary cross-check for parameter semantics on long-stable GET endpoints — never for methods or shapes (it is ~2 years stale and already wrong on five endpoints' HTTP methods). Exclusions: do NOT browser-sniff the live appmagic.rocks web app (it exercises a different private XHR surface behind Google OAuth and anti-bot defenses, per Barashkis/AppMagicSubscription, and would not reflect the public API contract), and do NOT hand-author (strictly worse than the official spec). Build-brief guards: configurable base URL plus spec re-fetch-and-diff (Sensor Tower acquisition risk), Basic-auth credential handling with no-token messaging, runtime rate-limit header introspection instead of hardcoded quotas, and graceful per-command 403 degradation for contract-gated endpoint groups.",
+      "reasoning": "Method: rather than adjudicate the researchers' conflicts on paper, I re-verified every disputed, checkable claim against public URLs on 2026-06-10. (1) Downloaded https://api.appmagic.rocks/swagger.json (HTTP 200, 339,254 bytes) and parsed it: Swagger 2.0, 'Appmagic API' 1.0.0, basePath /v1, exactly 116 paths / 117 operations (72 GET, 45 POST), single global BasicAuth security definition, produces JSON+CSV — matching the official-api researcher to the digit and falsifying the wrappers/mcp-plugins researchers' belief that no machine-readable spec was fetchable. (2) Settled the GET-vs-POST conflict by reading the spec directly: all four search-by-ids endpoints and /contacts/profiles are POST-only, so the rappmagic-derived GET inventory is stale and unsafe for codegen. (3) Confirmed the official MCP endpoint by finding the '## MCP' section and the 'claude mcp add' example in the spec's info.description and probing GET /mcp (405), falsifying mcp-plugins' 'no AppMagic MCP exists anywhere' headline. (4) Confirmed the auth-enforcement anomaly: unauthenticated /v1/last-date returns 200 with a real payload while /v1/categories and /v1/tags return 401, proving spec-vs-live drift exists and motivating the probe-sweep supplement. Adjudication principle: where a researcher's claim derives from the live official artifact it wins; where it derives from a 2024-frozen wrapper, a 2022 scraper of the separate web-app XHR surface, or marketplace absence, it is demoted to historical/secondary evidence. The load-bearing unknowns are exactly the facts that cannot be resolved clean-room (entitlement model, quota numbers, per-plan 403 map, schema fidelity) because they require an authenticated account — the brief must schedule a one-time authenticated smoke pass as a prerequisite. I also flagged a completeness defect in the input itself: only 4 of the stated 5 researcher outputs are present and the 'competitors' output is truncated mid-sentence, so any fifth stream's evidence is unreviewed. No internal project files or accounts were touched; all evidence is from public endpoints and the cited public URLs."
+    }
+  }
+}

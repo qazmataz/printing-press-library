@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "appmagic-pp-mcp",
+  "display_name": "AppMagic",
+  "version": "0.0.0",
+  "description": "Every AppMagic API operation as a typed command, plus the chart history, computed deltas, and entitlement awareness that no other AppMagic tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/appmagic-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/appmagic-pp-mcp",
+      "args": [],
+      "env": {
+        "APPMAGIC_LOGIN": "${user_config.appmagic_login}",
+        "APPMAGIC_PASSWORD": "${user_config.appmagic_password}"
+      }
+    }
+  },
+  "user_config": {
+    "appmagic_login": {
+      "type": "string",
+      "title": "APPMAGIC_LOGIN",
+      "description": "Sets APPMAGIC_LOGIN for the AppMagic MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "appmagic_password": {
+      "type": "string",
+      "title": "APPMAGIC_PASSWORD",
+      "description": "Sets APPMAGIC_PASSWORD for the AppMagic MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

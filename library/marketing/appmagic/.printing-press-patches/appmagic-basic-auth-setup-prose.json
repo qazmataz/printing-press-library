@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-06-10",
+  "base_run_id": "20260610-094753-319aefaa",
+  "base_printing_press_version": "4.24.0",
+  "id": "appmagic-basic-auth-setup-prose",
+  "summary": "auth setup now names <your-login>/<your-password> and states both env vars are required, replacing the token-shaped guidance and auth set-token suggestion.",
+  "reason": "For an HTTP Basic two-var pair, the generated setup text called both values 'token' and recommended set-token, which writes only the login field and can never satisfy login+password.",
+  "files": [
+    "internal/cli/auth.go"
+  ]
+}

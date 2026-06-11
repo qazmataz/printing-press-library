@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-06-10",
+  "base_run_id": "20260610-094753-319aefaa",
+  "base_printing_press_version": "4.24.0",
+  "id": "appmagic-applications-store-info-rename",
+  "summary": "Renamed the generated 'applications info' command group to 'applications store-info'.",
+  "reason": "Dogfood naming rules flag 'info' as a verb violation; 'get' would collide with the existing 'applications get', so the noun-group pattern matching siblings (competitors/screenshots/similarity) was used.",
+  "files": [
+    "internal/cli/applications_info.go",
+    "internal/cli/applications_info_get-application.go",
+    "internal/cli/which.go",
+    "internal/mcp/tools.go",
+    "tools-manifest.json"
+  ]
+}

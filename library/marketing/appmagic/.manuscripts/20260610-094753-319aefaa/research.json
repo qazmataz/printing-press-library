@@ -1,0 +1,357 @@
+{
+  "api_name": "appmagic",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "rappmagic",
+      "url": "https://github.com/muzerow/rappmagic",
+      "language": "R",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 35,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sensortower-mcp",
+      "url": "https://github.com/virusimmortal00/sensortower-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 16,
+      "last_updated": "",
+      "command_count": 43,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "appfigures-cli",
+      "url": "https://github.com/appfigures/cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-10T05:45:00Z",
+  "novel_features": [
+    {
+      "name": "Retention benchmark",
+      "command": "retention-benchmark",
+      "description": "See whether an app's retention curve is normal for its genre by comparing it against the cohort median of its tag.",
+      "rationale": "Requires tag-taxonomy cohort selection, one batched charts requests[] pull, and a locally computed median that no single API call returns.",
+      "example": "appmagic-pp-cli retention-benchmark \"Royal Match\" --tag match-3 --country US --top 20 --agent",
+      "why_it_matters": "Reach for this when a retention estimate needs context before it goes in a report; single-app numbers are widely distrusted without a cohort baseline.",
+      "group": "Trust and transparency"
+    },
+    {
+      "name": "Chart diff",
+      "command": "chart-diff",
+      "description": "See who entered, dropped, or moved in any top chart between two synced snapshots.",
+      "rationale": "The charts API is stateless; the local SQLite snapshot history makes movement queries possible at all.",
+      "example": "appmagic-pp-cli chart-diff --sort grossing --store 2 --country US --agent",
+      "why_it_matters": "Use this for the Monday movers report instead of hand-diffing two CSV exports.",
+      "group": "Chart history that compounds"
+    },
+    {
+      "name": "Soft-launch radar",
+      "command": "soft-launch-radar",
+      "description": "Find newly detected soft-launch titles with first-seen dates per test market.",
+      "rationale": "The soft-launches endpoint only returns today's list; first-seen detection needs the local snapshot history.",
+      "example": "appmagic-pp-cli soft-launch-radar --countries PH,CA,AU --since 30d --agent",
+      "why_it_matters": "Use this to scout new titles entering test markets without remembering what was there last week.",
+      "group": "Chart history that compounds"
+    },
+    {
+      "name": "Entitlements probe",
+      "command": "entitlements",
+      "description": "Discover exactly which AppMagic endpoint groups your contract includes, before a bare 403 surprises you.",
+      "rationale": "No API endpoint reports plan entitlements; the probe synthesizes a per-group access map into the local store for doctor and error messages to read.",
+      "example": "appmagic-pp-cli entitlements --refresh --json",
+      "why_it_matters": "Run this first on a new account; AppMagic endpoint groups are contract-gated and tier limits are not published.",
+      "group": "Trust and transparency"
+    },
+    {
+      "name": "Competitor watchlist report",
+      "command": "watchlist report",
+      "description": "Pull downloads, revenue, and retention for your saved competitor set in one side-by-side table.",
+      "rationale": "Combines a persistent local watchlist with the API's batched charts requests[] envelope to replace N per-app pulls.",
+      "example": "appmagic-pp-cli watchlist report --country US --metrics downloads,revenue --since 7d --agent",
+      "why_it_matters": "Use this for the weekly competitor deck; the watchlist remembers the set so the agent only asks once.",
+      "group": "Chart history that compounds"
+    },
+    {
+      "name": "Tag rollup",
+      "command": "tag-rollup",
+      "description": "Aggregate market size (summed downloads or revenue) across one or more genre tags.",
+      "rationale": "The API has no cross-tag aggregation endpoint; this joins the synced taxonomy, tops, and one batched charts call locally.",
+      "example": "appmagic-pp-cli tag-rollup --tags match-3,merge-2 --country JP --metric revenue --period 30d --agent",
+      "why_it_matters": "Use this for genre sizing questions like 'how big is match-3 in Japan' that otherwise need a spreadsheet.",
+      "group": "Computed market intelligence"
+    },
+    {
+      "name": "ASO movers",
+      "command": "aso-movers",
+      "description": "See which keywords an app gained, lost, or moved on between two dates.",
+      "rationale": "The ASO/ASA endpoints return positions, never deltas; the mover set is computed locally from two series pulls.",
+      "example": "appmagic-pp-cli aso-movers com.dreamgames.royalmatch --country US --store 1 --since 7d --agent",
+      "why_it_matters": "Use this for weekly keyword reports; pass --dataset asa for Apple Search Ads terms.",
+      "group": "Computed market intelligence"
+    },
+    {
+      "name": "Live-ops overlay",
+      "command": "liveops-overlay",
+      "description": "Correlate a competitor's live-ops events with their revenue and download movement.",
+      "rationale": "Joins the live-ops event endpoints with charts series by date window; live-ops data at API level is unique to AppMagic.",
+      "example": "appmagic-pp-cli liveops-overlay \"Royal Match\" --country WW --since 90d --agent",
+      "why_it_matters": "Use this to answer 'did that event spike their revenue' without eyeballing two dashboards.",
+      "group": "Computed market intelligence"
+    },
+    {
+      "name": "Web: monetization offers",
+      "command": "web offers",
+      "description": "Browse AppMagic's in-game IAP offer library (structure, duration, pricing) from the web app's Monetization Intelligence module.",
+      "rationale": "This dataset has no official-API equivalent; the command replays the web app's XHR surface with a browser-session token.",
+      "example": "appmagic-pp-cli web offers --store 1 --country US --limit 20 --json",
+      "why_it_matters": "Use this only with APPMAGIC_WEB_TOKEN set; it is an unofficial surface that can change without notice.",
+      "group": "Unofficial web intelligence (optional)"
+    },
+    {
+      "name": "Web: hourly top charts",
+      "command": "web hourly-tops",
+      "description": "Intraday top-chart rankings with rank-change diffs from the web app surface.",
+      "rationale": "The official API has no hourly granularity; only the web XHR surface exposes it.",
+      "example": "appmagic-pp-cli web hourly-tops --store 2 --country US --top-depth 10 --json",
+      "why_it_matters": "Use this when daily charts are too coarse, e.g. launch-day tracking; requires APPMAGIC_WEB_TOKEN.",
+      "group": "Unofficial web intelligence (optional)"
+    },
+    {
+      "name": "Web: live-ops tag counts",
+      "command": "web liveops-tags",
+      "description": "Market-level counts of live-ops events grouped by tag for a store and country.",
+      "rationale": "The web app's feature-intelligence aggregation has no official-API equivalent.",
+      "example": "appmagic-pp-cli web liveops-tags --store 1 --country US --since 30d --json",
+      "why_it_matters": "Use this to benchmark how common an event type (gacha, daily, competitive) is across the market; requires APPMAGIC_WEB_TOKEN.",
+      "group": "Unofficial web intelligence (optional)"
+    },
+    {
+      "name": "Web: tag app counts",
+      "command": "web tag-counts",
+      "description": "Number of apps per taxonomy tag for market-niche sizing.",
+      "rationale": "Tag population counts are only exposed on the web XHR surface.",
+      "example": "appmagic-pp-cli web tag-counts --store 1 --country WW --json",
+      "why_it_matters": "Use this to gauge how crowded a niche is before deeper sizing with tag-rollup; requires APPMAGIC_WEB_TOKEN.",
+      "group": "Unofficial web intelligence (optional)"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Retention benchmark",
+      "command": "retention-benchmark",
+      "description": "See whether an app's retention curve is normal for its genre by comparing it against the cohort median of its tag.",
+      "rationale": "Requires tag-taxonomy cohort selection, one batched charts requests[] pull, and a locally computed median that no single API call returns.",
+      "example": "appmagic-pp-cli retention-benchmark \"Royal Match\" --tag match-3 --country US --top 20 --agent",
+      "why_it_matters": "Reach for this when a retention estimate needs context before it goes in a report; single-app numbers are widely distrusted without a cohort baseline.",
+      "group": "Trust and transparency"
+    },
+    {
+      "name": "Chart diff",
+      "command": "chart-diff",
+      "description": "See who entered, dropped, or moved in any top chart between two synced snapshots.",
+      "rationale": "The charts API is stateless; the local SQLite snapshot history makes movement queries possible at all.",
+      "example": "appmagic-pp-cli chart-diff --sort grossing --store 2 --country US --agent",
+      "why_it_matters": "Use this for the Monday movers report instead of hand-diffing two CSV exports.",
+      "group": "Chart history that compounds"
+    },
+    {
+      "name": "Soft-launch radar",
+      "command": "soft-launch-radar",
+      "description": "Find newly detected soft-launch titles with first-seen dates per test market.",
+      "rationale": "The soft-launches endpoint only returns today's list; first-seen detection needs the local snapshot history.",
+      "example": "appmagic-pp-cli soft-launch-radar --countries PH,CA,AU --since 30d --agent",
+      "why_it_matters": "Use this to scout new titles entering test markets without remembering what was there last week.",
+      "group": "Chart history that compounds"
+    },
+    {
+      "name": "Entitlements probe",
+      "command": "entitlements",
+      "description": "Discover exactly which AppMagic endpoint groups your contract includes, before a bare 403 surprises you.",
+      "rationale": "No API endpoint reports plan entitlements; the probe synthesizes a per-group access map into the local store for doctor and error messages to read.",
+      "example": "appmagic-pp-cli entitlements --refresh --json",
+      "why_it_matters": "Run this first on a new account; AppMagic endpoint groups are contract-gated and tier limits are not published.",
+      "group": "Trust and transparency"
+    },
+    {
+      "name": "Competitor watchlist report",
+      "command": "watchlist report",
+      "description": "Pull downloads, revenue, and retention for your saved competitor set in one side-by-side table.",
+      "rationale": "Combines a persistent local watchlist with the API's batched charts requests[] envelope to replace N per-app pulls.",
+      "example": "appmagic-pp-cli watchlist report --country US --metrics downloads,revenue --since 7d --agent",
+      "why_it_matters": "Use this for the weekly competitor deck; the watchlist remembers the set so the agent only asks once.",
+      "group": "Chart history that compounds"
+    },
+    {
+      "name": "Tag rollup",
+      "command": "tag-rollup",
+      "description": "Aggregate market size (summed downloads or revenue) across one or more genre tags.",
+      "rationale": "The API has no cross-tag aggregation endpoint; this joins the synced taxonomy, tops, and one batched charts call locally.",
+      "example": "appmagic-pp-cli tag-rollup --tags match-3,merge-2 --country JP --metric revenue --period 30d --agent",
+      "why_it_matters": "Use this for genre sizing questions like 'how big is match-3 in Japan' that otherwise need a spreadsheet.",
+      "group": "Computed market intelligence"
+    },
+    {
+      "name": "ASO movers",
+      "command": "aso-movers",
+      "description": "See which keywords an app gained, lost, or moved on between two dates.",
+      "rationale": "The ASO/ASA endpoints return positions, never deltas; the mover set is computed locally from two series pulls.",
+      "example": "appmagic-pp-cli aso-movers com.dreamgames.royalmatch --country US --store 1 --since 7d --agent",
+      "why_it_matters": "Use this for weekly keyword reports; pass --dataset asa for Apple Search Ads terms.",
+      "group": "Computed market intelligence"
+    },
+    {
+      "name": "Live-ops overlay",
+      "command": "liveops-overlay",
+      "description": "Correlate a competitor's live-ops events with their revenue and download movement.",
+      "rationale": "Joins the live-ops event endpoints with charts series by date window; live-ops data at API level is unique to AppMagic.",
+      "example": "appmagic-pp-cli liveops-overlay \"Royal Match\" --country WW --since 90d --agent",
+      "why_it_matters": "Use this to answer 'did that event spike their revenue' without eyeballing two dashboards.",
+      "group": "Computed market intelligence"
+    },
+    {
+      "name": "Web: monetization offers",
+      "command": "web offers",
+      "description": "Browse AppMagic's in-game IAP offer library (structure, duration, pricing) from the web app's Monetization Intelligence module.",
+      "rationale": "This dataset has no official-API equivalent; the command replays the web app's XHR surface with a browser-session token.",
+      "example": "appmagic-pp-cli web offers --store 1 --country US --limit 20 --json",
+      "why_it_matters": "Use this only with APPMAGIC_WEB_TOKEN set; it is an unofficial surface that can change without notice.",
+      "group": "Unofficial web intelligence (optional)"
+    },
+    {
+      "name": "Web: hourly top charts",
+      "command": "web hourly-tops",
+      "description": "Intraday top-chart rankings with rank-change diffs from the web app surface.",
+      "rationale": "The official API has no hourly granularity; only the web XHR surface exposes it.",
+      "example": "appmagic-pp-cli web hourly-tops --store 2 --country US --top-depth 10 --json",
+      "why_it_matters": "Use this when daily charts are too coarse, e.g. launch-day tracking; requires APPMAGIC_WEB_TOKEN.",
+      "group": "Unofficial web intelligence (optional)"
+    },
+    {
+      "name": "Web: live-ops tag counts",
+      "command": "web liveops-tags",
+      "description": "Market-level counts of live-ops events grouped by tag for a store and country.",
+      "rationale": "The web app's feature-intelligence aggregation has no official-API equivalent.",
+      "example": "appmagic-pp-cli web liveops-tags --store 1 --country US --since 30d --json",
+      "why_it_matters": "Use this to benchmark how common an event type (gacha, daily, competitive) is across the market; requires APPMAGIC_WEB_TOKEN.",
+      "group": "Unofficial web intelligence (optional)"
+    },
+    {
+      "name": "Web: tag app counts",
+      "command": "web tag-counts",
+      "description": "Number of apps per taxonomy tag for market-niche sizing.",
+      "rationale": "Tag population counts are only exposed on the web XHR surface.",
+      "example": "appmagic-pp-cli web tag-counts --store 1 --country WW --json",
+      "why_it_matters": "Use this to gauge how crowded a niche is before deeper sizing with tag-rollup; requires APPMAGIC_WEB_TOKEN.",
+      "group": "Unofficial web intelligence (optional)"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "AppMagic",
+    "headline": "Full AppMagic API coverage plus chart history, deltas, and entitlement maps.",
+    "value_prop": "AppMagic's official API is 117 stateless operations behind HTTP Basic auth; the only public client anywhere is a stale R wrapper. This CLI covers the full surface with typed commands and adds what statelessness cannot: snapshot history for chart-diff and soft-launch-radar, a persistent competitor watchlist, cohort-median retention benchmarking, cross-tag market rollups, and an entitlements probe that maps exactly which endpoint groups your contract includes.",
+    "auth_narrative": "AppMagic has no separate API token: the API authenticates with your account login and password over HTTP Basic. Set APPMAGIC_LOGIN and APPMAGIC_PASSWORD in your environment. API access itself is a sales-led contract feature, and endpoint groups (Steam, ASA, contacts, period comparison) are entitlement-gated per contract; run 'entitlements' to map what your account includes. The optional 'web' command group uses a different credential: APPMAGIC_WEB_TOKEN, the Bearer token a logged-in appmagic.rocks browser session stores in localStorage under 'datamagic.token'. That surface is unofficial and the token expires periodically.",
+    "quickstart": [
+      {
+        "command": "appmagic-pp-cli doctor --dry-run",
+        "comment": "Health check: config and connectivity work before any credentials are set"
+      },
+      {
+        "command": "appmagic-pp-cli sync --resources categories,tags",
+        "comment": "Mirror the 500+ tag genre taxonomy locally so tag IDs resolve offline"
+      },
+      {
+        "command": "appmagic-pp-cli entitlements --json",
+        "comment": "Map which endpoint groups your contract includes before relying on any of them"
+      },
+      {
+        "command": "appmagic-pp-cli chart-diff --sort grossing --store 2 --country US",
+        "comment": "After two runs on different days, see who entered or dropped in the chart"
+      },
+      {
+        "command": "appmagic-pp-cli watchlist report --country US --metrics downloads,revenue --since 7d --agent",
+        "comment": "The weekly competitor pull as one batched call instead of N tabs"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 unauthorized on every call",
+        "fix": "Set APPMAGIC_LOGIN and APPMAGIC_PASSWORD (your AppMagic account credentials; there is no separate API token). Confirm your contract includes API access."
+      },
+      {
+        "symptom": "403 forbidden on steam, asa, contacts, or period-comparison commands",
+        "fix": "That endpoint group is not in your contract. Run `appmagic-pp-cli entitlements --refresh` to map your access; contact AppMagic to extend the contract."
+      },
+      {
+        "symptom": "429 too many requests",
+        "fix": "You hit the plan's daily quota or concurrency cap. Back off and retry after the quota resets; quotas are plan-dependent (the API returns X-RateLimit-* headers and Retry-After on 429)."
+      },
+      {
+        "symptom": "chart-diff or soft-launch-radar returns empty",
+        "fix": "These read snapshot history that the commands capture themselves: run the command on two different days (each run stores a snapshot), or pass --from/--to to pick stored dates. `sync` does not populate these tables."
+      },
+      {
+        "symptom": "web commands fail with 401",
+        "fix": "APPMAGIC_WEB_TOKEN expired. Log into appmagic.rocks in a browser and copy the token from localStorage key 'datamagic.token'."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs mobile or Steam market intelligence from AppMagic: competitor downloads/revenue/retention pulls, top-chart movement, soft-launch scouting, genre sizing across the tag taxonomy, ASO/ASA keyword deltas, live-ops correlation, or SDK adoption. It shines for recurring analyst rituals where local snapshot history and a persistent watchlist compound over time.",
+    "anti_triggers": [
+      "Do not use this CLI for first-party analytics of your own app (use App Store Connect, Google Play Console, or your MMP; AppMagic figures are model estimates)",
+      "Do not use it to scrape app stores directly; it only queries AppMagic's API with your contract's entitlements",
+      "Do not expect web-app-only modules (custom dashboards, Feature Library UI screens, App Tracker alerts) beyond the four documented 'web' commands",
+      "Do not use estimate data as ground truth for financial reporting; estimates are modeled, not measured"
+    ],
+    "recipes": [
+      {
+        "title": "Monday movers report",
+        "command": "appmagic-pp-cli chart-diff --sort grossing --store 2 --country US --agent",
+        "explanation": "Entered/dropped/moved in the US iPhone grossing chart since the previous snapshot, agent-shaped for a standup summary."
+      },
+      {
+        "title": "Scout test markets",
+        "command": "appmagic-pp-cli soft-launch-radar --countries PH,CA,AU --since 30d --json",
+        "explanation": "First-seen soft-launch titles across the classic test markets in the last 30 days."
+      },
+      {
+        "title": "Genre heat check",
+        "command": "appmagic-pp-cli tag-rollup --tags match-3,merge-2 --country JP --metric revenue --period 30d",
+        "explanation": "Summed 30-day revenue for two genres in Japan without a spreadsheet. Totals cover the top N apps per tag (default --top 20), not the whole market."
+      },
+      {
+        "title": "Bounded competitor pull for agents",
+        "command": "appmagic-pp-cli watchlist report --country US --metrics downloads,revenue --since 7d --agent --select apps.name,apps.downloads,apps.revenue",
+        "explanation": "Watchlist metrics narrowed to three dotted fields so a deeply nested batch response does not flood agent context."
+      },
+      {
+        "title": "Sanity-check a retention number",
+        "command": "appmagic-pp-cli retention-benchmark \"Royal Match\" --tag match-3 --country US --top 20",
+        "explanation": "The app's curve against its genre cohort median at D1/D7/D30."
+      }
+    ],
+    "trigger_phrases": [
+      "top grossing games in the US",
+      "who entered the top charts this week",
+      "soft launches in the Philippines",
+      "competitor downloads and revenue",
+      "how big is the match-3 market",
+      "use appmagic",
+      "run appmagic"
+    ]
+  }
+}

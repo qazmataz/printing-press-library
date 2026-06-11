@@ -1,0 +1,6 @@
+/appmagic-pp-cli
+*.db
+*.sqlite
+/build/stage/
+/build/*.mcpb
+/dist/

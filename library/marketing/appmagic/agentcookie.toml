@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "appmagic-pp-cli"
+display_name = "AppMagic"
+description = "Full AppMagic API coverage plus chart history, deltas, and entitlement maps."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/appmagic-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+APPMAGIC_LOGIN = false
+APPMAGIC_PASSWORD = true

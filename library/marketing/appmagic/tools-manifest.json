@@ -1,0 +1,3751 @@
+{
+  "api_name": "appmagic",
+  "base_url": "https://api.appmagic.rocks/v1",
+  "description": "Every AppMagic API operation as a typed command, plus the chart history, computed deltas, and entitlement awareness that no other AppMagic tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {APPMAGIC_LOGIN}:{APPMAGIC_PASSWORD}",
+    "env_vars": [
+      "APPMAGIC_LOGIN",
+      "APPMAGIC_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "APPMAGIC_LOGIN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "inferred": true
+      },
+      {
+        "name": "APPMAGIC_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "ad-spend_get-applications",
+      "description": "Retrieves information about the amount of money (in dollars) spent on advertising for specified applications. Required: aggregation, countries, store, store_application_id. Returns the new AdSpendChartResponse.",
+      "method": "POST",
+      "path": "/ad-spend",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "body",
+          "description": "Aggregation",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "body",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "adint_get-ad-source-values",
+      "description": "Retrieves a list of available values for adSource parameter. Use /adint/filter_values instead. Returns array of string.",
+      "method": "GET",
+      "path": "/adint/ad-source-values",
+      "params": []
+    },
+    {
+      "name": "adint_get-ads-stats",
+      "description": "Retrieves aggregated data over the specified time period with impressions breakdown by country/region, source, networks and platforms. Required: country, dateFrom, dateTo, aggregation. Optional: appIds, publisherId, categoryId (plus 1 more). Returns the AdsStats.",
+      "method": "GET",
+      "path": "/adint/stats",
+      "params": [
+        {
+          "name": "appIds",
+          "type": "array",
+          "location": "query",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`"
+        },
+        {
+          "name": "publisherId",
+          "type": "array",
+          "location": "query",
+          "description": "Publisher id in store, for example `1220872289`"
+        },
+        {
+          "name": "categoryId",
+          "type": "array",
+          "location": "query",
+          "description": "Category ids"
+        },
+        {
+          "name": "tagSets",
+          "type": "string",
+          "location": "query",
+          "description": "Comma separated tag ids, for example `243572,126`"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "dateFrom",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "dateTo",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Creatives will be summarazed in given period",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "adint_get-application-ads",
+      "description": "Retrieves links to ad creatives for the selected app over the selected period of time. Ad creatives can be sorted by date of introduction or by their impressions score. Required: country, dateFrom, dateTo, sort, aggregation. Optional: appIds, loadLastSeen, count (default: 100) (plus 8 more). Returns array of CreativeInfos.",
+      "method": "GET",
+      "path": "/adint/application-ads",
+      "params": [
+        {
+          "name": "appIds",
+          "type": "array",
+          "location": "query",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "dateFrom",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "dateTo",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "loadLastSeen",
+          "type": "bool",
+          "location": "query",
+          "description": "Load last seen"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort",
+          "required": true
+        },
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Creatives will be summarazed in given period",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset is the position in the dataset of a particular record."
+        },
+        {
+          "name": "adNetwork",
+          "type": "string",
+          "location": "query",
+          "description": "Ad network"
+        },
+        {
+          "name": "adSource",
+          "type": "string",
+          "location": "query",
+          "description": "For the list of available values see /adint/filter_values"
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "query",
+          "description": "Application platform"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type"
+        },
+        {
+          "name": "tagId",
+          "type": "array",
+          "location": "query",
+          "description": "Tag id"
+        },
+        {
+          "name": "createdDateFrom",
+          "type": "string",
+          "location": "query",
+          "description": "Created date from"
+        },
+        {
+          "name": "createdDateTo",
+          "type": "string",
+          "location": "query",
+          "description": "Created date to"
+        }
+      ]
+    },
+    {
+      "name": "adint_get-creative-stats",
+      "description": "Retrieves all the data required to produce a popup window with the selected ad creative: the app it advertises, the actual creative with its videos and images, and its impressions history and breakdown by country/region, networks, and apps where the selected creative was shown. Required: country, id. Returns the CreativeStats.",
+      "method": "GET",
+      "path": "/adint/creatives",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Creative id e.g. c80cd228-d2ce-44f7-a764-84411d935283",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "adint_get-filter-values",
+      "description": "Valid values for filtering in Ad Intelligence endpoints. Returns the AdFilterValuesResponse.",
+      "method": "GET",
+      "path": "/adint/filter_values",
+      "params": []
+    },
+    {
+      "name": "adint_get-series",
+      "description": "Retrieves Ad Intelligence series data (impressions over time) for selected countries and creative IDs. Optional: adNetwork, adSource, aggregation (plus 13 more). Returns array of AdLine.",
+      "method": "POST",
+      "path": "/adint/series",
+      "params": [
+        {
+          "name": "adNetwork",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Ad network to filter by. For the list of available values see /adint/filter_values"
+        },
+        {
+          "name": "adSource",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Ad source to filter by. For the list of available values see /adint/filter_values."
+        },
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "body",
+          "description": "Aggregation period for the time series."
+        },
+        {
+          "name": "appIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Application id in store, for example 'com.helixload.syxme.vkmp'"
+        },
+        {
+          "name": "categoryId",
+          "type": "array",
+          "location": "body",
+          "description": "Category ids to filter by. See /categories for the list of values."
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "body",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "country",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries to filter by. For the list of available values see /adint/filter_values"
+        },
+        {
+          "name": "dateFrom",
+          "type": "string",
+          "location": "body",
+          "description": "Date from"
+        },
+        {
+          "name": "dateTo",
+          "type": "string",
+          "location": "body",
+          "description": "Date to"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Offset is the position in the dataset of a particular record."
+        },
+        {
+          "name": "platform",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Platform"
+        },
+        {
+          "name": "publisherId",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Publisher id in store, for example 'WeChat'"
+        },
+        {
+          "name": "splitBy",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Dimensions to split the series by."
+        },
+        {
+          "name": "tagSets",
+          "type": "array",
+          "location": "body",
+          "description": "Tag sets to filter by. Each inner array is a set of tag IDs."
+        },
+        {
+          "name": "type",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Creative type to filter by. For the list of available values see /adint/filter_values"
+        },
+        {
+          "name": "unitedId",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "United id"
+        }
+      ]
+    },
+    {
+      "name": "app-categories_get",
+      "description": "Internal usage only. Returns array of AppCategory.",
+      "method": "GET",
+      "path": "/app_categories",
+      "params": []
+    },
+    {
+      "name": "app-publishers_get",
+      "description": "Internal usage only. Returns array of AppPublisher.",
+      "method": "GET",
+      "path": "/app_publishers",
+      "params": []
+    },
+    {
+      "name": "app-tags_get",
+      "description": "Internal usage only. Returns array of AppTag.",
+      "method": "GET",
+      "path": "/app_tags",
+      "params": []
+    },
+    {
+      "name": "app-transfers_get",
+      "description": "Retrieves the list of apps that have been assigned to the selected publisher's account. Optional: date_from, date_to, category_ids (plus 2 more). Returns array of AppTransfer.",
+      "method": "GET",
+      "path": "/app-transfers",
+      "params": [
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "category_ids",
+          "type": "array",
+          "location": "query",
+          "description": "See [categories section](#tag/categories)"
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Tag ids"
+        },
+        {
+          "name": "united_publisher_id",
+          "type": "int",
+          "location": "query",
+          "description": "Appmagic internal id of united publisher"
+        }
+      ]
+    },
+    {
+      "name": "applications_add",
+      "description": "Submits an array of app IDs that are missing from our system. In 48 hours or less, their data will be added.",
+      "method": "POST",
+      "path": "/applications",
+      "params": []
+    },
+    {
+      "name": "applications_get",
+      "description": "Retrieves the App Info data for the apps searched by their names or name prefixes. Required: search. Optional: limit (default: 100), offset (default: 0). Returns array of Application.",
+      "method": "GET",
+      "path": "/applications",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search queries. Search queries are based on prefixes. For example, you will find “Fortnite”...",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset is the position in the dataset of a particular record."
+        }
+      ]
+    },
+    {
+      "name": "applications_get-app-info-by-country",
+      "description": "Retrieves application info by country. Required: country, store, store_application_id. Returns the new AppInfoByCountryResp.",
+      "method": "POST",
+      "path": "/applications/app-info-v2",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "The 'country' validator is not used here, because app info can be retrieved for an unsupported country as well",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "body",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "applications_get-app-info-by-country-releases",
+      "description": "Retrieves info on application releases by country. Required: country, store, store_application_id. Returns array of ApplicationRelease.",
+      "method": "POST",
+      "path": "/applications/app-info-v2/releases",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "The 'country' validator is not used here, because app info can be retrieved for an unsupported country as well",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "body",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "applications_get-by-ids",
+      "description": "Retrieves the App Info data for the array of apps with selected IDs. Returns array of Application.",
+      "method": "POST",
+      "path": "/applications/search-by-ids",
+      "params": []
+    },
+    {
+      "name": "applications_get-release-notes",
+      "description": "Retrieves information about releases on the selected date for an array of apps. Required: application_ids, date. Returns array of ReleaseNote.",
+      "method": "POST",
+      "path": "/applications/release-notes",
+      "params": [
+        {
+          "name": "application_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Max 100 items",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Mininum date is 2015-01-01",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "applications_get-reviews",
+      "description": "Retrieves raw user reviews for a given application from app stores. Supports filtering by country, date range (YYYY-MM-DD), and exact star rating (1-5). Results are ordered by review date descending. Required: store, store_application_id. Optional: country, date_from, date_to (plus 3 more). Returns array of RepositoriesReviewRecord.",
+      "method": "GET",
+      "path": "/applications/reviews",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "ISO country code"
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start of review_created_at range (inclusive). Format: YYYY-MM-DD"
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End of review_created_at range (inclusive). Format: YYYY-MM-DD"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "rating",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by star rating (1-5). Only reviews with this exact rating are returned."
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market, 2 - iPhone App Store, 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "query",
+          "description": "Application bundle ID (e.g. 'com.whatsapp')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "applications_get-store",
+      "description": "Retrieves the App Info data by an app's store ID. Required: store (default: 1), store_application_id. Returns the Application.",
+      "method": "GET",
+      "path": "/applications/{store}/{store_application_id}",
+      "params": [
+        {
+          "name": "store",
+          "type": "int",
+          "location": "path",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "path",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "applications_competitors_get-application",
+      "description": "Retrieves a list of app's competitors. Native applications are excluded to reduce response size. Required: store (default: 1), store_application_id. Returns the CompetitorsResponse.",
+      "method": "GET",
+      "path": "/applications/{store}/{store_application_id}/competitors",
+      "params": [
+        {
+          "name": "store",
+          "type": "int",
+          "location": "path",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "path",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "applications_info_get-application",
+      "description": "Retrieves information from the app's store page: ranking, price, downloads, etc. Required: store (default: 1), store_application_id. Returns the ApplicationInfo.",
+      "method": "GET",
+      "path": "/applications/{store}/{store_application_id}/info",
+      "params": [
+        {
+          "name": "store",
+          "type": "int",
+          "location": "path",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "path",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "applications_release-notes_get-application",
+      "description": "Retrieves all the Release Notes for the app you've identified by its store ID. Required: store (default: 1), store_application_id. Returns array of ReleaseNote.",
+      "method": "GET",
+      "path": "/applications/{store}/{store_application_id}/release-notes",
+      "params": [
+        {
+          "name": "store",
+          "type": "int",
+          "location": "path",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "path",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "applications_screenshots_get-application",
+      "description": "Retrieves all the screenshots for the app you've identified by its store ID. Required: store (default: 1), store_application_id. Returns array of Screenshot.",
+      "method": "GET",
+      "path": "/applications/{store}/{store_application_id}/screenshots",
+      "params": [
+        {
+          "name": "store",
+          "type": "int",
+          "location": "path",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "path",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "applications_similarity_get-application",
+      "description": "Retrieves a list of apps 'similar' to the selected app. The similarity between apps is calculated as a score based on own recommendation systems in the App Store / Google Play. Required: store (default: 1), store_application_id. Optional: country (default: US). Returns array of Similarity.",
+      "method": "GET",
+      "path": "/applications/{store}/{store_application_id}/similarity",
+      "params": [
+        {
+          "name": "store",
+          "type": "int",
+          "location": "path",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "path",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Currently supported countries: US, CN, KR, JP"
+        }
+      ]
+    },
+    {
+      "name": "apps-downloads_get",
+      "description": "Internal usage only. Required: country. Returns array of GetAppsDownloadsOkbodyItems0.",
+      "method": "GET",
+      "path": "/apps_downloads",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "arpdau_get-arp-dau-chart",
+      "description": "Returns Average Revenue Per Daily Active User over time. Required: aggregation, countries, store, store_application_id. Optional: date_end, date_start.",
+      "method": "POST",
+      "path": "/arpdau",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "body",
+          "description": "Data aggregation period",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "date_end",
+          "type": "string",
+          "location": "body",
+          "description": "Date end"
+        },
+        {
+          "name": "date_start",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market, 2 - iPhone App Store, 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "body",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "asa_get-by-app",
+      "description": "Retrieves a list of top terms by place for each of given apps. Required: appIds, countries. Optional: count (default: 20), dateFrom, dateTo (plus 1 more). Returns array of AsaByAppResponseTopsItems0.",
+      "method": "POST",
+      "path": "/asa/by_app",
+      "params": [
+        {
+          "name": "appIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Store application ids.",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "body",
+          "description": "Number of top keywords to return."
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "For list of available countries see /filter_values.",
+          "required": true
+        },
+        {
+          "name": "dateFrom",
+          "type": "string",
+          "location": "body",
+          "description": "For available date range see /dates."
+        },
+        {
+          "name": "dateTo",
+          "type": "string",
+          "location": "body",
+          "description": "Date to"
+        },
+        {
+          "name": "terms",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Terms"
+        }
+      ]
+    },
+    {
+      "name": "asa_get-by-keyword",
+      "description": "Retrieves a list of top apps by share ov voice for each of given keywords. Optional: count (default: 20), countries, dateFrom (plus 2 more). Returns array of AsaByKeywordResponseTopsItems0.",
+      "method": "POST",
+      "path": "/asa/by_keyword",
+      "params": [
+        {
+          "name": "count",
+          "type": "int",
+          "location": "body",
+          "description": "Number of top keywords to return."
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "For list of available countries see /filter_values."
+        },
+        {
+          "name": "dateFrom",
+          "type": "string",
+          "location": "body",
+          "description": "For available date range see /dates."
+        },
+        {
+          "name": "dateTo",
+          "type": "string",
+          "location": "body",
+          "description": "Date to"
+        },
+        {
+          "name": "terms",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Terms"
+        }
+      ]
+    },
+    {
+      "name": "asa_get-dates",
+      "description": "Retrieves the date range for which ASA data is available in our system. Returns the AsaAsoDates.",
+      "method": "GET",
+      "path": "/asa/dates",
+      "params": []
+    },
+    {
+      "name": "asa_get-filter-values",
+      "description": "Retrieves the list of countries that can be used to filter data in the /asa endpoints. Returns array of string.",
+      "method": "GET",
+      "path": "/asa/filter_values",
+      "params": []
+    },
+    {
+      "name": "asa_get-series",
+      "description": "Retrieves a list of share of voice series for given filter split by all possible filter values combinations. Required: appId, countries, terms. Optional: aggregation (default: day). Returns array of AsaAsoSeriesResponseDataItems0.",
+      "method": "GET",
+      "path": "/asa/series",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Aggregation"
+        },
+        {
+          "name": "appId",
+          "type": "string",
+          "location": "query",
+          "description": "Store application id.",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "type": "array",
+          "location": "query",
+          "description": "For list of available countries see /asa/filter_values.",
+          "required": true
+        },
+        {
+          "name": "terms",
+          "type": "array",
+          "location": "query",
+          "description": "Terms",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "aso_get-by-app",
+      "description": "Retrieves a list of top terms by place for each of given apps. Required: appIds, countries. Optional: count (default: 20), dateFrom, dateTo (plus 1 more). Returns array of AsoByAppResponseTopsItems0.",
+      "method": "POST",
+      "path": "/aso/by_app",
+      "params": [
+        {
+          "name": "appIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Store application ids.",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "body",
+          "description": "Number of top keywords to return."
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "For list of available countries see /filter_values.",
+          "required": true
+        },
+        {
+          "name": "dateFrom",
+          "type": "string",
+          "location": "body",
+          "description": "For available date range see /dates."
+        },
+        {
+          "name": "dateTo",
+          "type": "string",
+          "location": "body",
+          "description": "Date to"
+        },
+        {
+          "name": "terms",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Terms"
+        }
+      ]
+    },
+    {
+      "name": "aso_get-by-keyword",
+      "description": "Retrieves a list of top apps by place for each of given keywords. Optional: count (default: 20), countries, dateFrom (plus 2 more). Returns array of AsoByKeywordResponseTopsItems0.",
+      "method": "POST",
+      "path": "/aso/by_keyword",
+      "params": [
+        {
+          "name": "count",
+          "type": "int",
+          "location": "body",
+          "description": "Number of top keywords to return."
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "For list of available countries see /filter_values."
+        },
+        {
+          "name": "dateFrom",
+          "type": "string",
+          "location": "body",
+          "description": "For available date range see /dates."
+        },
+        {
+          "name": "dateTo",
+          "type": "string",
+          "location": "body",
+          "description": "Date to"
+        },
+        {
+          "name": "terms",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Terms"
+        }
+      ]
+    },
+    {
+      "name": "aso_get-dates",
+      "description": "Retrieves the date range for which ASO data is available in our system. Returns the AsaAsoDates.",
+      "method": "GET",
+      "path": "/aso/dates",
+      "params": []
+    },
+    {
+      "name": "aso_get-filter-values",
+      "description": "Retrieves the list of countries that can be used to filter data in the /aso endpoints. Returns array of string.",
+      "method": "GET",
+      "path": "/aso/filter_values",
+      "params": []
+    },
+    {
+      "name": "aso_get-series",
+      "description": "Retrieves a list of place series for given filter split by all possible filter values combinations. Required: appId, countries, terms. Optional: aggregation (default: day). Returns array of AsaAsoSeriesResponseDataItems0.",
+      "method": "GET",
+      "path": "/aso/series",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Aggregation"
+        },
+        {
+          "name": "appId",
+          "type": "string",
+          "location": "query",
+          "description": "Store application id.",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "type": "array",
+          "location": "query",
+          "description": "For list of available countries see /aso/filter_values.",
+          "required": true
+        },
+        {
+          "name": "terms",
+          "type": "array",
+          "location": "query",
+          "description": "Terms",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_get",
+      "description": "Retrieves a list of categories with names and IDs for respective stores. Returns array of Category.",
+      "method": "GET",
+      "path": "/categories",
+      "params": []
+    },
+    {
+      "name": "contacts_get-companies",
+      "description": "Retrieves contact details of employees of the selected company. Required: id. Returns array of Company.",
+      "method": "GET",
+      "path": "/contacts/companies/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_get-profiles",
+      "description": "Retrieves a list of employees of the selected company that can be further filtered to include or exclude specific positions. Required: company_id. Optional: page (default: 1), person_not_titles, person_titles. Returns array of Profile.",
+      "method": "POST",
+      "path": "/contacts/profiles",
+      "params": [
+        {
+          "name": "company_id",
+          "type": "string",
+          "location": "body",
+          "description": "Company id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Page"
+        },
+        {
+          "name": "person_not_titles",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Person not titles"
+        },
+        {
+          "name": "person_titles",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Person titles"
+        }
+      ]
+    },
+    {
+      "name": "country-downloads_get",
+      "description": "Internal usage only. Returns array of CountryDownloads.",
+      "method": "GET",
+      "path": "/country_downloads",
+      "params": []
+    },
+    {
+      "name": "dau_get-chart",
+      "description": "Retrieves the number of daily active unique users. If aggregation is set to 'week' or 'month', average DAU for this period will be returned. The API returns data as a list of pairs (arrays with two values). Each pair represents a point in time and a corresponding value. Required: aggregation, countries, store, store_application_id. Optional: date_end, date_start.",
+      "method": "POST",
+      "path": "/dau",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "body",
+          "description": "Aggregation",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "date_end",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "date_start",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "body",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "featuring_get",
+      "description": "Retrieves data on featuring of an application in App Store or Google Play for a specific date. Required: store, store_application_id, country, date. Optional: sort, order, store_version (plus 3 more). Returns array of FeaturingRecord.",
+      "method": "GET",
+      "path": "/featuring",
+      "params": [
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "query",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        },
+        {
+          "name": "store_version",
+          "type": "int",
+          "location": "query",
+          "description": "Available versions of App Store are 2 and 3. For Google Play store version is always 0."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "query",
+          "description": "See [categories section](#tag/categories)"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "type",
+          "type": "array",
+          "location": "query",
+          "description": "1 - Page 2 - Top Banner 3 - Collection 4 - Promo Collection 5 - Banner 6 - Big Banner 7 - Category Link 8 - Article 9 - Video Collection 10 - Medium Collection 11 - Big Collection Type refers to the type of placement retrieved from both Google Play and App Store and grouped based on common parameters"
+        }
+      ]
+    },
+    {
+      "name": "history_get-application",
+      "description": "Retrieves all data for one specific app for the selected period of time. Required: store, store_application_id, country. Optional: aggregation (default: daily), date_from, date_to (plus 1 more). Returns array of Record.",
+      "method": "GET",
+      "path": "/history/application",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Data will be summarized in given period"
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "query",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "query",
+          "description": "See [categories section](#tag/categories)"
+        }
+      ]
+    },
+    {
+      "name": "history_get-applications",
+      "description": "Retrieves data for up to 100 apps for the selected date. The array of app IDs is transmitted to the body with information such as date, aggregation, category, and country/region. All parameters are compulsory except for aggregation and category. Aggregation is daily by default. For any other aggregation values, the date is rounded to the beginning of the time period. Required: application_ids, country, date. Optional: aggregation (default: daily), category_id. Returns array of Record.",
+      "method": "POST",
+      "path": "/history/applications",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "body",
+          "description": "Data will be summarazed in given period"
+        },
+        {
+          "name": "application_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Max 100 items",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "body",
+          "description": "Store categories are set to “Overall” by default. See [categories section](#tag/categories)"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Mininum date is 2015-01-01",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get-dau",
+      "description": "Retrieves dau for a list of applications for a specific date with daily aggregation. Required: application_ids, countries, date. Returns array of DauHistory.",
+      "method": "POST",
+      "path": "/history/dau",
+      "params": [
+        {
+          "name": "application_ids",
+          "type": "array",
+          "location": "body",
+          "description": "List of child application ids",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get-dau-for-united-applications",
+      "description": "Retrieves dau for a list of associated applications for a specific date. Data aggregation is daily. Required: countries, date, store, united_application_ids. Returns array of UnitedApplicationsDauHistory.",
+      "method": "POST",
+      "path": "/history/united-applications-dau",
+      "params": [
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad 5 - All stores",
+          "required": true
+        },
+        {
+          "name": "united_application_ids",
+          "type": "array",
+          "location": "body",
+          "description": "List of united application ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get-mau",
+      "description": "Retrieves mau for a list of applications for a specific date rounded to the beginning of the month. Required: application_ids, countries, date. Returns array of MauHistory.",
+      "method": "POST",
+      "path": "/history/mau",
+      "params": [
+        {
+          "name": "application_ids",
+          "type": "array",
+          "location": "body",
+          "description": "List of child application ids",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get-mau-for-united-applications",
+      "description": "Retrieves mau for a list of associated applications for a specific date. Data aggregation is monthly. The date from a request rounds to the start of month. Required: countries, date, store, united_application_ids. Returns array of UnitedApplicationsMauHistory.",
+      "method": "POST",
+      "path": "/history/united-applications-mau",
+      "params": [
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad 5 - All stores",
+          "required": true
+        },
+        {
+          "name": "united_application_ids",
+          "type": "array",
+          "location": "body",
+          "description": "List of united application ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get-retention",
+      "description": "Retrieves retention data for a list of applications for a specific date. Required: application_ids, country, date. Returns array of RetentionHistory.",
+      "method": "POST",
+      "path": "/history/retention",
+      "params": [
+        {
+          "name": "application_ids",
+          "type": "array",
+          "location": "body",
+          "description": "List of child application ids",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get-session-stats",
+      "description": "Retrieves session stats for a list of applications for a specific date with daily aggregation. Required: application_ids, countries, date. Returns array of SessionStatsHistory.",
+      "method": "POST",
+      "path": "/history/session-stats",
+      "params": [
+        {
+          "name": "application_ids",
+          "type": "array",
+          "location": "body",
+          "description": "List of child application ids",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get-session-stats-for-united-applications",
+      "description": "Retrieves session stats for a list of associated applications for a specific date. Data aggregation is daily. Required: countries, date, store, united_application_ids. Returns array of UnitedApplicationsSessionStatsHistory.",
+      "method": "POST",
+      "path": "/history/united-applications-session-stats",
+      "params": [
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad 5 - All stores",
+          "required": true
+        },
+        {
+          "name": "united_application_ids",
+          "type": "array",
+          "location": "body",
+          "description": "List of united application ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get-united-application",
+      "description": "Retrieves all data for one specific associated app for the selected period of time. Required: store, united_application_id, country. Optional: aggregation (default: daily), date_from, date_to. Returns array of UnitedRecord.",
+      "method": "GET",
+      "path": "/history/united-application",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Data will be summarized in given period"
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad App Store 5...",
+          "required": true
+        },
+        {
+          "name": "united_application_id",
+          "type": "int",
+          "location": "query",
+          "description": "Appmagic internal id of united application",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get-united-applications",
+      "description": "Retrieves data for up to 100 associated apps for the selected date. The set of app IDs is fed into the body with information such as date, aggregation, category, and country/region. All parameters are compulsory except for aggregation and category. Aggregation is daily by default. For any other aggregation values, the date is rounded to the beginning of the time period. Required: date, store, united_application_ids, country. Optional: aggregation (default: daily). Returns array of UnitedRecord.",
+      "method": "GET",
+      "path": "/history/united-applications",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Data will be summarized in given period"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad App Store 5...",
+          "required": true
+        },
+        {
+          "name": "united_application_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Appmagic internal id of united application. Max 100 items",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get-united-retention",
+      "description": "Retrieves retention data for a list of associated applications for a specific date. Required: country, date, store, united_application_ids. Returns array of UnitedRetentionHistory.",
+      "method": "POST",
+      "path": "/history/united-retention",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad 5 - All stores",
+          "required": true
+        },
+        {
+          "name": "united_application_ids",
+          "type": "array",
+          "location": "body",
+          "description": "List of united application ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keywords_get-all",
+      "description": "Retrieves a list of users' keywords. Only available with access to Ad Intelligence. Returns array of string.",
+      "method": "GET",
+      "path": "/keywords/all",
+      "params": []
+    },
+    {
+      "name": "last-date_get",
+      "description": "Retrieves the most recent date for which all metrics (e.g., revenue, downloads) are available in our system. Returns the HandlersLastDateResponse.",
+      "method": "GET",
+      "path": "/last-date",
+      "params": []
+    },
+    {
+      "name": "last-versions_get",
+      "description": "Get a last version. Required: store. Optional: page (default: 1), per_page (default: 1000). Returns array of Version.",
+      "method": "GET",
+      "path": "/last_versions",
+      "params": [
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned per page."
+        }
+      ]
+    },
+    {
+      "name": "live-ops_get",
+      "description": "Events info from LiveOps \u0026 Updates Calendar. Optional: game_name, group_id. Returns array of LiveOps.",
+      "method": "GET",
+      "path": "/live-ops/live-ops",
+      "params": [
+        {
+          "name": "game_name",
+          "type": "string",
+          "location": "query",
+          "description": "Game name"
+        },
+        {
+          "name": "group_id",
+          "type": "string",
+          "location": "query",
+          "description": "Group id unites all appearances of the event that was perceived as the same event by players, even if it has multiple versions. This query parameter is optional."
+        }
+      ]
+    },
+    {
+      "name": "live-ops_get-calendar",
+      "description": "Dates of events and updates from LiveOps \u0026 Updates Calendar. Optional: game_name, date. Returns array of LiveOpsCalendar.",
+      "method": "GET",
+      "path": "/live-ops/live-ops-calendar",
+      "params": [
+        {
+          "name": "game_name",
+          "type": "string",
+          "location": "query",
+          "description": "Game name"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01"
+        }
+      ]
+    },
+    {
+      "name": "live-ops_get-games",
+      "description": "List of games covered in LiveOps \u0026 Updates Calendar. Optional: game_name. Returns array of Game.",
+      "method": "GET",
+      "path": "/live-ops/games",
+      "params": [
+        {
+          "name": "game_name",
+          "type": "string",
+          "location": "query",
+          "description": "Game name"
+        }
+      ]
+    },
+    {
+      "name": "live-ops_get-tags-values",
+      "description": "Retrieves a list of available tag values in /live-ops/live-ops response. Returns the LiveOpsGetTagsValuesResponse.",
+      "method": "GET",
+      "path": "/live-ops/tags-values",
+      "params": []
+    },
+    {
+      "name": "live-ops_get-updates",
+      "description": "Updates info from LiveOps \u0026 Updates Calendar. Optional: game_name, date. Returns array of Update.",
+      "method": "GET",
+      "path": "/live-ops/updates",
+      "params": [
+        {
+          "name": "game_name",
+          "type": "string",
+          "location": "query",
+          "description": "Game name"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01"
+        }
+      ]
+    },
+    {
+      "name": "market-segments_get-cumulative-data",
+      "description": "Retrieves aggregated data for the selected market segment, such as store, country/region, tags, etc., as dynamic variables over time. Required: country, store, tags. Returns the new CumulativeMarketSegmentResponse.",
+      "method": "POST",
+      "path": "/market-segments/cumulative",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad App Store 5...",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mau_get-chart",
+      "description": "Retrieves the number of monthly active unique users. The API returns data as a list of pairs (arrays with two values). Each pair represents a point in time and a corresponding value. Required: countries, store, store_application_id. Optional: date_end, date_start.",
+      "method": "POST",
+      "path": "/mau",
+      "params": [
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "date_end",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "date_start",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "body",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "period-comparison_get-custom-apps",
+      "description": "Returns period-over-period metrics for a specific list of apps identified by their united application IDs. Required: countries, current_period, ids, previous_period, store.",
+      "method": "POST",
+      "path": "/period-comparison/custom-apps",
+      "params": [
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "current-period-from",
+          "wire_name": "current_period.from",
+          "type": "string",
+          "location": "body",
+          "description": "From"
+        },
+        {
+          "name": "current-period-to",
+          "wire_name": "current_period.to",
+          "type": "string",
+          "location": "body",
+          "description": "To"
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Ids",
+          "required": true
+        },
+        {
+          "name": "previous-period-from",
+          "wire_name": "previous_period.from",
+          "type": "string",
+          "location": "body",
+          "description": "From"
+        },
+        {
+          "name": "previous-period-to",
+          "wire_name": "previous_period.to",
+          "type": "string",
+          "location": "body",
+          "description": "To"
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "Store",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "period-comparison_get-last-date",
+      "description": "Returns the most recent date for which period comparison data is available.",
+      "method": "GET",
+      "path": "/period-comparison/last-date",
+      "params": []
+    },
+    {
+      "name": "period-comparison_get-top-apps",
+      "description": "Returns a ranked list of apps with their metrics compared across two time periods. Required: countries, limit, sort_by_field, sort_by_type. Optional: current_downloads_range, current_period, current_revenue_range (plus 5 more).",
+      "method": "POST",
+      "path": "/period-comparison/top-apps",
+      "params": [
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "current-downloads-range-from",
+          "wire_name": "current_downloads_range.from",
+          "type": "int",
+          "location": "body",
+          "description": "From"
+        },
+        {
+          "name": "current-downloads-range-to",
+          "wire_name": "current_downloads_range.to",
+          "type": "int",
+          "location": "body",
+          "description": "To"
+        },
+        {
+          "name": "current-period-from",
+          "wire_name": "current_period.from",
+          "type": "string",
+          "location": "body",
+          "description": "From"
+        },
+        {
+          "name": "current-period-to",
+          "wire_name": "current_period.to",
+          "type": "string",
+          "location": "body",
+          "description": "To"
+        },
+        {
+          "name": "current-revenue-range-from",
+          "wire_name": "current_revenue_range.from",
+          "type": "int",
+          "location": "body",
+          "description": "From"
+        },
+        {
+          "name": "current-revenue-range-to",
+          "wire_name": "current_revenue_range.to",
+          "type": "int",
+          "location": "body",
+          "description": "To"
+        },
+        {
+          "name": "hide_without_previous_value",
+          "type": "bool",
+          "location": "body",
+          "description": "Hide without previous value"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Limit",
+          "required": true
+        },
+        {
+          "name": "only_new_in_current_period",
+          "type": "bool",
+          "location": "body",
+          "description": "Only new in current period"
+        },
+        {
+          "name": "previous-period-from",
+          "wire_name": "previous_period.from",
+          "type": "string",
+          "location": "body",
+          "description": "From"
+        },
+        {
+          "name": "previous-period-to",
+          "wire_name": "previous_period.to",
+          "type": "string",
+          "location": "body",
+          "description": "To"
+        },
+        {
+          "name": "sort_by_field",
+          "type": "string",
+          "location": "body",
+          "description": "Sort by field",
+          "required": true
+        },
+        {
+          "name": "sort_by_type",
+          "type": "string",
+          "location": "body",
+          "description": "Sort by type",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "Store"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        }
+      ]
+    },
+    {
+      "name": "publishers_get",
+      "description": "Retrieves publishers by their names or name prefixes. Required: search. Optional: limit (default: 100), offset (default: 0). Returns array of Publisher.",
+      "method": "GET",
+      "path": "/publishers",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search queries. Search queries are based on prefixes. For example, you will find “Fortnite”...",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset is the position in the dataset of a particular record."
+        }
+      ]
+    },
+    {
+      "name": "publishers_get-store",
+      "description": "Retrieves publishers by their store IDs. Required: store (default: 1), store_publisher_id. Returns the Publisher.",
+      "method": "GET",
+      "path": "/publishers/{store}/{store_publisher_id}",
+      "params": [
+        {
+          "name": "store",
+          "type": "int",
+          "location": "path",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_publisher_id",
+          "type": "string",
+          "location": "path",
+          "description": "Publisher id in store, for example `VOODOO` or `714804730`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "publishers_applications_get-publisher",
+      "description": "Retrieves a list of apps by the selected publisher. Required: store (default: 1), store_publisher_id. Optional: size, offset (default: 0). Returns array of Application.",
+      "method": "GET",
+      "path": "/publishers/{store}/{store_publisher_id}/applications",
+      "params": [
+        {
+          "name": "store",
+          "type": "int",
+          "location": "path",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_publisher_id",
+          "type": "string",
+          "location": "path",
+          "description": "Publisher id in store, for example `VOODOO` or `714804730`",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset is the position in the dataset of a particular record. By specifying offset, you retrieve a subset of records starting with the offset value. Offset normally works with size, which determines how many records to retrieve starting from the offset. The maximum limit is 10,000 records."
+        }
+      ]
+    },
+    {
+      "name": "retention_get-data",
+      "description": "Deprecated.Use /retention-v2 instead. Required: countries, date_end, date_start, store, store_application_id. Returns the new ApplicationRetention.",
+      "method": "POST",
+      "path": "/retention",
+      "params": [
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "date_end",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "date_start",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "body",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "retention-v2_get-retention-data-v2",
+      "description": "Retrieves application retention data for 1, 7, 14, 30, 60, 90, 180 and 360 days periods. Retention reflects the classic retention metric (the share of users to run the app again the next day/week/2 weeks/month/...), estimated as an average for users from the weekly installation cohort. Required: country, date_end, date_start, store, store_application_id. Returns the new ApplicationRetention.",
+      "method": "POST",
+      "path": "/retention-v2",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "date_end",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "date_start",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "body",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sdkint_get-app-sdks",
+      "description": "Retrieves a list of SDKs for the app by its ID as parameter. Required: store, store_application_id. Returns array of Sdk.",
+      "method": "GET",
+      "path": "/sdkint/sdks",
+      "params": [
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "store_application_id",
+          "type": "string",
+          "location": "query",
+          "description": "Application id in store, for example `com.helixload.syxme.vkmp`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sdkint_get-apps-by-sdk-changes",
+      "description": "Retrieves a list of apps that added or removed the selected SDKs over the specified period of time. The search can be narrowed down to a pre-transmitted array of app IDs. Required: date_from, date_to. Optional: added_sdks, application_ids, limit (default: 1000) (plus 2 more). Returns array of ApplicationId.",
+      "method": "POST",
+      "path": "/sdkint/applications/changed",
+      "params": [
+        {
+          "name": "added_sdks",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Added sdks"
+        },
+        {
+          "name": "application_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Application ids"
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "body",
+          "description": "Date from",
+          "required": true
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "body",
+          "description": "Date to",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Offset"
+        },
+        {
+          "name": "removed_sdks",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Removed sdks"
+        }
+      ]
+    },
+    {
+      "name": "sdkint_get-apps-by-sdks",
+      "description": "Retrieves a list of apps that do or do not have the selected SDKs. The search can be narrowed down to a pre-transmitted array of app IDs. Required: using_sdks. Optional: application_ids, limit (default: 1000), not_using_sdks (plus 1 more). Returns array of ApplicationId.",
+      "method": "POST",
+      "path": "/sdkint/applications",
+      "params": [
+        {
+          "name": "application_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Application ids"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Limit"
+        },
+        {
+          "name": "not_using_sdks",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Not using sdks"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Offset"
+        },
+        {
+          "name": "using_sdks",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Using sdks",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sdkint_get-pubs-by-sdks",
+      "description": "Retrieves a list of publishers that do or do not have the selected SDKs. The search can be narrowed down to a pre-transmitted array of publisher IDs. Required: using_sdks. Optional: limit (default: 1000), not_using_sdks, offset (default: 0) (plus 1 more). Returns array of PublisherId.",
+      "method": "POST",
+      "path": "/sdkint/publishers",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Limit"
+        },
+        {
+          "name": "not_using_sdks",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Not using sdks"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Offset"
+        },
+        {
+          "name": "publisher_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Publisher ids"
+        },
+        {
+          "name": "using_sdks",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Using sdks",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sdkint_get-sdks",
+      "description": "Retrieves a list of all the SDKs in our system. Returns array of Sdk.",
+      "method": "GET",
+      "path": "/sdkint/sdks/all",
+      "params": []
+    },
+    {
+      "name": "session-stats_get-applications",
+      "description": "Retrieves information about session length and average number of sessions for specified applications. Required: aggregation, countries, store, store_application_ids. Returns array of SessionStats.",
+      "method": "POST",
+      "path": "/session-stats",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "body",
+          "description": "Aggregation",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad 5 - All stores",
+          "required": true
+        },
+        {
+          "name": "store_application_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "To retrieve data for the united application, you need to provide all store application IDs for this application. To retrieve data for a child application, you need to provide the store application ID for that specific application.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "steam_get-app-info",
+      "description": "Steam app info. Required: app_id, country. Returns the SteamAppInfo.",
+      "method": "GET",
+      "path": "/steam/app/info",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "int",
+          "location": "query",
+          "description": "App id",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Country",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "steam_get-app-metrics-by-countries",
+      "description": "Retrieves metrics (downloads and revenue) by countries for a specific Steam application. Required: app_id. Returns the SteamAppMetricsByCountriesResponse.",
+      "method": "GET",
+      "path": "/steam/app/metrics-by-countries",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "int",
+          "location": "query",
+          "description": "Steam application id from the store.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "steam_get-categories",
+      "description": "Retrieves category values for steam applications. Returns array of SteamCategory.",
+      "method": "GET",
+      "path": "/steam/categories",
+      "params": []
+    },
+    {
+      "name": "steam_get-genres",
+      "description": "Retrieves genre values for steam applications. Returns array of SteamGenre.",
+      "method": "GET",
+      "path": "/steam/genres",
+      "params": []
+    },
+    {
+      "name": "steam_get-last-date",
+      "description": "Retrieves the most recent date for which steam data is available in our system. Returns the LastDate.",
+      "method": "GET",
+      "path": "/steam/last-date",
+      "params": []
+    },
+    {
+      "name": "steam_get-metrics-chart",
+      "description": "Steam metrics chart. Required: countries. Optional: aggregation, app_id. Returns array of SteamMetricsChartRow.",
+      "method": "POST",
+      "path": "/steam/charts/metrics",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "body",
+          "description": "Aggregation"
+        },
+        {
+          "name": "app_id",
+          "type": "int",
+          "location": "body",
+          "description": "App id"
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "steam_get-retention-chart",
+      "description": "Steam retention chart. Required: countries. Optional: aggregation, app_id. Returns array of SteamRetentionChartRow.",
+      "method": "POST",
+      "path": "/steam/charts/retention",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "body",
+          "description": "Aggregation"
+        },
+        {
+          "name": "app_id",
+          "type": "int",
+          "location": "body",
+          "description": "App id"
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "steam_get-tags",
+      "description": "Retrieves tag values for steam applications. Returns array of SteamTag.",
+      "method": "GET",
+      "path": "/steam/tags",
+      "params": []
+    },
+    {
+      "name": "steam_get-top",
+      "description": "Retrieves the list of top free, top grossing and top wishlisted applications for the specified country and date. Required: aggregation, country, date. Optional: category_ids, genre_ids, limit (default: 100) (plus 1 more). Returns the HandlersGetSteamTopResp.",
+      "method": "GET",
+      "path": "/steam/top",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Aggregation",
+          "required": true
+        },
+        {
+          "name": "category_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by category IDs. For available category IDs see /steam/categories"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Country",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date for which to retrieve the top data. See /steam/last-date for the most recent available date.",
+          "required": true
+        },
+        {
+          "name": "genre_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by genre IDs. For available genre IDs see /steam/genres"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to return"
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by tag IDs. For available tag IDs see /steam/tags"
+        }
+      ]
+    },
+    {
+      "name": "steam_get-united-apps",
+      "description": "Steam united apps. Optional: app_id. Returns the HandlersGetUnitedAppsResponse.",
+      "method": "GET",
+      "path": "/steam/app/united",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "array",
+          "location": "query",
+          "description": "App id"
+        }
+      ]
+    },
+    {
+      "name": "steam_get-user-activity-chart",
+      "description": "Steam user activity chart. Required: countries. Optional: aggregation, app_id. Returns array of SteamUserActivityChartRow.",
+      "method": "POST",
+      "path": "/steam/charts/user-activity",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "body",
+          "description": "Aggregation"
+        },
+        {
+          "name": "app_id",
+          "type": "int",
+          "location": "body",
+          "description": "App id"
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "steam_get-wishlist-chart",
+      "description": "Steam wishlist chart. Required: countries. Optional: aggregation, app_id. Returns array of SteamWishlistChartRow.",
+      "method": "POST",
+      "path": "/steam/charts/wishlist",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "body",
+          "description": "Aggregation"
+        },
+        {
+          "name": "app_id",
+          "type": "int",
+          "location": "body",
+          "description": "App id"
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_get",
+      "description": "Retrieves a list of all our tags. Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags",
+      "params": []
+    },
+    {
+      "name": "tops_advanced-search",
+      "description": "Retrieves search results by multiple criteria, including keywords in both app names and descriptions, release dates and periods, threshold metric values, etc. Required: release_date_gte, release_date_lte, country, store, size, sort. Optional: offset (default: 0), search_operator (default: OR), screenshots (default: false) (plus 17 more). Returns array of AdvancedSearchRecord.",
+      "method": "GET",
+      "path": "/tops/advanced-search",
+      "params": [
+        {
+          "name": "release_date_gte",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2008-01-01",
+          "required": true
+        },
+        {
+          "name": "release_date_lte",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2008-01-01",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad App Store 5...",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset is the position in the dataset of a particular record. By specifying offset, you retrieve a subset of records starting with the offset value. Offset normally works with size, which determines how many records to retrieve starting from the offset. The maximum limit is 10,000 records."
+        },
+        {
+          "name": "search_operator",
+          "type": "string",
+          "location": "query",
+          "description": "Operator, how to match app name and description when searching"
+        },
+        {
+          "name": "screenshots",
+          "type": "bool",
+          "location": "query",
+          "description": "Screenshots"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Use query building commands as conjunctions to combine or exclude keywords in a search: word1 AND word2 returns results with both keywords included; word1 OR word2 returns results with either (or both) keywords included; NOT word1 excludes any results containing the keyword it precedes; 'word1 word2' combines two or more keywords into one exact phrase to search for it specifically."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "query",
+          "description": "Use query building commands as conjunctions to combine or exclude keywords in a search: word1 AND word2 returns results with both keywords included; word1 OR word2 returns results with either (or both) keywords included; NOT word1 excludes any results containing the keyword it precedes; 'word1 word2' combines two or more keywords into one exact phrase to search for it specifically."
+        },
+        {
+          "name": "revenue_from",
+          "type": "int",
+          "location": "query",
+          "description": "range revenue from"
+        },
+        {
+          "name": "revenue_to",
+          "type": "int",
+          "location": "query",
+          "description": "range revenue to"
+        },
+        {
+          "name": "downloads_from",
+          "type": "int",
+          "location": "query",
+          "description": "range downloads from"
+        },
+        {
+          "name": "downloads_to",
+          "type": "int",
+          "location": "query",
+          "description": "range downloads to"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Type of a top",
+          "required": true
+        },
+        {
+          "name": "sort_asc",
+          "type": "bool",
+          "location": "query",
+          "description": "Sort asc"
+        },
+        {
+          "name": "has_web_shop",
+          "type": "bool",
+          "location": "query",
+          "description": "Has web shop"
+        },
+        {
+          "name": "paid",
+          "type": "bool",
+          "location": "query",
+          "description": "Paid"
+        },
+        {
+          "name": "pre_order",
+          "type": "bool",
+          "location": "query",
+          "description": "Pre order"
+        },
+        {
+          "name": "contains_ads",
+          "type": "bool",
+          "location": "query",
+          "description": "Contains ads"
+        },
+        {
+          "name": "has_in_app_purchases",
+          "type": "bool",
+          "location": "query",
+          "description": "Has in app purchases"
+        },
+        {
+          "name": "removed",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by removed from store status. True returns only apps removed from store, false returns only active apps."
+        },
+        {
+          "name": "category_ids",
+          "type": "array",
+          "location": "query",
+          "description": "See [categories section](#tag/categories)"
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Tag ids"
+        },
+        {
+          "name": "publisherPlace",
+          "type": "int",
+          "location": "query",
+          "description": "Topmost publishers based on the sum of revenue and downloads in the last 30 days."
+        },
+        {
+          "name": "publisher_hq",
+          "type": "array",
+          "location": "query",
+          "description": "Publisher hq"
+        }
+      ]
+    },
+    {
+      "name": "tops_get-applications",
+      "description": "Retrieves data on any app Top Chart (top free, top grossing, top featuring) for any country/region and date. Top Charts are comprised of native apps only (AppStore and Google Play); however, as opposed to native store charts, you can customize your aggregation dates. Required: sort, store, country, date. Optional: aggregation (default: daily), category_id, limit (default: 100) (plus 1 more). Returns array of Record.",
+      "method": "GET",
+      "path": "/tops/application",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Data will be summarized in given period"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Type of a top",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "query",
+          "description": "See [categories section](#tag/categories)"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "tag_id",
+          "type": "array",
+          "location": "query",
+          "description": "Tag id"
+        }
+      ]
+    },
+    {
+      "name": "tops_get-apps",
+      "description": "Retrieves data on any app Top Chart (top free, top grossing, top featuring) for any country/region and date. Top Charts are comprised of native apps only (AppStore and Google Play); however, as opposed to native store charts, you can customize your aggregation dates. The value in the response represents the corresponding metric for each chart: revenue for Top Grossing, number of downloads for Top Free and featuring score for Top Featuring. Required: country, date, sort, store. Optional: aggregation (default: daily), category_id, limit (default: 100) (plus 1 more). Returns array of ModelsApplicationTopRecord.",
+      "method": "GET",
+      "path": "/tops/applications",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Data will be summarazed in given period"
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "query",
+          "description": "See [categories section](#tag/categories)"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Type of a top",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market, 2 - iPhone App Store, 3 - iPad App Store",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "array",
+          "location": "query",
+          "description": "Tag id filter"
+        }
+      ]
+    },
+    {
+      "name": "tops_get-ltv",
+      "description": "Get ltv. Required: store, country. Optional: tag_ids, limit (default: 100). Returns array of TopLtvRecord.",
+      "method": "GET",
+      "path": "/tops/ltv",
+      "params": [
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Tag ids"
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad App Store 5...",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tops_get-publishers",
+      "description": "Retrieves data on any publisher Top Chart (top free, top grossing, top featuring) for any country/region and any date. Top Charts are comprised of native apps only (AppStore and Google Play); however, as opposed to native store charts, you can customize your aggregation dates. Required: date, store, aggregation, countries, sort. Optional: tag_ids, headquarters, limit (default: 100). Returns array of PublisherTopRecord.",
+      "method": "GET",
+      "path": "/tops/publishers",
+      "params": [
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad App Store 5...",
+          "required": true
+        },
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Data will be summarized in given period",
+          "required": true
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Tag ids"
+        },
+        {
+          "name": "headquarters",
+          "type": "array",
+          "location": "query",
+          "description": "Headquarters"
+        },
+        {
+          "name": "countries",
+          "type": "array",
+          "location": "query",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Type of a top",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tops_get-soft-launches",
+      "description": "Retrieves a list of apps for the selected genre that are currently in their soft launch stage and were launched in the specified time period; you can add and remove apps. The 'only_global_publisher' parameter filters out apps launched by publishers with no other apps in their portfolios. Required: date_from, date_to, include_countries, store, sort. Optional: exclude_countries, category_ids, only_global_publisher (plus 3 more). Returns array of SoftLaunchesRecord.",
+      "method": "GET",
+      "path": "/tops/soft-launches",
+      "params": [
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "include_countries",
+          "type": "array",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "exclude_countries",
+          "type": "array",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)"
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad App Store 5...",
+          "required": true
+        },
+        {
+          "name": "category_ids",
+          "type": "array",
+          "location": "query",
+          "description": "See [categories section](#tag/categories)"
+        },
+        {
+          "name": "only_global_publisher",
+          "type": "bool",
+          "location": "query",
+          "description": "Worldwide publishers only."
+        },
+        {
+          "name": "top_publisher",
+          "type": "int",
+          "location": "query",
+          "description": "Publisher rank."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by downloads/revenue soft-launches.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Tag ids"
+        }
+      ]
+    },
+    {
+      "name": "tops_get-trending",
+      "description": "Retrieves a list of apps that have ranked up in the selected top chart for the selected country (or WW) over the specified time period. Use the 'new_only' parameter to additionally filter out apps that were released earlier or later than the specified time period. Required: store, type, country, date_from, date_to. Optional: limit (default: 100), depth (default: 10000), method (default: gainers) (plus 5 more). Returns array of TrendingRecord.",
+      "method": "GET",
+      "path": "/tops/trending",
+      "params": [
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad App Store 5...",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of a top",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "depth",
+          "type": "int",
+          "location": "query",
+          "description": "Top app analysis limit."
+        },
+        {
+          "name": "method",
+          "type": "string",
+          "location": "query",
+          "description": "Type of a top"
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Tag ids"
+        },
+        {
+          "name": "category_ids",
+          "type": "array",
+          "location": "query",
+          "description": "See [categories section](#tag/categories)"
+        },
+        {
+          "name": "headquarter",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha-2 country code"
+        },
+        {
+          "name": "new_only",
+          "type": "bool",
+          "location": "query",
+          "description": "Apps that were either released in the specified time period in the selected country and/or apps that had not been previously featured in the top 10K."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "query",
+          "description": "Show All, games only or apps only"
+        }
+      ]
+    },
+    {
+      "name": "tops_get-united-applications",
+      "description": "Retrieves data on any associated app Top Chart (top free, top grossing, top featuring) for any country/region and date.You can customize your aggregation dates. Required: sort, store, country, date. Optional: aggregation (default: daily), limit (default: 100), tag_id. Returns array of UnitedRecord.",
+      "method": "GET",
+      "path": "/tops/united-application",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Data will be summarized in given period"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Type of a top",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad App Store 5...",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "tag_id",
+          "type": "array",
+          "location": "query",
+          "description": "Tag id"
+        }
+      ]
+    },
+    {
+      "name": "tops_get-united-apps",
+      "description": "Retrieves data on any associated app Top Chart (top free, top grossing, top featuring) for any country/region and date.You can customize your aggregation dates. Required: sort, store, country, date. Optional: aggregation (default: daily), limit (default: 100), tag_id. Returns array of UnitedApplicationTopRecord.",
+      "method": "GET",
+      "path": "/tops/united-applications",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Data will be summarazed in given period"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Type of a top",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "query",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad App Store 5...",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "tag_id",
+          "type": "array",
+          "location": "query",
+          "description": "Tag id"
+        }
+      ]
+    },
+    {
+      "name": "united-applications_get",
+      "description": "Retrieves the App Info data for the associated apps searched by their names or name prefixes. Required: search. Optional: limit (default: 100), offset (default: 0). Returns array of UnitedApplication.",
+      "method": "GET",
+      "path": "/united-applications",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search queries. Search queries are based on prefixes. For example, you will find “Fortnite”...",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset is the position in the dataset of a particular record."
+        }
+      ]
+    },
+    {
+      "name": "united-applications_get-by-app-ids",
+      "description": "Retrieves the App Info data for the associated apps identified by their store IDs. Returns array of UnitedApplication.",
+      "method": "POST",
+      "path": "/united-applications/search-by-app-ids",
+      "params": []
+    },
+    {
+      "name": "united-applications_get-by-ids",
+      "description": "Retrieves the App Info data for the array of associated apps with our internal IDs. Returns array of UnitedApplication.",
+      "method": "POST",
+      "path": "/united-applications/search-by-ids",
+      "params": []
+    },
+    {
+      "name": "united-applications_get-unitedapplications",
+      "description": "Retrieves the App Info data for the associated app with our internal ID. Required: id. Returns the UnitedApplication.",
+      "method": "GET",
+      "path": "/united-applications/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "united-applications_data-countries_get-united-application",
+      "description": "Retrieves data on revenue and downloads for the selected app broken down by country/region. Required: id. Returns array of DataCountriesRecord.",
+      "method": "GET",
+      "path": "/united-applications/{id}/data-countries",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "united-applications_ltv_get-united-application",
+      "description": "Get united application. Required: id. Returns array of UnitedApplicationsLtvRecord.",
+      "method": "GET",
+      "path": "/united-applications/{id}/ltv",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "united-dau_get-chart",
+      "description": "Retrieves the number of daily active unique users for a united application. If aggregation is set to 'week' or 'month', average DAU for this period will be returned. The API returns data as a list of pairs (arrays with two values). Each pair represents a point in time and a corresponding value. Required: aggregation, countries, store, united_application_id. Optional: date_end, date_start.",
+      "method": "POST",
+      "path": "/united-dau",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "body",
+          "description": "Aggregation",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "date_end",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "date_start",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad 5 - All stores",
+          "required": true
+        },
+        {
+          "name": "united_application_id",
+          "type": "int",
+          "location": "body",
+          "description": "Appmagic internal id of united application",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "united-mau_get-chart",
+      "description": "Retrieves the number of monthly active unique users for a united application. The API returns data as a list of pairs (arrays with two values). Each pair represents a point in time and a corresponding value. Required: countries, store, united_application_id. Optional: date_end, date_start.",
+      "method": "POST",
+      "path": "/united-mau",
+      "params": [
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "date_end",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "date_start",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01"
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad 5 - All stores",
+          "required": true
+        },
+        {
+          "name": "united_application_id",
+          "type": "int",
+          "location": "body",
+          "description": "Appmagic internal id of united application",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "united-publishers_get",
+      "description": "Retrieves associated publishers by their names or name prefixes. Required: search. Optional: limit (default: 100), offset (default: 0). Returns array of UnitedPublisher.",
+      "method": "GET",
+      "path": "/united-publishers",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search queries. Search queries are based on prefixes. For example, you will find “Fortnite”...",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The number of items returned."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset is the position in the dataset of a particular record."
+        }
+      ]
+    },
+    {
+      "name": "united-publishers_get-by-ids",
+      "description": "Retrieves a set of identified associated publishers based on the array of our internal IDs. Returns array of UnitedPublisher.",
+      "method": "POST",
+      "path": "/united-publishers/search-by-ids",
+      "params": []
+    },
+    {
+      "name": "united-publishers_get-lifetime-data",
+      "description": "Retrieves lifetime revenue and downloads for the selected associated publisher in the specified country/region (or WW). The search is carried out by their IDs and can include more than one publisher at the same time. Required: united_publisher_ids, countries. Returns array of UnitedPublisherLifetimeData.",
+      "method": "GET",
+      "path": "/united-publishers/lifetime-data",
+      "params": [
+        {
+          "name": "united_publisher_ids",
+          "type": "array",
+          "location": "query",
+          "description": "United publisher ids",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "type": "array",
+          "location": "query",
+          "description": "Countries",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "united-publishers_get-unitedpublishers",
+      "description": "Retrieves an identified associated publisher based on our internal ID. Required: id. Returns the UnitedPublisher.",
+      "method": "GET",
+      "path": "/united-publishers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "united-publishers_data-countries_get-united-publisher",
+      "description": "Retrieves data on revenue and downloads for the selected publisher broken down by country/region. Required: id. Returns array of DataCountriesRecord.",
+      "method": "GET",
+      "path": "/united-publishers/{id}/data-countries",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "united-publishers_united-applications_get-united-publisher",
+      "description": "Retrieves a list of all associated apps for the selected publisher with their lifetime revenues and downloads. Required: id. Returns array of UnitedApplication.",
+      "method": "GET",
+      "path": "/united-publishers/{id}/united-applications",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "united-retention_get-data",
+      "description": "Deprecated.Use /united-retention-v2 instead. Required: countries, date_end, date_start, store, united_application_id. Returns the new ApplicationRetention.",
+      "method": "POST",
+      "path": "/united_retention",
+      "params": [
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Countries",
+          "required": true
+        },
+        {
+          "name": "date_end",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "date_start",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad 5 - All stores",
+          "required": true
+        },
+        {
+          "name": "united_application_id",
+          "type": "int",
+          "location": "body",
+          "description": "Appmagic internal id of united application",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "united-retention-v2_get-united-retention-data-v2",
+      "description": "Retrieves retention data for 1, 7, 14, 30, 60, 90, 180 and 360 days periods for an associated app. Retention reflects the classic retention metric (the share of users to run the app again the next day/week/2 weeks/month), estimated as an average for users from the weekly installation cohort. Required: country, date_end, date_start, store, united_application_id. Returns the new ApplicationRetention.",
+      "method": "POST",
+      "path": "/united-retention-v2",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "See [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "date_end",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "date_start",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum date is 2015-01-01",
+          "required": true
+        },
+        {
+          "name": "store",
+          "type": "int",
+          "location": "body",
+          "description": "1 - Google Play Market 2 - iPhone App Store 3 - iPad App Store 4 - iPhone + iPad 5 - All stores",
+          "required": true
+        },
+        {
+          "name": "united_application_id",
+          "type": "int",
+          "location": "body",
+          "description": "Appmagic internal id of united application",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "web-shop-revenue_get-chart",
+      "description": "Returns D2C (web shop) revenue chart data for a single application. Same as D2C revenue in Appmagic. Required: aggregation, countries, united_application_id.",
+      "method": "POST",
+      "path": "/web-shop-revenue",
+      "params": [
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "body",
+          "description": "Aggregation period for the time series.",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Reliable figures are available for US, DE, GB, ES, FR, IT. All other regional data are rough estimates. For the full list of countries see [available countries](#tag/available-countries)",
+          "required": true
+        },
+        {
+          "name": "united_application_id",
+          "type": "int",
+          "location": "body",
+          "description": "United application ID",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

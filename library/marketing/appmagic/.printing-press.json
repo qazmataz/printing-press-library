@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-10T10:04:28.664304Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "appmagic",
+  "display_name": "AppMagic",
+  "cli_name": "appmagic-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "Hamza Qazi"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "Hamza Qazi",
+  "spec_path": "appmagic-openapi3.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:e81d66d9ff6360a49ce2e16d5c963915f36bb32e2b5ec0920d1478bab9b852fa",
+  "run_id": "20260610-094753-319aefaa",
+  "category": "marketing",
+  "description": "Every AppMagic API operation as a typed command, plus the chart history, computed deltas, and entitlement awareness that no other AppMagic tool has.",
+  "mcp_binary": "appmagic-pp-mcp",
+  "mcp_tool_count": 117,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "APPMAGIC_LOGIN",
+    "APPMAGIC_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "Retention benchmark",
+      "command": "retention-benchmark",
+      "description": "See whether an app's retention curve is normal for its genre by comparing it against the cohort median of its tag."
+    },
+    {
+      "name": "Chart diff",
+      "command": "chart-diff",
+      "description": "See who entered, dropped, or moved in any top chart between two synced snapshots."
+    },
+    {
+      "name": "Soft-launch radar",
+      "command": "soft-launch-radar",
+      "description": "Find newly detected soft-launch titles with first-seen dates per test market."
+    },
+    {
+      "name": "Entitlements probe",
+      "command": "entitlements",
+      "description": "Discover exactly which AppMagic endpoint groups your contract includes, before a bare 403 surprises you."
+    },
+    {
+      "name": "Competitor watchlist report",
+      "command": "watchlist report",
+      "description": "Pull downloads, revenue, and retention for your saved competitor set in one side-by-side table."
+    },
+    {
+      "name": "Tag rollup",
+      "command": "tag-rollup",
+      "description": "Aggregate market size (summed downloads or revenue) across one or more genre tags."
+    },
+    {
+      "name": "ASO movers",
+      "command": "aso-movers",
+      "description": "See which keywords an app gained, lost, or moved on between two dates."
+    },
+    {
+      "name": "Live-ops overlay",
+      "command": "liveops-overlay",
+      "description": "Correlate a competitor's live-ops events with their revenue and download movement."
+    },
+    {
+      "name": "Web: monetization offers",
+      "command": "web offers",
+      "description": "Browse AppMagic's in-game IAP offer library (structure, duration, pricing) from the web app's Monetization Intelligence module."
+    },
+    {
+      "name": "Web: hourly top charts",
+      "command": "web hourly-tops",
+      "description": "Intraday top-chart rankings with rank-change diffs from the web app surface."
+    },
+    {
+      "name": "Web: live-ops tag counts",
+      "command": "web liveops-tags",
+      "description": "Market-level counts of live-ops events grouped by tag for a store and country."
+    },
+    {
+      "name": "Web: tag app counts",
+      "command": "web tag-counts",
+      "description": "Number of apps per taxonomy tag for market-niche sizing."
+    }
+  ]
+}

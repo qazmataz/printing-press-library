@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-06-10",
+  "base_run_id": "20260610-094753-319aefaa",
+  "base_printing_press_version": "4.24.0",
+  "id": "appmagic-sqlite-pragma-order",
+  "summary": "Reordered the read-write SQLite DSN so busy_timeout precedes journal_mode, matching OpenReadOnly.",
+  "reason": "Pragmas execute in DSN order; the WAL switch on a fresh database ran before any busy timeout was set, losing first-run races under parallel command invocation (observed as SQLITE_BUSY in the scorecard sampler).",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "Parallel first-run invocations no longer hit SQLITE_BUSY; full test suite green."
+}

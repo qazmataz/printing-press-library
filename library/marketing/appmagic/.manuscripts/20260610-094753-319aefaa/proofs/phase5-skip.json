@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "appmagic",
+  "run_id": "20260610-094753-319aefaa",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": false,
+    "browser_session_available": false
+  },
+  "note": "AppMagic's official API uses HTTP Basic (account login:password via APPMAGIC_LOGIN/APPMAGIC_PASSWORD); the operator explicitly declined to use any company credential for this clean-room build, and the web tier's APPMAGIC_WEB_TOKEN is likewise unavailable. The CLI was verified against exit codes, mocks, dry-run, and 191 structural checks; live behavioral proof awaits a credentialed user."
+}

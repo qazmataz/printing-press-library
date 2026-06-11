@@ -1,0 +1,15 @@
+
+Gaps:
+  - insight scored 4/10 - needs improvement
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         15.588s
+  validate-narrative  PASS    0         233ms
+  dogfood           PASS    0         3.754s
+  workflow-verify   PASS    0         16ms
+  verify-skill      PASS    0         8.381s
+  scorecard         PASS    0         6.474s
+
+Verdict: PASS (6/6 legs passed)

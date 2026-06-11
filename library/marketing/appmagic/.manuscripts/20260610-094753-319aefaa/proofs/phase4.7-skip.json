@@ -1,0 +1,1 @@
+{"phase": "4.7-sync-param-drop", "decision": "skip", "reason": "no traffic-analysis.json: spec came from the official vendor OpenAPI, browser-sniff was declined for the official surface; web-tier shapes come from operator-authored docs, not capture"}
