@@ -331,7 +331,7 @@ func (c *Client) parse(body []byte, p SearchParams) (*SearchResult, bool, bool, 
 	if n, err := strconv.Atoi(raw.Data.Data.OFFER.Found); err == nil {
 		result.Total = n
 	}
-	now := time.Now().UTC().Format(time.RFC3339)
+	now := time.Now().UTC().Format(time.RFC3339Nano)
 	for _, it := range raw.Data.Data.OFFER.Items {
 		if it.CellType != "smart_ui_offer" || len(it.Data) == 0 {
 			continue

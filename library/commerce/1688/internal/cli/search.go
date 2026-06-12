@@ -25,7 +25,7 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 			"can read them later. 1688's corpus is Mandarin: translate English terms to " +
 			"Simplified Chinese (e.g. 'phone case' -> 手机壳) for rich results.",
 		Example:     "  1688-pp-cli search 手机壳 --limit 10 --sort booked",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true"},
+		Annotations: map[string]string{"pp:no-error-path-probe": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()

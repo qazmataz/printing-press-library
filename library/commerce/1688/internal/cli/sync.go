@@ -23,7 +23,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Fetch 1688 offers for a keyword into the local store (builds drift history)",
 		Long:        "Page through live search results for a keyword and persist offers, suppliers, and price/reorder snapshots into the local store. Run repeatedly over time to build the history that drift, watch, and the ranking commands read.",
 		Example:     "  1688-pp-cli sync 手机壳 --max-pages 3",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true"},
+		Annotations: map[string]string{"pp:no-error-path-probe": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()

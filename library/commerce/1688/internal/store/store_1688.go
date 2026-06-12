@@ -25,6 +25,10 @@ type OfferSnapshot struct {
 // Ensure1688Schema lazily creates the snapshot table. Cheap to call on every
 // command entry (CREATE TABLE IF NOT EXISTS is a no-op once present).
 func (s *Store) Ensure1688Schema(ctx context.Context) error {
+	// Serialize through the store's write mutex like every other writer in
+	// this package (CREATE TABLE is a write).
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	_, err := s.DB().ExecContext(ctx, `CREATE TABLE IF NOT EXISTS offer_snapshots (
 		offer_id TEXT NOT NULL,
 		synced_at TEXT NOT NULL,
@@ -43,6 +47,10 @@ func (s *Store) InsertOfferSnapshot(ctx context.Context, snap OfferSnapshot) err
 	if err := s.Ensure1688Schema(ctx); err != nil {
 		return err
 	}
+	// Hold the store write mutex for the insert, matching the package's
+	// write-serialization contract (Ensure1688Schema locked/unlocked above).
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	_, err := s.DB().ExecContext(ctx,
 		`INSERT OR IGNORE INTO offer_snapshots (offer_id, synced_at, keyword, price_cny, repurchase_pct, booked_count)
 		 VALUES (?, ?, ?, ?, ?, ?)`,

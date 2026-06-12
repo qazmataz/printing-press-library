@@ -39,7 +39,7 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Re-run a saved search, store a fresh snapshot, and print only what changed since last run",
 		Long:        "Re-sync a keyword live, persist a fresh snapshot, and report only the delta versus the last run: offers whose price/reorder-rate/transactions moved, plus newly appeared offers. Use 'drift' instead to read existing snapshot history without a fresh fetch.",
 		Example:     "  1688-pp-cli watch 手机壳",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true"},
+		Annotations: map[string]string{"pp:no-error-path-probe": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
